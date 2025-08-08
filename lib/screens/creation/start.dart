@@ -1,10 +1,12 @@
+import 'dart:ui';
+import 'package:Satsails/screens/creation/components/logo.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import './components/logo.dart';
 import 'package:Satsails/translations/translations.dart';
+import 'package:video_player/video_player.dart';
 
 class Start extends ConsumerStatefulWidget {
   const Start({super.key});
@@ -13,205 +15,166 @@ class Start extends ConsumerStatefulWidget {
   _StartState createState() => _StartState();
 }
 
-class _StartState extends ConsumerState<Start>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _logoOpacity;
-  late Animation<double> _logoScale;
-  late Animation<Offset> _logoOffset;
-  late Animation<double> _textOpacity;
-  late Animation<Offset> _buttonsOffset;
-  late Animation<double> _buttonsOpacity;
-
-  // The state and logic for checking the wallet have been removed.
-  // bool _isCheckingWallet = true; <-- REMOVED
+class _StartState extends ConsumerState<Start> with TickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+  late VideoPlayerController _videoController;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 900),
       vsync: this,
     );
 
-    _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-          parent: _controller,
-          curve: const Interval(0.0, 0.5, curve: Curves.easeOut)),
-    );
-    _logoScale = Tween<double>(begin: 0.9, end: 1.0).animate(
-      CurvedAnimation(
-          parent: _controller,
-          curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
-    );
-    _logoOffset =
-        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
-          CurvedAnimation(
-              parent: _controller,
-              curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
-        );
-
-    _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-          parent: _controller,
-          curve: const Interval(0.3, 0.8, curve: Curves.easeOut)),
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeIn,
     );
 
-    _buttonsOffset =
-        Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
-          CurvedAnimation(
-              parent: _controller,
-              curve: const Interval(0.6, 1.0, curve: Curves.easeOutBack)),
-        );
-    _buttonsOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-          parent: _controller,
-          curve: const Interval(0.6, 1.0, curve: Curves.easeOut)),
-    );
-
-    _controller.forward();
-
-    // The call to _checkExistingWallet() has been removed.
+    _videoController = VideoPlayerController.networkUrl(
+      Uri.parse('https://satsails-assets.nyc3.cdn.digitaloceanspaces.com/Realistic_Astronaut_Rocket_Launch_Video.mp4'),
+    )..initialize().then((_) {
+      _videoController.setLooping(true);
+      _videoController.play();
+      _fadeController.forward();
+      setState(() {});
+    });
   }
-
-  // The _checkExistingWallet() method has been completely removed.
 
   @override
   void dispose() {
-    _controller.dispose();
+    _fadeController.dispose();
+    _videoController.dispose();
     super.dispose();
-  }
-
-  Shader createGradientShader(Rect bounds) {
-    return const LinearGradient(
-      colors: [Colors.redAccent, Colors.orangeAccent],
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-    ).createShader(bounds);
   }
 
   @override
   Widget build(BuildContext context) {
-    final logoSize = 300.h;
-
-    return SafeArea(
-      child: Scaffold(
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.black, Colors.grey[900]!],
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // Video Background
+          SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.cover,
+              child: SizedBox(
+                width: _videoController.value.size.width,
+                height: _videoController.value.size.height,
+                child: _videoController.value.isInitialized
+                    ? VideoPlayer(_videoController)
+                    : Container(color: Colors.black),
+              ),
             ),
           ),
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(top: 70.h),
-                child: FadeTransition(
-                  opacity: _logoOpacity,
-                  child: ScaleTransition(
-                    scale: _logoScale,
-                    child: SlideTransition(
-                      position: _logoOffset,
-                      child: SizedBox(
-                        width: logoSize,
-                        height: logoSize,
+          // Gradient and Blur Overlay
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withOpacity(0.5),
+                      Colors.black.withOpacity(0.8),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // UI Content
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.all(24.w),
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Spacer(),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(24.r),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                         child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
-                                blurRadius: 10,
-                                spreadRadius: 2,
-                                offset: const Offset(0, 4),
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(24.r),
+                            border: Border.all(color: Colors.white.withOpacity(0.2)),
+                          ),
+                          child: Column(
+                            children: [
+                              Logo(size: 80.sp, opacity: 0.8),
+                              SizedBox(height: 16.h),
+                              ShaderMask(
+                                blendMode: BlendMode.srcIn,
+                                shaderCallback: (bounds) => const LinearGradient(
+                                  colors: [Colors.white, Color.fromARGB(255, 200, 200, 200)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ).createShader(
+                                  Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                                ),
+                                child: Text(
+                                  'Satsails',
+                                  style: TextStyle(
+                                      fontSize: 48.sp,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                      shadows: [
+                                        Shadow(
+                                          blurRadius: 10.0,
+                                          color: Colors.black.withOpacity(0.3),
+                                          offset: const Offset(2, 2),
+                                        ),
+                                      ]
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 8.h),
+                              Text(
+                                'Your gateway to financial freedom.'.i18n,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 18.sp,
+                                  color: Colors.white70,
+                                ),
                               ),
                             ],
                           ),
-                          child: const InitialLogo(),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 50.h),
-              FadeTransition(
-                opacity: _textOpacity,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Satsails',
-                        style: TextStyle(
-                          foreground: Paint()
-                            ..shader = createGradientShader(
-                                Rect.fromLTWH(0.0, 0.0, 0.6.sw, 0.1.sh)),
-                          fontSize: 60.sp,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.5),
-                              blurRadius: 5,
-                              offset: const Offset(2, 2),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10.h),
-                      Text(
-                        'Your gateway to financial freedom.'.i18n,
-                        style: TextStyle(
-                          fontSize: 24.sp,
-                          color: Colors.white70,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.5),
-                              blurRadius: 3,
-                              offset: const Offset(1, 1),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Spacer(),
-              SlideTransition(
-                position: _buttonsOffset,
-                child: FadeTransition(
-                  opacity: _buttonsOpacity,
-                  child: Padding(
-                    padding: EdgeInsets.all(20.w),
-                    child: Column(
-                      children: [
-                        CustomButton(
-                          text: 'Create wallet'.i18n,
-                          onPressed: () => context.push('/set_pin'),
-                          primaryColor: Colors.orange,
-                          secondaryColor: Colors.orange,
-                          textColor: Colors.black,
-                        ),
-                        SizedBox(height: 10.h),
-                        CustomButton(
-                          text: 'Recover wallet'.i18n,
-                          onPressed: () => context.push('/recover_wallet'),
-                          primaryColor: Colors.white24,
-                          secondaryColor: Colors.white24,
-                          textColor: Colors.white,
-                        ),
-                      ],
+                    const Spacer(),
+                    // --- Using the new CustomButton ---
+                    CustomButton(
+                      text: 'Create wallet'.i18n,
+                      onPressed: () => context.push('/set_pin'),
+                      primaryColor: Colors.white.withOpacity(0.2), // Slightly more prominent
+                      secondaryColor: Colors.white.withOpacity(0.15),
+                      textColor: Colors.white,
                     ),
-                  ),
+                    SizedBox(height: 16.h),
+                    CustomButton(
+                      text: 'Recover wallet'.i18n,
+                      onPressed: () => context.push('/recover_wallet'),
+                      primaryColor: Colors.white.withOpacity(0.1),
+                      secondaryColor: Colors.white.withOpacity(0.1),
+                      textColor: Colors.white,
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class CustomButton extends StatelessWidget {
+class CustomButton extends StatefulWidget {
   final String text;
   final VoidCallback onPressed;
   final Color primaryColor;
@@ -12,29 +12,56 @@ class CustomButton extends StatelessWidget {
     super.key,
     required this.text,
     required this.onPressed,
-    this.primaryColor  = const Color(0xFFFF5722),
-    this.secondaryColor = const Color(0xFFFF9800),
-    this.textColor = Colors.black,
+    required this.primaryColor,
+    required this.secondaryColor,
+    this.textColor = Colors.black, // Default color is now black
   });
 
   @override
+  _CustomButtonState createState() => _CustomButtonState();
+}
+
+class _CustomButtonState extends State<CustomButton> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [primaryColor, secondaryColor],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onPressed,
+        child: AnimatedScale(
+          scale: _isHovered ? 1.05 : 1.0,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 14.h),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [widget.primaryColor, widget.secondaryColor],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  widget.text,
+                  style: TextStyle(
+                    color: widget.textColor,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 0.05.sw, vertical: 0.02.sh),
-        alignment: Alignment.center,
-        child: Text(
-          text,
-          style: TextStyle(fontSize: 18.sp, color: textColor, fontWeight: FontWeight.bold),
         ),
       ),
     );
