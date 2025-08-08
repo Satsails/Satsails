@@ -62,27 +62,23 @@ final Map<DepositProvider, ProviderDetails> providerDetails = {
       "Near-instant deposits",
       "No documentation required",
       "Minimum purchase: 1 BRL",
-      "Onboarding made by pix metadata on first purchase",
       "Cashback available"
     ],
     disadvantages: [
       "Some limitations on purchases due to free nature of depix compared to other assets",
       "Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payers name",
-      "Depix token purchases are returned to the sender bank if CPF/CNPJ diverges for the one registered",
       "Not possible to send documentation and unlock higher purchase amounts.",
       "Maximum of 5000 BRL per single transaction",
     ],
   ),
   DepositProvider.Nox: ProviderDetails(
     advantages: [
-      "Purchase multiple currencies via smart contacts directly".i18n,
-      "The purchases are sent to a smart contract which then processes the payment. The smart contracts are non custodial".i18n,
+      "Near unlimited purchase amounts".i18n,
       "Near unlimited purchase amounts".i18n,
     ],
     disadvantages: [
       "You have to KYC with the provider".i18n,
-      "You are required to report manually your purchases if your jurisdiction requires it".i18n,
-      "Purchases reported to the Brazilian federal revenue agency under the payer's name as USDC".i18n,
+      "Purchases reported to the Brazilian federal revenue agency under the payer's name".i18n,
     ],
   ),
   DepositProvider.Chimera: ProviderDetails(

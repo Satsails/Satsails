@@ -2,16 +2,17 @@ import 'dart:io';
 
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -90,6 +91,7 @@ class Explore extends ConsumerWidget {
                       padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.h),
                       child: const _BitcoinPriceChart(),
                     ),
+                    SizedBox(height: 130.sp),
                   ],
                 ),
               ),
@@ -106,10 +108,17 @@ class Explore extends ConsumerWidget {
 }
 
 // Balance and Cashback Card
-class _BalanceDisplay extends ConsumerWidget {
+class _BalanceDisplay extends ConsumerStatefulWidget {
   const _BalanceDisplay();
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_BalanceDisplay> createState() => _BalanceDisplayState();
+}
+
+class _BalanceDisplayState extends ConsumerState<_BalanceDisplay> {
+  bool _isCashbackExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
     final isBalanceVisible = settings.balanceVisible;
     final denomination = settings.btcFormat;
@@ -124,7 +133,6 @@ class _BalanceDisplay extends ConsumerWidget {
     final transaction = ref.watch(transactionNotifierProvider);
     final cashbackAmount = transaction.value?.unpaidCashback ?? 0;
     final cashbackToReceive = isBalanceVisible ? btcInDenominationFormatted(cashbackAmount, denomination) : '***';
-    final hasCashback = cashbackAmount > 0;
 
     return Card(
       color: const Color(0xFF333333).withOpacity(0.4),
@@ -141,13 +149,84 @@ class _BalanceDisplay extends ConsumerWidget {
             Row(children: [_buildBalanceRow(imagePath: 'lib/assets/eurx.png', label: 'Liquid EURx', balance: euroBalance), _buildBalanceRow(imagePath: 'lib/assets/tether.png', label: 'Liquid USDT', balance: liquidUsdtBalance)]),
             SizedBox(height: 12.h),
             Row(children: [_buildBalanceRow(imagePath: 'lib/assets/depix.png', label: 'Liquid Depix', balance: depixBalance), Expanded(child: Container())]),
-            Padding(padding: EdgeInsets.symmetric(vertical: 12.h), child: Divider(color: Colors.grey.withOpacity(0.2))),
-            Text('Cashback to receive'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500)),
-            SizedBox(height: 4.h),
-            Text(cashbackToReceive, style: TextStyle(fontSize: 20.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+            SizedBox(height: 12.h),
+            InkWell(
+              onTap: () => setState(() => _isCashbackExpanded = !_isCashbackExpanded),
+              borderRadius: BorderRadius.circular(8.r),
+              child: AnimatedCrossFade(
+                duration: const Duration(milliseconds: 300),
+                firstChild: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.h),
+                  child: Text(
+                    'See cashback to receive'.i18n,
+                    style: TextStyle(color: Colors.grey, fontSize: 16.sp, fontWeight: FontWeight.w500),
+                  ),
+                ),
+                secondChild: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 4.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Cashback to receive'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500)),
+                          Icon(Icons.expand_less, color: Colors.grey, size: 28.sp),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Text(cashbackToReceive, style: TextStyle(fontSize: 20.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 8.h),
+                    _buildCashbackList(ref),
+                  ],
+                ),
+                crossFadeState: _isCashbackExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCashbackList(WidgetRef ref) {
+    // NOTE: Replace with your actual cashback data provider.
+    final dummyCashbacks = [
+      {'amount': 5000, 'source': 'SideShift Swap'},
+      {'amount': 2500, 'source': 'Boltz Swap'},
+      {'amount': 10000, 'source': 'Eulen Transfer'},
+    ];
+    final denomination = ref.watch(settingsProvider).btcFormat;
+
+    if (dummyCashbacks.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.h),
+        child: Text(
+          "No pending cashback".i18n,
+          style: TextStyle(fontSize: 16.sp, color: Colors.white70),
+        ),
+      );
+    }
+
+    return Column(
+      children: dummyCashbacks.map((cashback) {
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 6.h),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                cashback['source'] as String,
+                style: TextStyle(fontSize: 16.sp, color: Colors.white70),
+              ),
+              Text(
+                btcInDenominationFormatted(cashback['amount'] as int, denomination),
+                style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -173,34 +252,59 @@ class _BalanceDisplay extends ConsumerWidget {
   }
 }
 
-// Buy and Sell Buttons
 class _ActionCards extends ConsumerWidget {
   const _ActionCards();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final paymentId = ref.watch(userProvider).paymentId;
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            color: Colors.green,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(10),
-              onTap: () => _handleOnPress(ref, context, paymentId, true),
-              child: Container(height: 80.h, alignment: Alignment.center, child: Text('Buy'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold))),
+        Row(
+          children: [
+            Expanded(
+              child: Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                color: Colors.green,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () => _handleOnPress(ref, context, paymentId, true),
+                  child: Container(
+                    height: 80.h,
+                    alignment: Alignment.center,
+                    child: Text('Buy'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ),
             ),
-          ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                color: Colors.red,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () => showMessageSnackBar(message: "Coming soon".i18n, context: context, error: true),
+                  child: Container(
+                    height: 80.h,
+                    alignment: Alignment.center,
+                    child: Text('Sell'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        SizedBox(width: 2.w),
-        Expanded(
-          child: Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            color: Colors.red,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(10),
-              onTap: () => showMessageSnackBar(message: "Coming soon".i18n, context: context, error: true),
-              child: Container(height: 80.h, alignment: Alignment.center, child: Text('Sell'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold))),
+        SizedBox(height: 12.h),
+        Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          color: const Color(0xFF333333).withOpacity(0.4),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: () => showMessageSnackBar(message: "Coming soon".i18n, context: context, error: true),
+            child: Container(
+              height: 80.h,
+              alignment: Alignment.center,
+              child: Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           ),
         ),
@@ -215,40 +319,44 @@ class _BitcoinPriceChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const int days = 30;
-    final now = DateTime.now().dateOnly();
-    final start = now.subtract(const Duration(days: days - 1));
-
-    final selectedDays = <DateTime>[];
-    for (var i = 0; i < days; i++) {
-      selectedDays.add(start.add(Duration(days: i)));
-    }
-
-    final settings = ref.watch(settingsProvider);
-    // CORRECTED: Calling the provider without arguments.
     final marketDataAsync = ref.watch(bitcoinMarketDataProvider);
-    final cardColor = const Color(0xFF333333).withOpacity(0.4);
 
-    return Card(
-      color: cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 2,
-      child: Padding(
-        padding: EdgeInsets.all(16.sp),
-        child: marketDataAsync.when(
-          data: (marketData) {
-            if (marketData.isEmpty) {
-              return Center(heightFactor: 6.5, child: Text('No price data available.'.i18n, style: TextStyle(color: Colors.white70)));
-            }
-            // CORRECTED: Explicitly typing the map.
-            final Map<DateTime, num> priceByDay = {for (var dp in marketData) dp.date.toLocal().dateOnly(): dp.price ?? 0};
+    return marketDataAsync.when(
+      data: (marketData) {
+        if (marketData.isEmpty) {
+          return SizedBox(
+            height: 200.h,
+            child: Card(
+              color: const Color(0xFF333333).withOpacity(0.4),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              elevation: 2,
+              child: Center(child: Text('No price data available.'.i18n, style: TextStyle(color: Colors.white70))),
+            ),
+          );
+        }
 
-            final lastPrice = marketData.last.price ?? 0;
-            final startPrice = marketData.first.price ?? 0;
-            final percentageChange = startPrice != 0 ? ((lastPrice - startPrice) / startPrice * 100) : 0;
-            final currencyFormatter = NumberFormat.simpleCurrency(name: settings.currency, decimalDigits: 2);
+        const int days = 30;
+        final now = DateTime.now().dateOnly();
+        final start = now.subtract(const Duration(days: days - 1));
+        final selectedDays = <DateTime>[];
+        for (var i = 0; i < days; i++) {
+          selectedDays.add(start.add(Duration(days: i)));
+        }
 
-            return Column(
+        final settings = ref.watch(settingsProvider);
+        final Map<DateTime, num> priceByDay = {for (var dp in marketData) dp.date.toLocal().dateOnly(): dp.price ?? 0};
+        final lastPrice = marketData.last.price ?? 0;
+        final startPrice = marketData.first.price ?? 0;
+        final percentageChange = startPrice != 0 ? ((lastPrice - startPrice) / startPrice * 100) : 0;
+        final currencyFormatter = NumberFormat.simpleCurrency(name: settings.currency, decimalDigits: 2);
+
+        return Card(
+          color: const Color(0xFF333333).withOpacity(0.4),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          elevation: 2,
+          child: Padding(
+            padding: EdgeInsets.all(16.sp),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -263,11 +371,17 @@ class _BitcoinPriceChart extends ConsumerWidget {
                   child: _PriceSparklineChart(priceData: priceByDay, sortedDays: selectedDays, formatter: currencyFormatter),
                 ),
               ],
-            );
-          },
-          loading: () => Center(heightFactor: 8, child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 40.sp)),
-          error: (e, s) => Center(heightFactor: 8, child: Text('Could not load price data'.i18n, style: const TextStyle(color: Colors.redAccent))),
-        ),
+            ),
+          ),
+        );
+      },
+      loading: () => SizedBox(
+        height: 200.h,
+        child: Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 40.sp)),
+      ),
+      error: (e, s) => SizedBox(
+        height: 200.h,
+        child: Center(child: Text('Could not load price data'.i18n, style: const TextStyle(color: Colors.redAccent))),
       ),
     );
   }
@@ -385,7 +499,7 @@ Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentI
   try {
     if (paymentId.isEmpty) {
       await ref.watch(createUserProvider.future);
-      if (context.mounted) await _requestNotificationPermissions();
+      if (context.mounted) await FirebaseService.requestNotificationPermissions();
     } else {
       if (userProviderState.recoveryCode?.isNotEmpty ?? false) {
         await ref.read(migrateUserToJwtProvider.future);
@@ -403,16 +517,5 @@ Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentI
     }
   } finally {
     ref.read(isLoadingProvider.notifier).state = false;
-  }
-}
-
-Future<void> _requestNotificationPermissions() async {
-  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  if (Platform.isAndroid) {
-    final androidPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-    await androidPlugin?.requestNotificationsPermission();
-  } else if (Platform.isIOS) {
-    final iosPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
-    await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
   }
 }

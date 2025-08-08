@@ -44,7 +44,7 @@ class Home extends ConsumerWidget {
                     padding: EdgeInsets.symmetric(horizontal: 16.sp),
                     child: Container(
                       color: Colors.black,
-                      child: const TransactionList(showAll: false),
+                      child: const TransactionList(),
                     ),
                   ),
                 ),

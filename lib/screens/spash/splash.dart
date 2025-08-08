@@ -1,6 +1,8 @@
 import 'package:Satsails/providers/auth_provider.dart';
+import 'package:Satsails/screens/creation/components/logo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -23,6 +25,9 @@ class _SplashState extends ConsumerState<Splash> {
 
   /// Checks for an existing wallet and redirects the user accordingly.
   Future<void> _initializeAppAndRedirect() async {
+    // A slight delay to ensure the splash screen is visible for a moment.
+    await Future.delayed(const Duration(seconds: 2));
+
     final authModel = ref.read(authModelProvider);
     final mnemonic = await authModel.getMnemonic();
 
@@ -46,11 +51,12 @@ class _SplashState extends ConsumerState<Splash> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            SvgPicture.asset(
-              'lib/assets/satsails.svg',
+            Logo(
+              size: 150.sp, // Made the logo larger for the splash screen
+              opacity: 0.8,
             ),
-            SizedBox(height: screenHeight * 0.03),
-            LoadingAnimationWidget.fourRotatingDots(size: dynamicAnimationSize, color: Colors.orange),
+            SizedBox(height: screenHeight * 0.05),
+            LoadingAnimationWidget.fourRotatingDots(size: dynamicAnimationSize, color: Colors.white),
           ],
         ),
       ),

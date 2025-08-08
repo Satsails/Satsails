@@ -16,7 +16,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:Satsails/providers/coinos_provider.dart';
 import 'package:in_app_review/in_app_review.dart';
 
 final biometricsAvailableProvider = FutureProvider<bool>((ref) async {
@@ -44,8 +43,6 @@ class Settings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final coinosLn = ref.watch(coinosLnProvider);
-    final showCoinosMigration = coinosLn.token.isNotEmpty;
     final biometricsAvailable = ref.watch(biometricsAvailableProvider);
 
     return WillPopScope(
@@ -86,7 +83,6 @@ class Settings extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (showCoinosMigration) _buildCoinosMigrationSection(context, ref),
                     _buildChatWithSupportSection(context, ref),
                     _buildRateAppSection(context, ref),
                     _buildSeedSection(context, ref),
@@ -531,108 +527,8 @@ class Settings extends ConsumerWidget {
     );
   }
 
-  Widget _buildCoinosMigrationSection(BuildContext context, WidgetRef ref) {
-    return _buildSection(
-      context: context,
-      ref: ref,
-      title: 'Coinos Migration'.i18n,
-      subtitle: Text('Recover and migrate your lightning balance'.i18n, style: TextStyle(color: Colors.grey, fontSize: 14.sp)),
-      icon: Icons.cloud,
-      onTap: () {
-        showCustodialWarningModal(context, ref);
-      },
-    );
-  }
 
-  void showCustodialWarningModal(BuildContext context, WidgetRef ref) {
-    final coinosLn = ref.watch(coinosLnProvider);
 
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.black87,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return SafeArea(
-          bottom: true,
-          child: Padding(
-            padding: EdgeInsets.all(24.sp),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Lightning Migration Warning'.i18n,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 16.sp),
-                  Text(
-                    'You can retrieve your past Coinos balances'.i18n,
-                    style: TextStyle(color: Colors.white70, fontSize: 14.sp),
-                  ),
-                  SizedBox(height: 24.sp),
-                  _buildCopyableField(label: 'Username', value: coinosLn.username, context: context),
-                  SizedBox(height: 16.sp),
-                  _buildCopyableField(label: 'Password', value: coinosLn.password, context: context),
-                  SizedBox(height: 24.sp),
-                  Center(
-                    child: Column(
-                      children: [
-                        TextButton(
-                          onPressed: () => _launchURL('https://coinos.io/login'),
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(horizontal: 24.sp),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                          child: Text(
-                            'Visit Coinos'.i18n,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 16.sp),
-                        TextButton(
-                          onPressed: () {
-                            ref.read(coinosLnProvider.notifier).setMigrated(true);
-                            Navigator.pop(context);
-                          },
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            padding: EdgeInsets.symmetric(horizontal: 24.sp),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                          child: Text(
-                            'Mark as Migrated'.i18n,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   Widget _buildCopyableField({required String label, required String value, required BuildContext context}) {
     return Row(
@@ -666,15 +562,6 @@ class Settings extends ConsumerWidget {
         ),
       ],
     );
-  }
-
-  Future<void> _launchURL(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 
   void _showInsertAffiliateModal(BuildContext context, String title, WidgetRef ref) {

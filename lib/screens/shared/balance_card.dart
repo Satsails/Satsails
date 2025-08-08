@@ -19,7 +19,6 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-// This provider is still needed for the "Receive" button's logic.
 final selectedNetworkTypeProvider = StateProvider<String>((ref) => "Bitcoin Network");
 
 class BalanceCard extends ConsumerStatefulWidget {
@@ -58,7 +57,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   @override
   Widget build(BuildContext context) {
     final screenheight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenheight < 850;
+    final isSmallScreen = screenheight < 750;
 
     ref.listen<String>(selectedAssetProvider, (previous, next) {
       final newIndex = _allAssets.indexWhere((asset) => asset['name'] == next);
@@ -81,8 +80,14 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildAssetSelectorDropdown(context, ref),
-
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(child: _buildAssetSelectorDropdown(context, ref)),
+                SizedBox(width: 8.w),
+                _buildSyncStatusIndicator(ref),
+              ],
+            ),
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
@@ -91,7 +96,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                   ref.read(selectedAssetProvider.notifier).state = _allAssets[index]['name']!;
                 },
                 itemBuilder: (context, index) {
-                  // Pass the controller and index to each child for the animation
                   return _AssetDetailsView(
                     assetData: _allAssets[index],
                     isSmallScreen: isSmallScreen,
@@ -101,7 +105,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 },
               ),
             ),
-
             Center(
               child: SmoothPageIndicator(
                 controller: _pageController,
@@ -114,10 +117,26 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 ),
               ),
             ),
-
             SizedBox(height: 8.h),
             _buildActionButtons(context, ref, isSmallScreen),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSyncStatusIndicator(WidgetRef ref) {
+    final isSyncing = ref.watch(backgroundSyncInProgressProvider);
+    final isOnline = ref.watch(settingsProvider).online;
+
+    return GestureDetector(
+      onTap: isSyncing ? null : () => ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate(),
+      child: Container(
+        width: 10.sp,
+        height: 10.sp,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isOnline ? (isSyncing ? Colors.orange : Colors.green) : Colors.red,
         ),
       ),
     );
@@ -127,19 +146,23 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     final selectedAsset = ref.watch(selectedAssetProvider);
     final networks = ['Bitcoin Network', 'Lightning Network', 'Liquid Network'];
 
+    final balanceState = ref.watch(balanceNotifierProvider);
+    final settings = ref.watch(settingsProvider);
+    final isBalanceVisible = settings.balanceVisible;
+
     List<DropdownMenuItem<String>> items = [];
     for (var network in networks) {
       items.add(
         DropdownMenuItem(
           enabled: false,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(12.w, 6.h, 12.w, 2.h),
+            padding: EdgeInsets.fromLTRB(12.w, 4.h, 12.w, 4.h),
             child: Text(
               network,
               style: TextStyle(
                 color: Colors.grey,
                 fontWeight: FontWeight.bold,
-                fontSize: 12.sp,
+                fontSize: 14.sp,
               ),
             ),
           ),
@@ -149,7 +172,36 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
       final networkAssets = _allAssets.where((asset) => asset['network'] == network);
       items.addAll(
         networkAssets.map((asset) {
-          final isSelected = selectedAsset == asset['name'];
+          final assetName = asset['name']!;
+          final isSelected = selectedAsset == assetName;
+
+          String balanceString;
+          final assetForBalance = asset['network'] == 'Lightning Network' ? 'Liquid Bitcoin' : assetName;
+
+          switch (assetForBalance) {
+            case 'Bitcoin':
+              balanceString = btcInDenominationFormatted(balanceState.onChainBtcBalance, settings.btcFormat);
+              break;
+            case 'Liquid Bitcoin':
+              balanceString = btcInDenominationFormatted(balanceState.liquidBtcBalance, settings.btcFormat);
+              break;
+            case 'USDT':
+              balanceString = fiatInDenominationFormatted(balanceState.liquidUsdtBalance);
+              break;
+            case 'EURx':
+              balanceString = fiatInDenominationFormatted(balanceState.liquidEuroxBalance);
+              break;
+            case 'Depix':
+              balanceString = fiatInDenominationFormatted(balanceState.liquidDepixBalance);
+              break;
+            default:
+              balanceString = '';
+          }
+
+          if (!isBalanceVisible) {
+            balanceString = '****';
+          }
+
           return DropdownMenuItem<String>(
             value: asset['name'],
             child: Container(
@@ -157,45 +209,42 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 color: isSelected ? Colors.white.withOpacity(0.1) : Colors.transparent,
                 borderRadius: BorderRadius.circular(8.r),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
               child: Row(
                 children: [
                   Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
                   SizedBox(width: 12.w),
-                  Expanded(
-                    child: Text(
-                      asset['name']!,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15.sp),
+                  Text(
+                    assetName,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16.sp),
+                  ),
+                  const Spacer(),
+                  Text(
+                    balanceString,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15.sp,
                     ),
                   ),
+                  SizedBox(width: 8.w),
                   if (isSelected)
                     Icon(
                       Icons.check_circle,
                       color: Colors.white,
                       size: 20.sp,
                     )
+                  else
+                    SizedBox(width: 20.sp),
                 ],
               ),
             ),
           );
         }),
       );
-
-      if (network != networks.last) {
-        items.add(
-          DropdownMenuItem(
-            enabled: false,
-            child: Divider(
-              height: 4.h,
-              thickness: 1.h,
-              color: Colors.white.withOpacity(0.1),
-            ),
-          ),
-        );
-      }
     }
 
     return DropdownButtonHideUnderline(
@@ -204,7 +253,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         isExpanded: true,
         dropdownColor: const Color(0xFF2C2C2C),
         borderRadius: BorderRadius.circular(12.r),
-        // --- MODIFIED: Removed menuMaxHeight property to prevent scrolling ---
         itemHeight: null,
         icon: Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
@@ -235,31 +283,28 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         },
         items: items,
         selectedItemBuilder: (BuildContext context) {
-          List<Widget> builderItems = [];
-          for (var network in networks) {
-            builderItems.add(Container());
-
-            final networkAssets = _allAssets.where((asset) => asset['network'] == network);
-            builderItems.addAll(
-              networkAssets.map((asset) {
-                return Row(
-                  children: [
-                    Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
-                    SizedBox(width: 12.w),
-                    Text(
-                      asset['name']!,
-                      style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                );
-              }),
+          return items.map((DropdownMenuItem<String> item) {
+            final selectedValue = ref.watch(selectedAssetProvider);
+            final asset = _allAssets.firstWhere(
+                  (a) => a['name'] == selectedValue,
+              orElse: () => _allAssets.first,
             );
-            if (network != networks.last) {
-              builderItems.add(Container());
+
+            if (item.value == selectedValue) {
+              return Row(
+                children: [
+                  Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
+                  SizedBox(width: 12.w),
+                  Text(
+                    asset['name']!,
+                    style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              );
             }
-          }
-          return builderItems;
+            return Container();
+          }).toList();
         },
       ),
     );
@@ -268,70 +313,41 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   Widget _buildActionButtons(BuildContext context, WidgetRef ref, bool isSmallScreen) {
     const textColor = Colors.white;
     final buttonColor = Colors.white.withOpacity(0.15);
-    final buttonFontSize = isSmallScreen ? 12.sp : 13.sp;
+    final buttonFontSize = isSmallScreen ? 14.sp : 15.sp;
     final selectedAsset = ref.watch(selectedAssetProvider);
-
     final network = _allAssets.firstWhere((asset) => asset['name'] == selectedAsset)['network']!;
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            _buildActionButton(
-              icon: Icons.arrow_downward,
-              label: 'Receive'.i18n,
-              onPressed: () {
-                if (network == 'Lightning Network') {
-                  ref.read(selectedNetworkTypeProvider.notifier).state = 'Boltz Network';
-                } else {
-                  ref.read(selectedNetworkTypeProvider.notifier).state = network;
-                }
-                context.push('/home/receive');
-              },
-              textColor: textColor,
-              buttonColor: buttonColor,
-              fontSize: buttonFontSize,
-            ),
-            SizedBox(width: 8.w),
-            _buildActionButton(
-              icon: Icons.arrow_upward,
-              label: 'Send'.i18n,
-              onPressed: () {
-                ref.read(sendTxProvider.notifier).resetToDefault();
-                _handleSendNavigation(context, ref, selectedAsset);
-              },
-              textColor: textColor,
-              buttonColor: buttonColor,
-              fontSize: buttonFontSize,
-            ),
-          ],
+        Expanded(
+          child: _buildActionButton(
+            icon: Icons.arrow_downward,
+            label: 'Receive'.i18n,
+            onPressed: () {
+              if (network == 'Lightning Network') {
+                ref.read(selectedNetworkTypeProvider.notifier).state = 'Boltz Network';
+              } else {
+                ref.read(selectedNetworkTypeProvider.notifier).state = network;
+              }
+              context.push('/home/receive');
+            },
+            textColor: textColor,
+            buttonColor: buttonColor,
+            fontSize: buttonFontSize,
+          ),
         ),
-        GestureDetector(
-          onTap: () {
-            context.push('/accounts');
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(14.r),
-              border: Border.all(color: textColor.withOpacity(0.5), width: 1.5),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.wallet, size: 16.w, color: textColor),
-                SizedBox(width: 6.w),
-                Text(
-                  'All Assets'.i18n,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: buttonFontSize,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: _buildActionButton(
+            icon: Icons.arrow_upward,
+            label: 'Send'.i18n,
+            onPressed: () {
+              ref.read(sendTxProvider.notifier).resetToDefault();
+              _handleSendNavigation(context, ref, selectedAsset);
+            },
+            textColor: textColor,
+            buttonColor: buttonColor,
+            fontSize: buttonFontSize,
           ),
         ),
       ],
@@ -349,15 +365,16 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: buttonColor,
           borderRadius: BorderRadius.circular(14.r),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: textColor, size: 16.w, weight: 700),
-            SizedBox(width: 6.w),
+            Icon(icon, color: textColor, size: 18.w, weight: 700),
+            SizedBox(width: 8.w),
             Text(
               label,
               style: TextStyle(
@@ -509,30 +526,6 @@ class _AssetDetailsView extends ConsumerWidget {
     final secondaryBalanceSize = isSmallScreen ? 15.sp : 18.sp;
 
     final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
-    final isSyncing = ref.watch(backgroundSyncInProgressProvider);
-    final isOnline = ref.watch(settingsProvider).online;
-
-    final Widget syncStatus = GestureDetector(
-      onTap: isSyncing ? null : () => ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate(),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 10.sp,
-            height: 10.sp,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isOnline ? (isSyncing ? Colors.orange : Colors.green) : Colors.red,
-            ),
-          ),
-          SizedBox(width: 8.sp),
-          Text(
-            isOnline ? (isSyncing ? 'Syncing'.i18n : 'Update Balances'.i18n) : 'Offline'.i18n,
-            style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 14.sp),
-          ),
-        ],
-      ),
-    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -580,8 +573,6 @@ class _AssetDetailsView extends ConsumerWidget {
             ),
           ],
         ),
-        SizedBox(height: 8.h),
-        syncStatus,
       ],
     );
   }

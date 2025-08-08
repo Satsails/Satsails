@@ -1,9 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
+import 'package:hive/hive.dart';
 
 final balanceNotifierProvider = StateNotifierProvider<BalanceNotifier, WalletBalance>((ref) {
   return BalanceNotifier(ref);
+});
+
+final balanceFutureProvider = FutureProvider<WalletBalance>((ref) async {
+  final hiveBox = await Hive.openBox<WalletBalance>('balanceBox');
+
+  final balance = hiveBox.get('balance');
+
+  return balance ?? WalletBalance.empty();
 });
 
 final balanceChangeProvider = StateProvider<BalanceChange?>((ref) => null);

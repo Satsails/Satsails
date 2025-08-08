@@ -60,7 +60,7 @@ class LiquidModel {
     } catch (e) {
       if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount") || (e as dynamic).msg.toString().contains("insufficient funds")) {
         throw "Insufficient funds";
-      } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
+      } else if ((e as dynamic).msg.toString().contains("Base58") || (e as dynamic).msg.toString().contains("InvalidChecksum") || (e as dynamic).msg.toString().contains("InvalidLength")){
         throw "Address is invalid";
       }
       throw (e as dynamic).msg;
@@ -79,7 +79,7 @@ class LiquidModel {
     } catch (e) {
       if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount") || (e as dynamic).msg.toString().contains("insufficient funds")) {
         throw "Insufficient funds";
-      } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
+      } else if ((e as dynamic).msg.toString().contains("Base58") || (e as dynamic).msg.toString().contains("InvalidChecksum") || (e as dynamic).msg.toString().contains("InvalidLength")){
         throw "Address is invalid";
       }
       throw (e as dynamic).msg;
@@ -99,7 +99,7 @@ class LiquidModel {
     } catch (e) {
       if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount") || (e as dynamic).msg.toString().contains("insufficient funds")) {
         throw "Insufficient funds, or not enough liquid bitcoin to pay fees.";
-      } else if ((e as dynamic).msg.toString().contains("Base58(TooShort(TooShortError { length: 0 }))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
+      } else if ((e as dynamic).msg.toString().contains("Base58") || (e as dynamic).msg.toString().contains("InvalidChecksum") || (e as dynamic).msg.toString().contains("InvalidLength")){
         throw "Address is invalid";
       }
       throw (e as dynamic).msg;
@@ -117,8 +117,8 @@ class LiquidModel {
       return pset;
     } catch (e) {
       if ((e as dynamic).msg.toString().contains("InsufficientFunds") || (e as dynamic).msg.toString().contains("InvalidAmount") || (e as dynamic).msg.toString().contains("insufficient funds")) {
-        throw "Insufficient funds, try a lower amount";
-      } else if ((e as dynamic).msg.toString().contains("LwkError(msg: Base58(TooShort(TooShortError { length: 0 })))") || (e as dynamic).msg.toString().contains("InvalidChecksum")) {
+        throw "Insufficient funds to pay fees, try a lower amount to cover network fees";
+      } else if ((e as dynamic).msg.toString().contains("Base58") || (e as dynamic).msg.toString().contains("InvalidChecksum") || (e as dynamic).msg.toString().contains("InvalidLength")){
         throw "Address is invalid";
       }
       throw 'Error building payjoin asset transaction';

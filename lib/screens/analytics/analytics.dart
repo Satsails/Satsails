@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/translations/translations.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
+import 'package:shimmer/shimmer.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
@@ -33,7 +33,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   String _selectedRange = '1M';
   String? _selectedAsset;
 
-  // --- Asset Maps from original Analytics ---
   final List<String> _assetOptions = ['Bitcoin', 'Liquid Bitcoin', 'Depix', 'USDT', 'EURx'];
   final Map<String, String> _assetImages = {
     'Bitcoin': 'lib/assets/bitcoin-logo.png',
@@ -62,7 +61,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateDateRange(_selectedRange));
   }
 
-  // --- Methods from original Analytics ---
   void _updateDateRange(String range) {
     final now = DateTime.now().dateOnly();
     DateTime start;
@@ -130,7 +128,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                 _buildSectionPicker(),
                 SizedBox(height: 24.h),
                 Expanded(
-                  // FIX: Added AnimatedSwitcher for smooth transitions
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     transitionBuilder: (Widget child, Animation<double> animation) {
@@ -138,7 +135,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                     },
                     child: _selectedSection == AnalyticsSection.internal
                         ? _buildInternalAnalyticsView(key: const ValueKey('internal'))
-                        : const _MarketDataView(key: const ValueKey('market')),
+                        : const _MarketDataView(key: ValueKey('market')),
                   ),
                 ),
               ],
@@ -149,7 +146,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     );
   }
 
-  // --- NEW Top Level Picker ---
   Widget _buildSectionPicker() {
     return Container(
       padding: EdgeInsets.all(4.w),
@@ -187,7 +183,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     final isBitcoinAsset = ['Bitcoin', 'Liquid Bitcoin'].contains(_selectedAsset);
     final cardColor = const Color(0xFF333333).withOpacity(0.4);
 
-    // Data fetching and processing...
     final balanceByDay = switch (_selectedAsset) {
       'Bitcoin' => ref.read(bitcoinBalanceInFormatByDayProvider),
       'Liquid Bitcoin' || 'Depix' || 'USDT' || 'EURx' => ref.read(liquidBalancePerDayInFormatProvider(_assetIdMap[_selectedAsset!]!)),
@@ -215,7 +210,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
       error: (_, __) => (<DateTime, num>{}, <DateTime, num>{}),
     );
 
-    // Current Balance calculation
     final balance = ref.read(balanceNotifierProvider);
     final currentBalanceFormatted = switch (_selectedAsset) {
       'Bitcoin' => btcInDenominationFormatted(balance.onChainBtcBalance, btcFormat),
@@ -242,12 +236,28 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                 dollarBalanceByDay: dollarBalanceByDay, priceByDay: priceByDay, selectedCurrency: selectedCurrency,
                 isShowingMainData: true, isCurrency: viewMode == 1, btcFormat: btcFormat, isBitcoinAsset: isBitcoinAsset,
               ),
-              loading: () => Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 40)),
+              loading: () => _buildChartShimmer(),
               error: (e, s) => Center(child: Text('Error Loading Chart'.i18n, style: const TextStyle(color: Colors.redAccent))),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildChartShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[850]!,
+      highlightColor: Colors.grey[700]!,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+        ),
+      ),
     );
   }
 
@@ -291,7 +301,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   }
 }
 
-// --- NEW WIDGET for Market Data (adapted from Services) ---
 class _MarketDataView extends ConsumerStatefulWidget {
   const _MarketDataView({Key? key}) : super(key: key);
   @override
@@ -373,6 +382,14 @@ class _MarketDataViewState extends ConsumerState<_MarketDataView> {
     );
   }
 
+  Widget _buildWebViewShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[850]!,
+      highlightColor: Colors.grey[700]!,
+      child: Container(color: Colors.black),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -392,11 +409,11 @@ class _MarketDataViewState extends ConsumerState<_MarketDataView> {
         Expanded(
           child: Container(
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.r)),
-            clipBehavior: Clip.antiAlias, // Ensures WebView respects the border radius
+            clipBehavior: Clip.antiAlias,
             child: Stack(
               children: [
                 WebViewWidget(controller: _webViewController),
-                if (_isLoading) Center(child: LoadingAnimationWidget.fourRotatingDots(size: 40, color: Colors.orange)),
+                if (_isLoading) _buildWebViewShimmer(),
               ],
             ),
           ),
@@ -407,7 +424,6 @@ class _MarketDataViewState extends ConsumerState<_MarketDataView> {
 }
 
 
-// --- Component Widgets from original Analytics ---
 class _ViewModeSelector extends ConsumerWidget {
   final int selectedIndex; final Function(int) onSelected;
   const _ViewModeSelector({required this.selectedIndex, required this.onSelected});

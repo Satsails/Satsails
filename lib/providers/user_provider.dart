@@ -1,5 +1,5 @@
 import 'package:Satsails/models/auth_model.dart';
-import 'package:Satsails/models/firebase_model.dart';
+import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -148,7 +148,7 @@ final liquidReceiveAddressAmountProvider = StateProvider.autoDispose<String>((re
   }
 });
 
-final lnAmountProvider = FutureProvider.autoDispose<int>((ref) async {
+final lnAmountProvider = StateProvider.autoDispose<int>((ref) {
   final amount = ref.watch(inputAmountProvider);
   final currency = ref.watch(inputCurrencyProvider);
   final currencyConverter = ref.read(currencyNotifierProvider);

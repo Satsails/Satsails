@@ -39,6 +39,9 @@ class AddressModel extends StateNotifier<Address> {
   Future<void> setLiquidAddress(int index, String address) async {
     final box = await Hive.openBox('addresses');
 
+    // After awaiting, check if the notifier is still mounted.
+    if (!mounted) return;
+
     box.put('liquidIndex', index);
     box.put('liquidAddress', address);
 
@@ -53,12 +56,12 @@ class AddressModel extends StateNotifier<Address> {
   Future<void> setBitcoinAddress(int index, String address) async {
     final box = await Hive.openBox('addresses');
 
-    // Only proceed if the index is new or higher
+    // After awaiting, check if the notifier is still mounted.
+    if (!mounted) return;
+
     box.put('bitcoinIndex', index);
     box.put('bitcoinAddress', address);
 
-    // Check if the values have actually changed
-    // Update state with a new Address instance
     state = Address(
       bitcoinAddressIndex: index,
       bitcoinAddress: address,

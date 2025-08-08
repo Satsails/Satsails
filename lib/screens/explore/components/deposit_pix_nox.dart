@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class DepositPixNox extends ConsumerStatefulWidget {
@@ -20,6 +21,7 @@ class DepositPixNox extends ConsumerStatefulWidget {
 
 class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
   final TextEditingController _amountController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -31,26 +33,21 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
     final amount = _amountController.text;
 
     if (amount.isEmpty) {
-      showMessageSnackBar(
-          context: context,
-          message: 'Amount cannot be empty'.i18n,
-          error: true);
+      showMessageSnackBar(context: context, message: 'Amount cannot be empty'.i18n, error: true);
       return;
     }
 
     final double? amountInDouble = double.tryParse(amount);
     if (amountInDouble == null || amountInDouble <= 0) {
-      showMessageSnackBar(
-          context: context,
-          message: 'Please enter a valid amount.'.i18n,
-          error: true);
+      showMessageSnackBar(context: context, message: 'Please enter a valid amount.'.i18n, error: true);
       return;
     }
 
+    setState(() => _isLoading = true); // Start loading
+
     try {
       final bitcoinAddress = ref.read(addressProvider).bitcoinAddress;
-      final url = await ref.read(createNoxTransferRequestProvider(
-          (amount: amountInDouble.toInt(), address: bitcoinAddress)).future);
+      final url = await ref.read(createNoxTransferRequestProvider((amount: amountInDouble.toInt(), address: bitcoinAddress)).future);
       if (url.isNotEmpty && mounted) {
         Navigator.push(
           context,
@@ -61,8 +58,11 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
       }
     } catch (e) {
       if (mounted) {
-        showMessageSnackBar(
-            context: context, message: e.toString().i18n, error: true);
+        showMessageSnackBar(context: context, message: e.toString().i18n, error: true);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false); // Stop loading
       }
     }
   }
@@ -75,10 +75,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         centerTitle: false,
         title: Text(
           'Pix'.i18n,
-          style: TextStyle(
-              color: Colors.white,
-              fontSize: 20.sp,
-              fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
@@ -91,8 +88,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
           children: [
             SingleChildScrollView(
               child: Padding(
-                padding:
-                EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
+                padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -114,23 +110,25 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                           borderRadius: BorderRadius.circular(12.r),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 16.h, horizontal: 16.w),
+                        contentPadding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
                       ),
                     ),
                     SizedBox(height: 16.h),
-                    ElevatedButton(
-                      onPressed: _handleInput,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.r)),
-                        padding: EdgeInsets.symmetric(
-                            vertical: 16.h, horizontal: 32.w),
-                      ),
-                      child: Text(
-                        'Generate Payment'.i18n,
-                        style: TextStyle(color: Colors.black, fontSize: 18.sp),
+                    SizedBox(
+                      height: 54.h,
+                      child: _isLoading
+                          ? Center(child: LoadingAnimationWidget.fourRotatingDots(size: 40.w, color: Colors.orange))
+                          : ElevatedButton(
+                        onPressed: _handleInput,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                          padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 32.w),
+                        ),
+                        child: Text(
+                          'Generate Payment'.i18n,
+                          style: TextStyle(color: Colors.black, fontSize: 18.sp),
+                        ),
                       ),
                     ),
                     SizedBox(height: 16.h),
@@ -139,8 +137,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                         onPressed: () => context.go('/home'),
                         child: Text(
                           'Back to Home'.i18n,
-                          style:
-                          TextStyle(fontSize: 16.sp, color: Colors.white),
+                          style: TextStyle(fontSize: 16.sp, color: Colors.white),
                         ),
                       ),
                     ),
@@ -193,6 +190,14 @@ class _DepositWebViewPageState extends State<DepositWebViewPage> {
       ..loadRequest(Uri.parse(widget.url));
   }
 
+  Widget _buildShimmerEffect() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[900]!,
+      highlightColor: Colors.grey[800]!,
+      child: Container(color: Colors.black),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -203,11 +208,7 @@ class _DepositWebViewPageState extends State<DepositWebViewPage> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Deposit'.i18n,
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 20.sp,
-                fontWeight: FontWeight.bold)),
+        title: Text('Deposit'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
@@ -218,13 +219,7 @@ class _DepositWebViewPageState extends State<DepositWebViewPage> {
       body: Stack(
         children: [
           WebViewWidget(controller: _webViewController),
-          if (_isLoading)
-            Center(
-              child: LoadingAnimationWidget.fourRotatingDots(
-                size: 0.1.sh,
-                color: Colors.orange,
-              ),
-            ),
+          if (_isLoading) _buildShimmerEffect(),
         ],
       ),
     );

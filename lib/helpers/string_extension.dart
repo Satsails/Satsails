@@ -6,7 +6,6 @@ extension StringExtension on String {
   }
 }
 
-
 String formatLimit(double value) {
   if (value == value.floor()) {
     return value.toInt().toString();

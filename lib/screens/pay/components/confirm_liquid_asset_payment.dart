@@ -24,6 +24,8 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:action_slider/action_slider.dart';
+import 'package:Satsails/providers/navigation_provider.dart';
+import 'package:Satsails/screens/exchange/exchange.dart'; // For SwapSection enum
 
 Future<bool> showConfirmationModal(
     BuildContext context, String amount, String address, int fee, String btcFormat, WidgetRef ref, bool isPayjoinTx, String asset) async {
@@ -59,11 +61,7 @@ Future<bool> showConfirmationModal(
           child: Container(
             padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 20.h),
             decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF2A2A2A), Color(0xFF1C1C1C)],
-                ),
+                color: const Color(0xFF212121),
                 borderRadius: BorderRadius.circular(24.r),
                 border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
             child: Column(
@@ -85,7 +83,7 @@ Future<bool> showConfirmationModal(
                   '$amount $asset',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 38.sp,
+                    fontSize: 28.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -490,9 +488,10 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                   },
                                 ),
                               ),
+                              _buildSendToDifferentNetworkButton(context, ref),
                             ],
                           ),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: 16.h),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -541,43 +540,56 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                           },
                                         ),
                                       ),
-                                      // Conditionally display the "Max" button
-                                      if (!isPayjoinTx)
-                                        Padding(
-                                          padding: EdgeInsets.only(right: 8.sp),
-                                          child: GestureDetector(
-                                            onTap: () async {
-                                              try {
-                                                final amount = double.parse(balanceText);
-                                                // Adjusted amount logic remains the same
-                                                final adjustedAmount = isPayjoinTx ? amount * 0.95 : amount;
-                                                ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmount.toString(), btcFormat);
-                                                controller.text = adjustedAmount.toStringAsFixed(2);
-                                              } catch (e) {
-                                                showMessageSnackBar(
-                                                  message: e.toString().i18n,
-                                                  error: true,
-                                                  context: context,
-                                                );
+                                      // Always display the "Max" button, with logic dependent on isPayjoinTx
+                                      Padding(
+                                        padding: EdgeInsets.only(right: 8.sp),
+                                        child: GestureDetector(
+                                          onTap: () async {
+                                            try {
+                                              final amount = double.parse(balanceText);
+                                              double adjustedAmount;
+
+                                              if (isPayjoinTx) {
+                                                double percentage;
+                                                if (amount > 500) {
+                                                  percentage = 0.99;
+                                                } else if (amount > 100) {
+                                                  percentage = 0.98;
+                                                } else {
+                                                  percentage = 0.95;
+                                                }
+                                                adjustedAmount = amount * percentage;
+                                              } else {
+                                                adjustedAmount = amount;
                                               }
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.circular(8.r),
-                                              ),
-                                              child: Text(
-                                                'Max',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 16.sp,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
+
+                                              ref.read(sendTxProvider.notifier).updateAmountFromInput(adjustedAmount.toString(), btcFormat);
+                                              controller.text = adjustedAmount.toStringAsFixed(2);
+                                            } catch (e) {
+                                              showMessageSnackBar(
+                                                message: e.toString().i18n,
+                                                error: true,
+                                                context: context,
+                                              );
+                                            }
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(8.r),
+                                            ),
+                                            child: Text(
+                                              'Max',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16.sp,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                           ),
                                         ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -661,7 +673,7 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                             asset: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).name,
                             amount: btcInDenominationFormatted(ref.watch(sendTxProvider).amount, btcFormat),
                             fiat: AssetMapper.mapAsset(ref.watch(sendTxProvider).assetId).isFiat,
-                            fiatAmount: ref.watch(sendTxProvider).amount.toString(),
+                            fiatAmount: fiatInDenominationFormatted(ref.watch(sendTxProvider).amount),
                             txid: tx,
                             isLiquid: true,
                             receiveAddress: ref.read(sendTxProvider).address,
@@ -693,6 +705,33 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSendToDifferentNetworkButton(BuildContext context, WidgetRef ref) {
+    return Container(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: () {
+          ref.read(sendTxProvider.notifier).resetToDefault();
+          ref.read(sendBlocksProvider.notifier).state = 1;
+          ref.read(navigationProvider.notifier).state = 2;
+          ref.read(swapSectionProvider.notifier).state = SwapSection.external;
+          context.replace('/home');
+        },
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.grey.shade400, // Splash color
+        ),
+        child: Text(
+          'Send to another network?'.i18n,
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14.sp,
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.white70,
           ),
         ),
       ),

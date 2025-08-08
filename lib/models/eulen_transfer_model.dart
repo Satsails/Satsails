@@ -361,30 +361,4 @@ class EulenService {
       return Result(error: 'An error has occurred. Please try again later');
     }
   }
-  /// Checks the transaction payment state using the transaction ID.
-  static Future<Result<bool>> getTransactionPaymentState(String transactionId, String auth) async {
-    try {
-      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
-      final uri = Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers/check_purchase_state')
-          .replace(queryParameters: {'transfer[txid]': transactionId,
-      });
-
-      final response = await http.get(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-          // 'X-Firebase-AppCheck': appCheckToken ?? '',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: jsonDecode(response.body));
-      } else {
-        return Result(error: 'An error has occurred. Please try again later');
-      }
-    } catch (e) {
-      return Result(error: 'An error has occurred. Please try again later');
-    }
-  }
 }

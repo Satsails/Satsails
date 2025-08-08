@@ -1735,8 +1735,16 @@ extension Localization on String {
         'pt': 'Excluir Carteira Local?',
       } +
       {
-        'en': 'Are you sure you want to delete the wallet?',
-        'pt': 'Tem certeza de que deseja excluir a carteira?',
+        'en': 'This action is irreversible. Are you sure you have backed up your seed phrase?',
+        'pt': 'Esta ação é irreversível. Tem certeza de que fez backup de sua frase de backup',
+      } +
+      {
+        'en': 'Final Confirmation',
+        'pt': 'Confirmação Final',
+      } +
+      {
+        'en': 'All your data will be permanently erased. This cannot be undone.',
+        'pt': 'Todos seus dados serão permanentemente apagados. Isso não pode ser desfeito.',
       } +
       {
         'en': 'Delete Server Data and Local Wallet?',
@@ -2267,8 +2275,8 @@ extension Localization on String {
         'pt': 'Taxa fixa',
       } +
       {
-        'en': 'Total fee',
-        'pt': 'Taxa total',
+        'en': 'Satsails fee',
+        'pt': 'Taxa Satsails',
       } +
       {
         'en': 'The maximum allowed transfer amount is 5000 BRL',
@@ -2319,8 +2327,8 @@ extension Localization on String {
         'pt': 'Compras são relatadas à Receita Federal brasileira em nome do pagador',
       } +
       {
-        'en': '(Purchase)',
-        'pt': '(Compra)',
+        'en': 'Purchase',
+        'pt': 'Compra',
       } +
       {
         'en': 'Depix token purchases are returned to the sender bank if CPF/CNPJ diverges for the one registered',
@@ -2620,8 +2628,8 @@ extension Localization on String {
         'pt': 'Erro ao construir transação, tente um valor mais baixo',
       } +
       {
-        'en': 'Insufficient funds, try a lower amount',
-        'pt': 'Saldo insuficiente, tente um valor mais baixo',
+        'en': 'Insufficient funds to pay fees, try a lower amount to cover network fees',
+        'pt': 'Saldo insuficiente para pagar as taxas, tente um valor mais baixo para cobrir as taxas de rede',
       } +
       {
         'en': 'Your Balances',
@@ -2987,181 +2995,6 @@ extension Localization on String {
     'pt': 'Expirado',
   } +
       {
-        'en': 'Expires in %1 days',
-        'pt': 'Expira em %1 dias',
-      } +
-      {
-        'en': 'Expires in %1 hours',
-        'pt': 'Expira em %1 horas',
-      } +
-      {
-        'en': 'Expires in %1 minutes',
-        'pt': 'Expira em %1 minutos',
-      } +
-      {
-        'en': 'Expires soon',
-        'pt': 'Expira em breve',
-      } +
-      {
-        'en': 'Invalid date',
-        'pt': 'Data inválida',
-      } +{
-    'en': '%1 seconds',
-    'pt': '%1 segundos',
-  } +
-      {
-        'en': '%1 minutes',
-        'pt': '%1 minutos',
-      } +
-      {
-        'en': '%1 hours',
-        'pt': '%1 horas',
-      } +
-      {
-        'en': 'N/A',
-        'pt': 'N/D',
-      } +{
-    'en': 'No ShiftPair selected',
-    'pt': 'Nenhum ShiftPair selecionado',
-  } +
-      {
-        'en': 'Receive Liquid USDT from USDT on Tron',
-        'pt': 'Receber Liquid USDT de USDT em Tron',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDT on BSC',
-        'pt': 'Receber Liquid USDT de USDT em BSC',
-      } +
-      {
-        'en': 'Receive Liquid BTC from Bitcoin',
-        'pt': 'Receber Liquid BTC de Bitcoin',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDT on Arbitrum',
-        'pt': 'Receber Liquid USDT de USDT em Arbitrum',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDT on Ethereum',
-        'pt': 'Receber Liquid USDT de USDT em Ethereum',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDT on Solana',
-        'pt': 'Receber Liquid USDT de USDT em Solana',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDT on Polygon',
-        'pt': 'Receber Liquid USDT de USDT em Polygon',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDC on Ethereum',
-        'pt': 'Receber Liquid USDT de USDC em Ethereum',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDC on Tron',
-        'pt': 'Receber Liquid USDT de USDC em Tron',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDC on BSC',
-        'pt': 'Receber Liquid USDT de USDC em BSC',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDC on Solana',
-        'pt': 'Receber Liquid USDT de USDC em Solana',
-      } +
-      {
-        'en': 'Receive Liquid USDT from USDC on Polygon',
-        'pt': 'Receber Liquid USDT de USDC em Polygon',
-      } +
-      {
-        'en': 'Receive Liquid BTC from ETH',
-        'pt': 'Receber Liquid BTC de ETH',
-      } +
-      {
-        'en': 'Receive Liquid BTC from TRX',
-        'pt': 'Receber Liquid BTC de TRX',
-      } +
-      {
-        'en': 'Receive Liquid BTC from BNB',
-        'pt': 'Receber Liquid BTC de BNB',
-      } +
-      {
-        'en': 'Receive Liquid BTC from SOL',
-        'pt': 'Receber Liquid BTC de SOL',
-      } +{
-    'en': 'Confirm Non-Native Payment',
-    'pt': 'Confirmar Pagamento Não Nativo',
-  } +
-      {
-        'en': 'Recipient Address (%1 %2)',
-        'pt': 'Endereço do Destinatário (%1 %2)',
-      } +
-      {
-        'en': 'Enter recipient address',
-        'pt': 'Insira o endereço do destinatário',
-      } +
-      {
-        'en': 'Amount',
-        'pt': 'Quantia',
-      } +
-      {
-        'en': 'Max',
-        'pt': 'Máx',
-      } +
-      {
-        'en': 'Slide to send',
-        'pt': 'Deslize para enviar',
-      } +
-      {
-        'en': 'Transaction in progress, please wait.',
-        'pt': 'Transação em progresso, por favor aguarde.',
-      } +
-      {
-        'en': 'Amount is too small',
-        'pt': 'Quantia demasiado pequena',
-      } +
-      {
-        'en': 'Amount is too large',
-        'pt': 'Quantia demasiado grande',
-      } +{
-    'en': 'Confirm Transaction',
-    'pt': 'Confirmar Transação',
-  } +
-      {
-        'en': 'Amount',
-        'pt': 'Quantia',
-      } +
-      {
-        'en': 'Recipient',
-        'pt': 'Destinatário',
-      } +
-      {
-        'en': 'Service Fee',
-        'pt': 'Taxa de Serviço',
-      } +
-      {
-        'en': 'Payjoin fee',
-        'pt': 'Taxa Payjoin',
-      } +
-      {
-        'en': 'Cancel',
-        'pt': 'Cancelar',
-      } +
-      {
-        'en': 'Confirm',
-        'pt': 'Confirmar',
-      } +
-      {
-        'en': 'Warning: Sending from any other network might result in loss of funds.',
-        'pt': 'Aviso: Enviar de qualquer outra rede pode resultar na perda de fundos.',
-      } +
-      {
-        'en': 'variable',
-        'pt': 'variavel',
-      } +{
-    'en': 'Expired',
-    'pt': 'Expirado',
-  } +
-      {
         'en': '%1 days',
         'pt': '%1 dias',
       } +
@@ -3282,8 +3115,8 @@ extension Localization on String {
         'pt': 'Insira um código de afiliado para receber 6,67% de cashback nas compras',
       }+
       {
-        'en': 'Loading, please wait...',
-        'pt': 'Carregando, por favor aguarde...',
+        'en': 'Loading',
+        'pt': 'Carregando',
       }+
       {
         'en': 'Expired and Pending',
@@ -3535,7 +3368,7 @@ extension Localization on String {
       }+
       {
         "en": "Bump Fee",
-        "pt": "Acelerar transferência"
+        "pt": "Acelerar"
       }+
       {
         "en": "Bump Transaction Fee",
@@ -3655,7 +3488,7 @@ extension Localization on String {
       }+
       {
         "en": "Custom Electrum Node",
-        "pt": "No Electrum Customizado"
+        "pt": "Nó Electrum Customizado"
       }+
       {
         "en": "Save & Exit",
@@ -3664,6 +3497,295 @@ extension Localization on String {
       {
         "en": "Make sure the node you write works correctly, otherwise you might see wrong balances and not able to send your coins",
         "pt": "Certifique-se de que o nó que você escreveu funciona corretamente, caso contrário, pode ver balanços incorretos e não ser capaz de enviar suas moedas"
+      }+
+      {
+        "en": "Custom Node",
+        "pt": "Nó Customizado"
+      }+
+      {
+        "en": "This transaction has been refunded",
+        "pt": "Esta transação foi reembolsada",
+      }+
+      {
+        "en": "This transaction has timed out and cannot be recovered",
+        "pt": "Esta transação expirou e não pode ser recuperada"
+      }+
+      {
+        "en": "Refunded",
+        "pt": "Estornado"
+      }+
+      {
+        "en": "Error building payjoin asset transaction",
+        "pt": "Erro ao construir transação payjoin",
+      }+
+      {
+        "en": "Comment (Optional)",
+        "pt": "Comentário (Opcional)"
+      }+
+      {
+        "en": "Enter a comment",
+        "pt": "Insira um comentário"
+      }+
+      {
+        "en": "Please enter a recipient address first",
+        "pt": "Por favor, insira um endereço de destinatário primeiro"
+      }+
+      {
+        "en": "Please enter an amount for this recipient",
+        "pt": "Por favor, insira um valor para este destinatário"
+      }+
+      {
+        "en": "Unsupported address or invoice type",
+        "pt": "Endereço ou tipo de fatura não suportado"
+      }+
+      {
+        "en": "Invalid input address or invoice",
+        "pt": "Endereço ou fatura inválida"
+      } +
+      {
+        "en": "Amount too low. Minimum deposit amount: ",
+        "pt": "Valor muito baixo. O valor mínimo do depósito é de: "
+      } +
+      {
+        "en": "Amount too high. Maximum deposit amount: ",
+        "pt": "Valor muito alto. O valor máximo do depósito é de: "
+      } +
+      {
+        "en": "Receive from a different network",
+        "pt": "Receber de outras redes"
+      }+
+      {
+        "en": "Send to another network?",
+        "pt": "Enviar para outras redes?"
+      }+
+      {
+        "en": "Please enter a valid amount",
+        "pt": "Por favor, insira um valor válido"
+      }+
+      {
+        "en": "An error occurred: %s",
+        "pt": "Ocorreu um erro: %s"
+      }+
+      {
+        "en": "Username updated successfully!",
+        "pt": "Nome de utilizador atualizado com sucesso!"
+      }+
+      {
+        "en": "Failed to get a Lightning Address.",
+        "pt": "Falha ao obter um Endereço Lightning."
+      }+
+      {
+        "en": "Error: %s",
+        "pt": "Erro: %s"
+      }+
+      {
+        "en": "Edit Username",
+        "pt": "Editar Nome de Utilizador"
+      }+
+      {
+        "en": "Enable notifications to get a permanent Lightning Address.",
+        "pt": "Ative as notificações para obter um Endereço Lightning permanente."
+      }+
+      {
+        "en": "You can still generate one-time invoices to receive payments while the app is open.",
+        "pt": "Ainda pode gerar faturas únicas para receber pagamentos enquanto a aplicação está aberta."
+      }+
+      {
+        "en": "Allow Notifications",
+        "pt": "Permitir Notificações"
+      }+
+      {
+        "en": "Edit Lightning Address",
+        "pt": "Editar Endereço Lightning"
+      }+
+      {
+        "en": "Username",
+        "pt": "Nome de Utilizador"
+      }+
+      {
+        "en": "Please enter a username.",
+        "pt": "Por favor, insira um nome de utilizador."
+      }+
+      {
+        "en": "Only lowercase letters, numbers, and \"._-\" are allowed.",
+        "pt": "Apenas são permitidas letras minúsculas, números e \"._-\"."
+      }+
+      {
+        "en": "Save Changes",
+        "pt": "Guardar Alterações"
+      }+
+      {
+        "en": "Generate One-Time Invoice",
+        "pt": "Gerar Fatura Única"
+      }+
+      {
+        "en": "Change address",
+        "pt": "Alterar endereço"
+      }+
+      {
+        "en": "Username already exists",
+        'pt': 'Nome de utilizador já existe',
+      } +
+      {
+        'en': 'Back to Lightning Address',
+        'pt': 'Voltar para o Endereço Lightning',
+      } +
+      {
+        'en': 'Failed to generate QR Code: %s',
+        'pt': 'Falha ao gerar o Código QR: %s',
+      } +
+      {
+        'en': 'An error occurred. Please try again.',
+        'pt': 'Ocorreu um erro. Por favor, tente novamente.',
+      } +
+      {
+        'en': 'Retrieving Payment Information',
+        'pt': 'A obter informações de pagamento',
+      } +
+      {
+        'en': 'Receive Payment Failed',
+        'pt': 'Falha ao receber pagamento',
+      } +
+      {
+        'en': 'Fetching Invoice',
+        'pt': 'A obter fatura',
+      } +
+      {
+        'en': 'Verifying Payment',
+        'pt': 'A verificar pagamento',
+      } +
+      {
+        'en': 'Payment Verification Failed',
+        'pt': 'Falha na verificação do pagamento',
+      } +
+      {
+        'en': 'Payment Received',
+        'pt': 'Pagamento Recebido',
+      } +
+      {
+        'en': 'Payment Sent',
+        'pt': 'Pagamento Enviado',
+      } +
+      {
+        'en': 'Amount: %s sats',
+        'pt': 'Valor: %s sats',
+      } +
+      {
+        'en': 'Payment requires fee acceptance',
+        'pt': 'Pagamento requer aceitação de taxa',
+      } +
+      {
+        'en': 'Tap to review updated fees',
+        'pt': 'Toque para rever as taxas atualizadas',
+      } +
+      {
+        'en': 'Payment Pending',
+        'pt': 'Pagamento Pendente',
+      } +
+      {
+        'en': 'Tap to complete payment',
+        'pt': 'Toque para concluir o pagamento',
+      } +
+      {
+        'en': 'Invoice Request Failed',
+        'pt': 'Falha no pedido de fatura',
+      } +
+      {
+        'en': 'Amount is below minimum',
+        'pt': 'Quantidade demasiado Pequena'
+      } +
+      {
+        'en': 'Amount is above maximum',
+        'pt': 'Quantidade demasiado grande',
+      } +
+      {
+        'en': 'Confirmation Block',
+        'pt': 'Bloco de confirmação'
+      } +
+      {
+        'en': 'Expires',
+        'pt': 'Expira',
+      } +
+      {
+        'en': '6 days',
+        'pt': '6 dias',
+      } +
+      {
+        'en': 'Avg. Shift Time',
+        'pt': 'Tempo Médio de Shift',
+      } +
+      {
+        'en': 'Provide Refund Address',
+        'pt': 'Fornecer Endereço de Reembolso',
+      } +
+      {
+        'en': 'If this shift fails, the funds will be returned to this address.',
+        'pt': 'Se esta troca falhar, os fundos serão devolvidos para este endereço.',
+      } +
+      {
+        'en': 'Enter refund address',
+        'pt': 'Insira o endereço de reembolso',
+      } +
+      {
+        'en': 'Save Address',
+        'pt': 'Salvar Endereço',
+      } +
+      {
+        'en': 'Save Address',
+        'pt': 'Salvar Endereço',
+      } +
+      {
+        'en': 'Payment Details',
+        'pt': 'Detalhes do Pagamento',
+      } +
+      {
+        'en': 'Description',
+        'pt': 'Descrição',
+      } +
+      {
+        'en': 'On-chain TXID',
+        'pt': 'TXID On-chain',
+      } +
+      {
+        'en': 'Swap ID',
+        'pt': 'ID da Troca',
+      } +
+      {
+        'en': 'Payment Hash',
+        'pt': 'Hash do Pagamento',
+      } +
+      {
+        'en': 'Send TX',
+        'pt': 'TX de Envio',
+      } +
+      {
+        'en': 'Payout TX',
+        'pt': 'TX de Pagamento',
+      } +
+      {
+        'en': 'Amount Sent',
+        'pt': 'Valor Enviado',
+      } +
+      {
+        'en': 'Amount Received',
+        'pt': 'Valor Recebido',
+      } +
+      {
+        'en': 'Shop With Bitcoin',
+        'pt': 'Faça compras com Bitcoin',
+      } +
+      {
+        'en': 'See cashback to receive',
+        'pt': 'Ver cashback a receber'
+      } +
+      {
+        'en': 'Last attempt. If incorrect, the wallet will be deleted.',
+        'pt': 'Ultima tentativa. Se incorreto, a carteira será excluída.'
+      } +
+      {
+        'en': 'All information will be permanently deleted. This action is irreversible.',
+        'pt': 'Toda a informação será permanentemente excluída. Esta ação é irreversível.'
       };
   String get i18n => localize(this, _t);
+
 }

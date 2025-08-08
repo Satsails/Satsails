@@ -3,9 +3,6 @@ import 'dart:io';
 import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:bitcoin_message_signer/bitcoin_message_signer.dart';
-import 'package:conduit_password_hash/pbkdf2.dart';
-import 'package:crypto/crypto.dart';
-import 'package:faker/faker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +10,28 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+Future<void> migrateMnemonicStorage() async {
+  const migrationBoxName = 'appState';
+  const migrationFlagKey = 'isMnemonicMigratedV2';
+
+  final box = await Hive.openBox(migrationBoxName);
+
+  if (box.get(migrationFlagKey) == true) {
+    return;
+  }
+
+  final authModel = AuthModel();
+
+  final existingMnemonic = await authModel.getMnemonic();
+
+  if (existingMnemonic != null && existingMnemonic.isNotEmpty) {
+    await authModel.setMnemonic(existingMnemonic);
+  }
+
+  await box.put(migrationFlagKey, true);
+}
+
 
 class BackendAuth {
   static Future<String?> signChallengeWithPrivateKey(
@@ -27,8 +46,8 @@ class BackendAuth {
       final privateKeyBytes = descriptorSecretKey.secretBytes();
 
       final signer = BitcoinMessageSigner(
-        privateKey: Uint8List.fromList(privateKeyBytes),
-        scriptType: P2PKH(compressed: true)
+          privateKey: Uint8List.fromList(privateKeyBytes),
+          scriptType: P2PKH(compressed: true)
       );
 
       final signature = signer.signMessage(message: challengeResponse);
@@ -54,20 +73,17 @@ class BackendAuth {
         return Result(error: 'Backend URL is not configured');
       }
 
-      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
-
       final response = await http.get(
         Uri.parse('$backendUrl/auth/challenge'),
         headers: {
           'Content-Type': 'application/json',
-          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
-        final dynamic jsonResponse = json.decode(response.body);
-        final challenge = jsonResponse['challenge'] as String?;
+      final dynamic jsonResponse = json.decode(response.body);
+      final challenge = jsonResponse['challenge'] as String?;
 
-        return Result(data: challenge);
+      return Result(data: challenge);
     } catch (e) {
       return Result(error: 'An error has occurred. Please try again later');
     }
@@ -75,16 +91,21 @@ class BackendAuth {
 
 }
 
-
-
 class AuthModel {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
+  /// Returns the required security options for iOS, including the App Group.
+  IOSOptions _getIOSOptions() => const IOSOptions(
+    accessibility: KeychainAccessibility.first_unlock,
+  );
+
+  /// Saves the mnemonic to secure storage with the correct iOS options.
   Future<void> setMnemonic(String mnemonic) async {
     if (!bip39.validateMnemonic(mnemonic)) {
       throw Exception('Invalid mnemonic');
     }
-    await _storage.write(key: 'mnemonic', value: mnemonic);
+    await _storage.write(
+        key: 'mnemonic', value: mnemonic, iOptions: _getIOSOptions());
   }
 
   Future<bool> validateMnemonic(String mnemonic) async {
@@ -96,7 +117,8 @@ class AuthModel {
   }
 
   Future<void> setPin(String pin) async {
-    await _storage.write(key: 'pin', value: pin);
+    // PIN storage can also be secured with the same options if needed.
+    await _storage.write(key: 'pin', value: pin, iOptions: _getIOSOptions());
   }
 
   Future<String?> getMnemonic() async {
@@ -106,7 +128,9 @@ class AuthModel {
   // New method with retry logic
   Future<String?> getMnemonicWithRetry() async {
     for (int i = 0; i < 3; i++) {
-      final mnemonic = await _storage.read(key: 'mnemonic');
+      // The read operation doesn't need special options, it will find the key
+      // regardless of its accessibility or group.
+      final mnemonic = await _storage.read(key: 'mnemonic', iOptions: _getIOSOptions());
       if (mnemonic != null) {
         return mnemonic;
       }
@@ -125,56 +149,6 @@ class AuthModel {
     return storedPin != null && storedPin == incomingPin;
   }
 
-  Future<String> hashMnemonic(String mnemonic) async {
-    // Hash the mnemonic and convert it to a Base64 string
-    final hash = sha256.convert(utf8.encode(mnemonic));
-    return base64.encode(hash.bytes); // Convert Uint8List to Base64 String
-  }
-
-  Future<List<int>> deriveKeyWithSalt(String mnemonic) async {
-    final hashedMnemonic = await hashMnemonic(mnemonic);
-
-    final pbkdf2 = PBKDF2();
-    // Use a simple Base64 substring as salt
-    final salt = base64.encode(hashedMnemonic.codeUnits.sublist(0, 16).map((c) => c & 0xff).toList());
-    final derivedKey = pbkdf2.generateKey(hashedMnemonic, salt, 2048, 32);
-    return derivedKey;
-  }
-
-
-  Future<String?> getUsername() async {
-    final mnemonic = await getMnemonic();
-    if (mnemonic == null) return null;
-
-    // Derive a key from the mnemonic using PBKDF2 with the deterministic salt
-    final derivedKey = await deriveKeyWithSalt(mnemonic);
-
-    // Initialize Faker with the derived key for consistency
-    int seed = derivedKey.sublist(0, 4).fold(0, (prev, elem) => (prev << 8) + elem);
-    final faker = Faker(seed: seed);
-
-    // Generate a single word for the username
-    String word = faker.animal.name().toLowerCase();
-    String color = faker.color.commonColor().toLowerCase();
-
-    int number = derivedKey.sublist(4, 6).fold(0, (prev, elem) => (prev << 8) + elem) % 10000;
-    String numberStr = number.toString().padLeft(4, '0');
-
-    // Combine word and number to form the username
-    String username = "$color$word$numberStr";
-
-    return username;
-  }
-
-  Future<String?> getCoinosPassword() async {
-    final mnemonic = await getMnemonic();
-    if (mnemonic == null) return null;
-
-    final derivedKey = await deriveKeyWithSalt(mnemonic);
-
-    return base64.encode(derivedKey.sublist(20, 30));
-  }
-
   Future<void> deleteLwkDb() async {
     final appDocDir = await getApplicationDocumentsDirectory();
     final liquidDBPath = '${appDocDir.path}/lwk-db';
@@ -185,8 +159,8 @@ class AuthModel {
   }
 
   Future<void> deleteAuthentication() async {
-    await _storage.delete(key: 'mnemonic');
-    await _storage.delete(key: 'pin');
+    await _storage.delete(key: 'mnemonic', iOptions: _getIOSOptions());
+    await _storage.delete(key: 'pin', iOptions: _getIOSOptions());
     await _storage.delete(key: 'pixPaymentCode');
     await _storage.delete(key: 'coinosToken');
     await _storage.delete(key: 'coinosUsername');
@@ -198,6 +172,7 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('liquid');
     await Hive.deleteBoxFromDisk('coinosLn');
     await Hive.deleteBoxFromDisk('affiliateCode');
+    await Hive.deleteBoxFromDisk('breez_prefs');
     await Hive.deleteBoxFromDisk('balanceBox');
     await Hive.deleteBoxFromDisk('settings');
     await Hive.deleteBoxFromDisk('bitcoinTransactions');
@@ -213,11 +188,11 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('affiliate');
     await Hive.deleteBoxFromDisk('addresses');
     await Hive.deleteBoxFromDisk('coinosPayments');
+    await Hive.deleteBoxFromDisk('lightningBox');
+    await Hive.deleteBoxFromDisk('appState');
     final appDocDir = await getApplicationDocumentsDirectory();
     final bitcoinDBPath = '${appDocDir.path}/bdk_wallet.sqlite';
     final dbFile = File(bitcoinDBPath);
     await dbFile.delete();
   }
 }
-
-
