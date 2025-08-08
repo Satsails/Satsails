@@ -6,6 +6,8 @@ import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/restart_widget.dart';
+import 'package:Satsails/screens/shared/custom_alert_dialog.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/custom_keypad.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -16,8 +18,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:quickalert/quickalert.dart';
-import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
 
 // Define the loading provider
 final loadingProvider = StateProvider<bool>((ref) => false);
@@ -84,20 +84,13 @@ class _OpenPinState extends ConsumerState<OpenPin>
   void _handleIncorrectPin() {
     _animationController.forward(from: 0.0);
     HapticFeedback.heavyImpact();
-    _attempts++;
-    // If attempts are exhausted, show the delete wallet dialog.
+    setState(() {
+      _attempts++;
+      pin = '';
+    });
+
     if (_attempts >= 6) {
-      _showConfirmationDialog(context, ref);
-      setState(() => pin = '');
-    } else {
-      int remainingAttempts = 6 - _attempts;
-      showMessageSnackBar(
-        context: context,
-        message:
-        '${'Invalid PIN'.i18n}. $remainingAttempts ${'attempts remaining'.i18n}',
-        error: true,
-      );
-      setState(() => pin = '');
+      _forgotPin(context, ref);
     }
   }
 
@@ -118,8 +111,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
         }
       }
     } catch (e) {
-      // Silently handle errors (e.g., biometric unavailable or user cancels)
-      // The user can still use their PIN.
+      // Silently handle errors
     }
   }
 
@@ -148,30 +140,31 @@ class _OpenPinState extends ConsumerState<OpenPin>
     RestartWidget.restartApp(context);
   }
 
-  Future<void> _showConfirmationDialog(
+  Future<void> _showForgotPinConfirmation(
       BuildContext context, WidgetRef ref) async {
-    QuickAlert.show(
+    showCustomAlertDialog(
       context: context,
-      type: QuickAlertType.error,
       title: 'Delete Account?'.i18n,
-      text: 'All information will be permanently deleted.'.i18n,
-      titleColor: Colors.redAccent,
-      textColor: Colors.white70,
-      backgroundColor: Colors.black87,
-      headerBackgroundColor: Colors.black87,
-      showCancelBtn: false,
-      showConfirmBtn: false,
-      widget: Padding(
-        padding: EdgeInsets.only(top: 16.h),
-        child: CustomElevatedButton(
+      content: 'All information will be permanently deleted. This action is irreversible.'.i18n,
+      actions: [
+        CustomButton(
+          onPressed: () => Navigator.of(context).pop(),
+          text: 'Cancel'.i18n,
+          primaryColor: Colors.grey.withOpacity(0.2),
+          secondaryColor: Colors.grey.withOpacity(0.2),
+          textColor: Colors.white,
+        ),
+        CustomButton(
           onPressed: () async {
-            context.pop();
+            Navigator.of(context).pop();
             await _forgotPin(context, ref);
           },
-          text: 'Delete wallet'.i18n,
-          backgroundColor: Colors.redAccent,
+          text: 'Delete Wallet'.i18n,
+          primaryColor: Colors.redAccent,
+          secondaryColor: Colors.red,
+          textColor: Colors.white,
         ),
-      ),
+      ],
     );
   }
 
@@ -184,8 +177,17 @@ class _OpenPinState extends ConsumerState<OpenPin>
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(loadingProvider);
-    // Watch the settings provider to get the biometrics state
     final biometricsEnabled = ref.watch(settingsProvider.select((s) => s.biometricsEnabled));
+
+    String attemptsMessage = '';
+    if (_attempts > 0) {
+      int remainingAttempts = 6 - _attempts;
+      if (remainingAttempts == 1) {
+        attemptsMessage = 'Last attempt. If incorrect, the wallet will be deleted.'.i18n;
+      } else {
+        attemptsMessage = '$remainingAttempts attempts remaining'.i18n;
+      }
+    }
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -216,7 +218,18 @@ class _OpenPinState extends ConsumerState<OpenPin>
                       ),
                     ),
                     const Spacer(),
-                    // Animated PIN indicator for shake effect
+                    if (_attempts > 0)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 16.h),
+                        child: Text(
+                          attemptsMessage,
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                     AnimatedBuilder(
                       animation: _animation,
                       builder: (context, child) {
@@ -247,15 +260,13 @@ class _OpenPinState extends ConsumerState<OpenPin>
                                   () => pin = pin.substring(0, pin.length - 1));
                         }
                       },
-                      // Conditionally provide the callback based on the setting
                       onBiometricPressed: biometricsEnabled
                           ? () => _checkBiometrics(context, ref)
                           : null,
                     ),
                     SizedBox(height: 20.h),
-                    // Use the new TextButton to trigger the dialog
                     TextButton(
-                      onPressed: () => _showConfirmationDialog(context, ref),
+                      onPressed: () => _showForgotPinConfirmation(context, ref),
                       child: Text(
                         'Forgot PIN?'.i18n,
                         style: TextStyle(

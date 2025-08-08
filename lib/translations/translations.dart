@@ -1735,8 +1735,16 @@ extension Localization on String {
         'pt': 'Excluir Carteira Local?',
       } +
       {
-        'en': 'Are you sure you want to delete the wallet?',
-        'pt': 'Tem certeza de que deseja excluir a carteira?',
+        'en': 'This action is irreversible. Are you sure you have backed up your seed phrase?',
+        'pt': 'Esta ação é irreversível. Tem certeza de que fez backup de sua frase de backup',
+      } +
+      {
+        'en': 'Final Confirmation',
+        'pt': 'Confirmação Final',
+      } +
+      {
+        'en': 'All your data will be permanently erased. This cannot be undone.',
+        'pt': 'Todos seus dados serão permanentemente apagados. Isso não pode ser desfeito.',
       } +
       {
         'en': 'Delete Server Data and Local Wallet?',
@@ -3769,6 +3777,14 @@ extension Localization on String {
       {
         'en': 'See cashback to receive',
         'pt': 'Ver cashback a receber'
+      } +
+      {
+        'en': 'Last attempt. If incorrect, the wallet will be deleted.',
+        'pt': 'Ultima tentativa. Se incorreto, a carteira será excluída.'
+      } +
+      {
+        'en': 'All information will be permanently deleted. This action is irreversible.',
+        'pt': 'Toda a informação será permanentemente excluída. Esta ação é irreversível.'
       };
   String get i18n => localize(this, _t);
 

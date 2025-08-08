@@ -52,7 +52,6 @@ dependencies:
   shimmer: ^3.0.0
   smooth_page_indicator: ^1.2.1
   pull_to_refresh_flutter3: ^2.0.2
-  quickalert: ^1.1.0
   action_slider: ^0.7.0
   calendar_date_picker2: ^2.0.1
   msh_checkbox: ^2.0.1

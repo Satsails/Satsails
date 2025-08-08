@@ -2,12 +2,10 @@ import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/breez_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/screens/pay/components/confirm_non_native_asset_payment.dart';
-import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:quickalert/quickalert.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:lwk/lwk.dart' as lwk;
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
@@ -50,38 +48,6 @@ class _CameraState extends ConsumerState<Camera> {
 
   void _toggleFlash() {
     _controller?.toggleTorch();
-  }
-
-  void _showErrorDialog(BuildContext context, String message) {
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.error,
-      title: 'Oops!',
-      textColor: Colors.white70,
-      titleColor: Colors.redAccent,
-      backgroundColor: Colors.black87,
-      showCancelBtn: false,
-      showConfirmBtn: true,
-      confirmBtnText: 'OK',
-      confirmBtnColor: Colors.redAccent,
-      onConfirmBtnTap: () {
-        Navigator.of(context).pop();
-        ref.read(sendTxProvider.notifier).resetToDefault();
-        _controller?.start();
-      },
-      widget: Padding(
-        padding: const EdgeInsets.only(top: 16),
-        child: Text(
-          message.i18n,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
   }
 
   Future<void> _onDetect(BarcodeCapture capture) async {
@@ -175,9 +141,6 @@ class _CameraState extends ConsumerState<Camera> {
       _popSafely();
 
     } catch (e) {
-      if (context.mounted) {
-        _showErrorDialog(context, e.toString().replaceAll('Exception: ', ''));
-      }
     }
   }
 

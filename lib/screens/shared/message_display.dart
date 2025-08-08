@@ -2,7 +2,6 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:quickalert/quickalert.dart';
 
 class MessageDisplay extends ConsumerWidget {
   final String message;
@@ -136,47 +135,4 @@ void showMessageSnackBar({
   );
 
   scaffoldMessenger.showSnackBar(snackBar);
-}
-
-void showInformationModal({
-  required BuildContext context,
-  required String title,
-  required dynamic message,
-}) {
-  String formattedMessage;
-
-  if (message is List<String>) {
-    formattedMessage = message.join('\n');
-  } else if (message is String) {
-    formattedMessage = message;
-  } else {
-    throw ArgumentError('Message must be either a String or List<String>');
-  }
-
-  QuickAlert.show(
-    context: context,
-    type: QuickAlertType.info,
-    title: title,
-    titleColor: Colors.white,
-    backgroundColor: Colors.black87, // Slightly lighter for better aesthetics
-    showCancelBtn: false,
-    showConfirmBtn: false,
-    widget: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          formattedMessage,
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w500,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 0.01.sh),
-        // Optional: Close Button or Additional Elements
-        // Since the user requested not to add buttons, we'll omit this.
-      ],
-    ),
-  );
 }

@@ -3,11 +3,11 @@ import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/bitcoin_config_provider.dart';
 import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/restart_widget.dart';
-import 'package:Satsails/screens/receive/components/custom_elevated_button.dart';
+import 'package:Satsails/screens/shared/custom_alert_dialog.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quickalert/quickalert.dart';
 
 class DeleteWalletSection extends StatelessWidget {
   final WidgetRef ref;
@@ -25,7 +25,7 @@ class DeleteWalletSection extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
       decoration: BoxDecoration(
-        color: Colors.redAccent,
+        color: Colors.redAccent.withOpacity(0.8),
         borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
@@ -52,46 +52,48 @@ class DeleteWalletSection extends StatelessWidget {
   }
 
   void _showFirstDeleteDialog(BuildContext context, AuthModel authModel, WidgetRef ref) {
-    QuickAlert.show(
+    showCustomAlertDialog(
       context: context,
-      type: QuickAlertType.error,
       title: 'Delete Wallet?'.i18n,
-      text: 'Are you sure you want to delete the wallet?'.i18n,
-      titleColor: Colors.redAccent,
-      textColor: Colors.white70,
-      backgroundColor: Colors.black87,
-      headerBackgroundColor: Colors.black87,
-      showCancelBtn: false,
-      showConfirmBtn: false,
-      widget: Padding(
-        padding: const EdgeInsets.only(top: 16),
-        child: CustomElevatedButton(
+      content: 'This action is irreversible. Are you sure you have backed up your seed phrase?'.i18n,
+      actions: [
+        CustomButton(
+          onPressed: () => Navigator.of(context).pop(),
+          text: 'Cancel'.i18n,
+          primaryColor: Colors.grey.withOpacity(0.2),
+          secondaryColor: Colors.grey.withOpacity(0.2),
+          textColor: Colors.white,
+        ),
+        const SizedBox(width: 12),
+        CustomButton(
           onPressed: () {
             Navigator.of(context).pop(); // Close first dialog
             _showSecondDeleteDialog(context, authModel, ref); // Show second dialog
           },
           text: 'Delete Wallet'.i18n,
-          backgroundColor: Colors.redAccent,
+          primaryColor: Colors.redAccent,
+          secondaryColor: Colors.red,
+          textColor: Colors.white,
         ),
-      ),
+      ],
     );
   }
 
   void _showSecondDeleteDialog(BuildContext context, AuthModel authModel, WidgetRef ref) {
-    QuickAlert.show(
+    showCustomAlertDialog(
       context: context,
-      type: QuickAlertType.error,
-      title: 'Delete Wallet?'.i18n,
-      text: 'Are you sure you want to delete the wallet?'.i18n,
-      titleColor: Colors.redAccent,
-      textColor: Colors.white70,
-      backgroundColor: Colors.black87,
-      showCancelBtn: false,
-      showConfirmBtn: false,
-      headerBackgroundColor: Colors.black87,
-      widget: Padding(
-        padding: const EdgeInsets.only(top: 16),
-        child: CustomElevatedButton(
+      title: 'Final Confirmation'.i18n,
+      content: 'All your data will be permanently erased. This cannot be undone.'.i18n,
+      actions: [
+        CustomButton(
+          onPressed: () => Navigator.of(context).pop(),
+          text: 'Cancel'.i18n,
+          primaryColor: Colors.grey.withOpacity(0.2),
+          secondaryColor: Colors.grey.withOpacity(0.2),
+          textColor: Colors.white,
+        ),
+        const SizedBox(width: 12),
+        CustomButton(
           onPressed: () async {
             Navigator.of(context).pop(); // Close second dialog
             await authModel.deleteAuthentication();
@@ -101,9 +103,11 @@ class DeleteWalletSection extends StatelessWidget {
             RestartWidget.restartApp(context);
           },
           text: 'Delete Wallet'.i18n,
-          backgroundColor: Colors.redAccent,
+          primaryColor: Colors.redAccent,
+          secondaryColor: Colors.red,
+          textColor: Colors.white,
         ),
-      ),
+      ],
     );
   }
 }
