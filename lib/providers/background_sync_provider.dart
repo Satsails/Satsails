@@ -16,21 +16,11 @@ import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:lwk/lwk.dart';
-import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
+import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
 
-class BitcoinSyncResult {
-  final int balance;
-  final String address;
-  final int addressIndex;
-  final List<bdk.TransactionDetails> transactions;
-
-  BitcoinSyncResult({
-    required this.balance,
-    required this.address,
-    required this.addressIndex,
-    required this.transactions,
-  });
-}
+import 'package:Satsails/providers/eulen_transfer_provider.dart';
+import 'package:Satsails/providers/nox_transfer_provider.dart';
+import 'package:Satsails/providers/sideswap_provider.dart';
 
 abstract class SyncNotifier<T> extends AsyncNotifier<T> {
   Future<T> performSync();
@@ -62,48 +52,34 @@ abstract class SyncNotifier<T> extends AsyncNotifier<T> {
   }
 }
 
-class BitcoinSyncNotifier extends SyncNotifier<BitcoinSyncResult?> {
+class BitcoinSyncNotifier extends SyncNotifier<void> {
   @override
-  Future<BitcoinSyncResult?> build() async {
-    return null;
-  }
+  Future<void> build() async {}
 
   @override
-  Future<BitcoinSyncResult?> performSync() async {
+  Future<void> performSync() async {
     return await handleSync(
         syncOperation: () async {
           final bitcoinModel = await ref.read(bitcoinModelProvider.future);
-
           await bitcoinModel.sync();
           final addressIndex = bitcoinModel.getAddress();
           final address = bitcoinModel.getAddressString();
           final balance = bitcoinModel.getBalance();
-          final transactions = bitcoinModel.getTransactions();
 
           ref.read(addressProvider.notifier).setBitcoinAddress(addressIndex, address);
           ref.read(balanceNotifierProvider.notifier).updateOnChainBtcBalance(balance.total.toInt());
-
-          return BitcoinSyncResult(
-            balance: balance.total.toInt(),
-            address: address,
-            addressIndex: addressIndex,
-            transactions: transactions,
-          );
         },
         onSuccess: () => debugPrint('Bitcoin sync successful.'),
         onFailure: () {
           debugPrint('Bitcoin sync failed after all retries. Refreshing provider.');
           ref.refresh(bitcoinProvider);
-        }
-    );
+        });
   }
 }
 
 class LiquidSyncNotifier extends SyncNotifier<Balances> {
   @override
-  Future<Balances> build() async {
-    return [];
-  }
+  Future<Balances> build() async => [];
 
   @override
   Future<Balances> performSync() async {
@@ -114,26 +90,17 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
         final liquidAddressIndex = await liquidModel.getAddress();
         final liquidAddress = await liquidModel.getLatestAddress();
         final balances = await liquidModel.balance();
-
         ref.read(addressProvider.notifier).setLiquidAddress(liquidAddressIndex, liquidAddress);
-
         final balanceNotifier = ref.read(balanceNotifierProvider.notifier);
         final currentBalance = ref.read(balanceNotifierProvider);
-
-        final newBalancesMap = {
-          for (var balance in balances)
-            AssetMapper.mapAsset(balance.assetId): balance.value
-        };
-
+        final newBalancesMap = {for (var balance in balances) AssetMapper.mapAsset(balance.assetId): balance.value};
         final newWalletState = currentBalance.copyWith(
           liquidBtcBalance: newBalancesMap[AssetId.LBTC] ?? 0,
           liquidUsdtBalance: newBalancesMap[AssetId.USD] ?? 0,
           liquidEuroxBalance: newBalancesMap[AssetId.EUR] ?? 0,
           liquidDepixBalance: newBalancesMap[AssetId.BRL] ?? 0,
         );
-
         balanceNotifier.updateBalance(newWalletState);
-
         return balances;
       },
       onSuccess: () => debugPrint('Liquid sync successful.'),
@@ -144,8 +111,30 @@ class LiquidSyncNotifier extends SyncNotifier<Balances> {
 
 class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   @override
-  Future<WalletBalance> build() async {
-    return WalletBalance.empty();
+  Future<WalletBalance> build() async => WalletBalance.empty();
+
+  /// Gathers all transaction data from various sources and updates the UI.
+  Future<void> _gatherAndUpdateTransactions() async {
+    final sideswapPegTxs = ref.read(sideswapAllPegsProvider);
+    final bitcoinTx = await ref.refresh(getBitcoinTransactionsProvider.future);
+    final liquidTx = await ref.refresh(liquidTransactionsProvider.future);
+    final eulenPurchases = ref.read(eulenTransferProvider);
+    final noxPurchases = ref.read(noxTransferProvider);
+    final allLightningPayments = await ref.read(listLightningPaymentsProvider(const breez.ListPaymentsRequest()).future);
+    final sideShiftShifts = ref.read(sideShiftShiftsProvider);
+
+    final rawData = RawTransactionData(
+      bitcoinTxs: bitcoinTx,
+      liquidTxs: liquidTx,
+      sideswapPegTxs: sideswapPegTxs,
+      eulenTxs: eulenPurchases,
+      noxTxs: noxPurchases,
+      lightningPayments: allLightningPayments,
+      sideShiftShifts: sideShiftShifts,
+    );
+
+    ref.read(rawTransactionDataProvider.notifier).state = rawData;
+    ref.read(transactionNotifierProvider.notifier).updateTransactions(rawData);
   }
 
   @override
@@ -155,14 +144,15 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
     return await handleSync(
       syncOperation: () async {
         final previousBalance = await ref.refresh(balanceFutureProvider.future);
-        List<bdk.TransactionDetails>? syncedBitcoinTxs;
 
-        try {
-          await ref.read(getFiatPurchasesProvider.future);
-        } catch (e) {
-          // ignore
-        }
+        // --- STEP 1: INSTANTLY LOAD LOCAL DATA ---
+        // This provides an immediate UI update with cached/local data.
+        debugPrint("Performing initial fast transaction load...");
+        await _gatherAndUpdateTransactions();
 
+        // --- STEP 2: RUN SLOW NETWORK SYNCS ---
+        // These run in the background without blocking the UI further.
+        debugPrint("Starting slow network syncs...");
         try {
           await ref.read(liquidSyncNotifierProvider.notifier).performSync();
         } catch (e) {
@@ -171,15 +161,24 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
         }
 
         try {
-          final bitcoinResult = await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
-          if (bitcoinResult != null) {
-            syncedBitcoinTxs = bitcoinResult.transactions;
-          }
+          await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
         } catch (e) {
           debugPrint('Bitcoin sync failed within background sync: $e');
           anySyncFailed = true;
         }
 
+        try {
+          await ref.read(getFiatPurchasesProvider.future);
+        } catch (e) {
+          debugPrint('Fiat purchase fetch failed within background sync: $e');
+        }
+
+        // --- STEP 3: RE-LOAD DATA AFTER SYNC ---
+        // This updates the UI with the fresh data from the network.
+        debugPrint("Performing final transaction load after syncs...");
+        await _gatherAndUpdateTransactions();
+
+        // --- FINAL STEPS ---
         final latestBalance = ref.read(balanceNotifierProvider);
         await _updateSideShiftShifts();
         _compareBalances(previousBalance, latestBalance);
@@ -187,9 +186,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
         final hiveBox = await Hive.openBox<WalletBalance>('balanceBox');
         await hiveBox.put('balance', latestBalance);
 
-        await ref.read(transactionNotifierProvider.notifier).refreshAndMergeTransactions(btcTxs: syncedBitcoinTxs);
-
-        try{
+        try {
           await ref.read(setupLnAddressProvider.future);
         } on NotificationPermissionException catch (e) {
           debugPrint('Notification permission error: $e');
@@ -216,10 +213,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   }
 
   Future<void> performFullUpdate() async {
-    if (ref.read(backgroundSyncInProgressProvider)) {
-      return;
-    }
-
+    if (ref.read(backgroundSyncInProgressProvider)) return;
     try {
       setBackgroundSyncInProgress(true);
       await performSync();
@@ -228,7 +222,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
     } finally {
       setBackgroundSyncInProgress(false);
     }
-
     try {
       await ref.read(updateCurrencyProvider.future);
     } catch (e) {
@@ -249,9 +242,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   }
 
   void setBackgroundSyncInProgress(bool inProgress) {
-    Future.microtask(() {
-      ref.read(backgroundSyncInProgressProvider.notifier).state = inProgress;
-    });
+    Future.microtask(() => ref.read(backgroundSyncInProgressProvider.notifier).state = inProgress);
   }
 
   void _compareBalances(WalletBalance previous, WalletBalance current) {
@@ -263,7 +254,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
       {'name': 'BRL', 'previous': previous.liquidDepixBalance, 'current': current.liquidDepixBalance},
       {'name': 'Lightning', 'previous': previous.sparkBitcoinbalance ?? 0, 'current': current.sparkBitcoinbalance ?? 0},
     ];
-
     for (var asset in assets) {
       _checkAndNotify(
         assetName: asset['name'] as String,
@@ -275,27 +265,14 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
 
   void _checkAndNotify({required String assetName, required int previousAmount, required int currentAmount}) {
     if (previousAmount < currentAmount) {
-      final Map<String, String> assetTickerMap = {
-        'USD': 'USDT',
-        'EUR': 'EUROX',
-        'BRL': 'DEPIX',
-      };
-      final balanceChange = BalanceChange(
-        asset: assetTickerMap[assetName] ?? assetName,
-        amount: currentAmount - previousAmount,
-      );
+      final Map<String, String> assetTickerMap = {'USD': 'USDT', 'EUR': 'EUROX', 'BRL': 'DEPIX'};
+      final balanceChange = BalanceChange(asset: assetTickerMap[assetName] ?? assetName, amount: currentAmount - previousAmount);
       ref.read(balanceChangeProvider.notifier).state = balanceChange;
     }
   }
 }
 
-final bitcoinSyncNotifierProvider =
-AsyncNotifierProvider<BitcoinSyncNotifier, BitcoinSyncResult?>(BitcoinSyncNotifier.new);
-
-final liquidSyncNotifierProvider =
-AsyncNotifierProvider<LiquidSyncNotifier, Balances>(LiquidSyncNotifier.new);
-
-final backgroundSyncNotifierProvider =
-AsyncNotifierProvider<BackgroundSyncNotifier, WalletBalance>(BackgroundSyncNotifier.new);
-
+final bitcoinSyncNotifierProvider = AsyncNotifierProvider<BitcoinSyncNotifier, void>(BitcoinSyncNotifier.new);
+final liquidSyncNotifierProvider = AsyncNotifierProvider<LiquidSyncNotifier, Balances>(LiquidSyncNotifier.new);
+final backgroundSyncNotifierProvider = AsyncNotifierProvider<BackgroundSyncNotifier, WalletBalance>(BackgroundSyncNotifier.new);
 final backgroundSyncInProgressProvider = StateProvider<bool>((ref) => false);

@@ -131,7 +131,7 @@ class _BalanceDisplayState extends ConsumerState<_BalanceDisplay> {
     final liquidBtcBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.liquidBtcBalance, denomination) : '***';
 
     final transaction = ref.watch(transactionNotifierProvider);
-    final cashbackAmount = transaction.value?.unpaidCashback ?? 0;
+    final cashbackAmount = transaction.unpaidCashback ?? 0;
     final cashbackToReceive = isBalanceVisible ? btcInDenominationFormatted(cashbackAmount, denomination) : '***';
 
     return Card(

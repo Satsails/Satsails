@@ -68,9 +68,7 @@ class FirebaseService {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  /// Initializes all Firebase and notification services. Call once at app startup.
-  static Future<void> initialize() async {
-    final container = ProviderContainer();
+  static Future<void> initialize(ProviderContainer container) async {
     await NotificationHelper.initialize();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     await listenForForegroundPushNotifications(container);

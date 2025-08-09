@@ -151,8 +151,8 @@ class _TransactionListState extends ConsumerState<TransactionList> {
     final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
     final transactionState = ref.watch(transactionNotifierProvider);
 
-    final settledTransactions = transactionState.value?.settledTransactions.take(6).toList() ?? [];
-    final allTransactions = transactionState.value?.allTransactionsSorted ?? [];
+    final settledTransactions = transactionState.settledTransactions.take(6).toList() ?? [];
+    final allTransactions = transactionState.allTransactionsSorted ?? [];
 
     final buyButton = GestureDetector(
       onTap: () => ref.read(navigationProvider.notifier).state = 3,

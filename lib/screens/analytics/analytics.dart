@@ -70,7 +70,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
       case '3M': start = now.subtract(const Duration(days: 89)); break;
       case '1Y': start = now.subtract(const Duration(days: 364)); break;
       case 'ALL':
-        final ts = ref.read(transactionNotifierProvider).value?.earliestTimestamp;
+        final ts = ref.read(transactionNotifierProvider).earliestTimestamp;
         start = ts?.dateOnly() ?? now.subtract(const Duration(days: 364 * 5));
         break;
       default: start = now.subtract(const Duration(days: 29));

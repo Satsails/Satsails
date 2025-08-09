@@ -1,4 +1,3 @@
-import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/screens/analytics/analytics.dart';
@@ -10,15 +9,9 @@ import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MainScreen extends ConsumerStatefulWidget {
+// The widget is now a stateless ConsumerWidget.
+class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
-
-  @override
-  ConsumerState<MainScreen> createState() => _MainScreenState();
-}
-
-class _MainScreenState extends ConsumerState<MainScreen> {
-  bool _isLoopActive = false;
 
   final List<Widget> _screens = const [
     Home(),
@@ -29,37 +22,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _startContinuousSync();
-  }
-
-  @override
-  void dispose() {
-    _isLoopActive = false;
-    super.dispose();
-  }
-
-  Future<void> _startContinuousSync() async {
-    _isLoopActive = true;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      while (_isLoopActive) {
-        try {
-          if (mounted && !ref.read(backgroundSyncInProgressProvider)) {
-            await ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
-          }
-        } catch (e) {
-          debugPrint("Sync loop failed, will retry: $e");
-        }
-
-        await Future.delayed(const Duration(seconds: 5));
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(navigationProvider);
 
     return Scaffold(

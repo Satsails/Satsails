@@ -42,12 +42,7 @@ DateTime normalizeDate(DateTime date) {
 }
 
 final bitcoinBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
-  final transactionsAsync = ref.watch(transactionNotifierProvider);
-  if (!transactionsAsync.hasValue) {
-    return {};
-  }
-
-  final transactionData = transactionsAsync.value!;
+  final transactionData = ref.watch(transactionNotifierProvider);
   final transactions = transactionData.bitcoinTransactions;
   final Map<DateTime, num> balancePerDay = {};
 
@@ -69,9 +64,7 @@ final bitcoinBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((
       continue;
     }
 
-    final DateTime date = transaction.btcDetails.confirmationTime  == null || transaction.btcDetails.confirmationTime!.timestamp == 0
-        ? normalizeDate(DateTime.now())
-        : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000));
+    final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000));
     var netAmount = transaction.btcDetails.received - transaction.btcDetails.sent;
 
     cumulativeBalance += netAmount.toInt();
@@ -89,12 +82,15 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<Date
   num lastKnownBalance = 0;
 
   if (balanceOverPeriod.isEmpty) {
+    // If no transactions, fill the selected days with 0
+    for (DateTime day in selectedDays) {
+      balancePerDay[normalizeDate(day)] = 0;
+    }
     return balancePerDay;
   }
 
-  // Get the first day in the balance period and set it to 0 balance one day before
-  DateTime firstDay = balanceOverPeriod.keys.first.subtract(const Duration(days: 1));
-  balancePerDay[normalizeDate(firstDay)] = 0;
+  // Get the first day in the balance period
+  DateTime firstDay = balanceOverPeriod.keys.first;
 
   // Iterate through the balance over period to fill in the days
   for (var entry in balanceOverPeriod.entries) {
@@ -119,12 +115,24 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<Date
     firstDay = firstDay.add(const Duration(days: 1));
   }
 
-  // Filter the result to only include selected days
+  // Filter the result to only include selected days, providing a default if a day is missing.
   final Map<DateTime, num> selectedBalancePerDay = {};
+  num lastBalanceForSelectedRange = 0;
+
+  // Find the balance just before the start of the selected range
+  if (selectedDays.isNotEmpty) {
+    final dayBeforeStart = normalizeDate(selectedDays.first.subtract(const Duration(days: 1)));
+    lastBalanceForSelectedRange = balancePerDay[dayBeforeStart] ?? 0;
+  }
+
   for (DateTime day in selectedDays) {
     final normalizedDay = normalizeDate(day);
     if (balancePerDay.containsKey(normalizedDay)) {
       selectedBalancePerDay[normalizedDay] = balancePerDay[normalizedDay]!;
+      lastBalanceForSelectedRange = balancePerDay[normalizedDay]!;
+    } else {
+      // If a day is missing in the middle of the range, use the last known balance.
+      selectedBalancePerDay[normalizedDay] = lastBalanceForSelectedRange;
     }
   }
 
@@ -146,24 +154,15 @@ final bitcoinBalanceInFormatByDayProvider = StateProvider.autoDispose<Map<DateTi
 });
 
 final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
-  final transactionsAsync = ref.watch(transactionNotifierProvider);
-  if (!transactionsAsync.hasValue) {
-    return {};
-  }
-
-  final transactions = transactionsAsync.value!.liquidTransactions;
+  // CORRECTED: Watch the provider directly.
+  final transactions = ref.watch(transactionNotifierProvider).liquidTransactions;
   final balancePerDay = <DateTime, num>{};
 
-  transactions.sort((a, b) {
-    if (a.timestamp == null && b.timestamp == null) return 0;
-    if (a.timestamp == null) return -1;
-    if (b.timestamp == null) return 1;
-    return a.timestamp.compareTo(b.timestamp);
-  });
+  transactions.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
   num cumulativeBalance = 0;
   for (final transaction in transactions) {
-    if (transaction.timestamp == null || transaction.timestamp.millisecondsSinceEpoch == 0) {
+    if (transaction.timestamp.millisecondsSinceEpoch == 0) {
       continue;
     }
 
@@ -191,12 +190,15 @@ final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Ma
   num lastKnownBalance = 0;
 
   if (balanceOverPeriod.isEmpty) {
+    // If no transactions, fill the selected days with 0
+    for (DateTime day in selectedDays) {
+      balancePerDay[normalizeDate(day)] = 0;
+    }
     return balancePerDay;
   }
 
-  // Get the first day in the balance period and set it to 0 balance one day before
-  DateTime firstDay = balanceOverPeriod.keys.first.subtract(const Duration(days: 1));
-  balancePerDay[normalizeDate(firstDay)] = 0;
+  // Get the first day in the balance period
+  DateTime firstDay = balanceOverPeriod.keys.first;
 
   // Iterate through the balance over period to fill in the days
   for (var entry in balanceOverPeriod.entries) {
@@ -221,12 +223,24 @@ final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Ma
     firstDay = firstDay.add(const Duration(days: 1));
   }
 
-  // Filter the result to only include selected days
+  // Filter the result to only include selected days, providing a default if a day is missing.
   final Map<DateTime, num> selectedBalancePerDay = {};
+  num lastBalanceForSelectedRange = 0;
+
+  // Find the balance just before the start of the selected range
+  if (selectedDays.isNotEmpty) {
+    final dayBeforeStart = normalizeDate(selectedDays.first.subtract(const Duration(days: 1)));
+    lastBalanceForSelectedRange = balancePerDay[dayBeforeStart] ?? 0;
+  }
+
   for (DateTime day in selectedDays) {
     final normalizedDay = normalizeDate(day);
     if (balancePerDay.containsKey(normalizedDay)) {
       selectedBalancePerDay[normalizedDay] = balancePerDay[normalizedDay]!;
+      lastBalanceForSelectedRange = balancePerDay[normalizedDay]!;
+    } else {
+      // If a day is missing in the middle of the range, use the last known balance.
+      selectedBalancePerDay[normalizedDay] = lastBalanceForSelectedRange;
     }
   }
 
@@ -244,5 +258,5 @@ final liquidBalancePerDayInFormatProvider = StateProvider.autoDispose.family<Map
     balanceInFormatByDay[day] = btcInDenominationNum(balanceByDay[day]!, btcFormat, isBtc);
   }
 
-  return balanceInFormatByDay;
+  return Map.fromEntries(balanceInFormatByDay.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)));
 });

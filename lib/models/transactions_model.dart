@@ -1,153 +1,15 @@
-import 'dart:async';
-
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_exchange_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/sideshift_model.dart';
-import 'package:Satsails/providers/bitcoin_provider.dart';
-import 'package:Satsails/providers/breez_provider.dart';
-import 'package:Satsails/providers/eulen_transfer_provider.dart';
-import 'package:Satsails/providers/liquid_provider.dart';
-import 'package:Satsails/providers/nox_transfer_provider.dart';
-import 'package:Satsails/providers/sideshift_provider.dart';
-import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk/lwk.dart' as lwk;
 
-class TransactionNotifier extends AsyncNotifier<Transaction> {
-  @override
-  Future<Transaction> build() async {
-    return _fetchAllTransactions();
-  }
-
-  Future<void> refreshAndMergeTransactions({List<bdk.TransactionDetails>? btcTxs}) async {
-    final previousState = state.value ?? Transaction.empty();
-    final newState = await _fetchAllTransactions(bitcoinTxs: btcTxs);
-
-    final merged = Transaction(
-      bitcoinTransactions: _merge(previousState.bitcoinTransactions, newState.bitcoinTransactions),
-      liquidTransactions: _merge(previousState.liquidTransactions, newState.liquidTransactions),
-      sideswapPegTransactions: _merge(previousState.sideswapPegTransactions, newState.sideswapPegTransactions),
-      sideswapInstantSwapTransactions: _merge(previousState.sideswapInstantSwapTransactions, newState.sideswapInstantSwapTransactions),
-      eulenTransactions: _merge(previousState.eulenTransactions, newState.eulenTransactions),
-      noxTransactions: _merge(previousState.noxTransactions, newState.noxTransactions),
-      lightningConversionTransactions: _merge(previousState.lightningConversionTransactions, newState.lightningConversionTransactions),
-      sideShiftTransactions: _merge(previousState.sideShiftTransactions, newState.sideShiftTransactions),
-    );
-    state = AsyncData(merged);
-  }
-
-  List<T> _merge<T extends BaseTransaction>(List<T> oldList, List<T> newList) {
-    final map = <String, T>{};
-    for (final tx in oldList) {
-      map[tx.id] = tx;
-    }
-    for (final tx in newList) {
-      map[tx.id] = tx;
-    }
-    return map.values.toList();
-  }
-
-  Future<Transaction> _fetchAllTransactions({List<bdk.TransactionDetails>? bitcoinTxs}) async {
-    final bitcoinModel = await ref.read(bitcoinModelProvider.future);
-    final liquidModel = await ref.read(liquidModelProvider.future);
-
-    final btcTxsList = bitcoinTxs ?? bitcoinModel.getTransactions();
-    final liquidTxs = await liquidModel.txs();
-
-    final bitcoinTransactions = btcTxsList.map((btcTx) {
-      return BitcoinTransaction(
-        id: btcTx.txid,
-        timestamp: btcTx.confirmationTime != null && btcTx.confirmationTime!.timestamp != 0
-            ? DateTime.fromMillisecondsSinceEpoch(btcTx.confirmationTime!.timestamp.toInt() * 1000)
-            : DateTime.now(),
-        btcDetails: btcTx,
-        isConfirmed: btcTx.confirmationTime != null && btcTx.confirmationTime!.timestamp != 0,
-      );
-    }).toList();
-
-    final liquidTransactions = liquidTxs.map((lwkTx) {
-      return LiquidTransaction(
-        id: lwkTx.txid,
-        timestamp: lwkTx.timestamp != null && lwkTx.timestamp != 0
-            ? DateTime.fromMillisecondsSinceEpoch(lwkTx.timestamp! * 1000)
-            : DateTime.now(),
-        lwkDetails: lwkTx,
-        isConfirmed: lwkTx.timestamp != null && lwkTx.timestamp != 0,
-      );
-    }).toList();
-
-    final sideswapPegTxs = ref.read(sideswapAllPegsProvider);
-    final sideswapPegTransactions = sideswapPegTxs.map((pegTx) {
-      return SideswapPegTransaction(
-        id: pegTx.orderId!,
-        timestamp: DateTime.fromMillisecondsSinceEpoch(pegTx.createdAt!),
-        sideswapPegDetails: pegTx,
-        isConfirmed: pegTx.list!.map((e) => e.status).contains('Done'),
-      );
-    }).toList();
-
-    final eulenPurchases = ref.read(eulenTransferProvider);
-    final eulenTransactions = eulenPurchases.map((pixTx) {
-      return EulenTransaction(
-        id: pixTx.id.toString(),
-        timestamp: pixTx.createdAt,
-        details: pixTx,
-        isConfirmed: pixTx.completed,
-      );
-    }).toList();
-
-    final noxPurchases = ref.read(noxTransferProvider);
-    final noxTransactions = noxPurchases.map((pixTx) {
-      return NoxTransaction(
-        id: pixTx.id.toString(),
-        timestamp: pixTx.createdAt,
-        details: pixTx,
-        isConfirmed: pixTx.completed,
-      );
-    }).toList();
-
-    final allLightningPayments = await ref.read(listLightningPaymentsProvider(const breez.ListPaymentsRequest()).future);
-    final lightningConversionTransactions = allLightningPayments
-        .where((payment) => payment.details is breez.PaymentDetails_Lightning)
-        .map((payment) {
-      final lightningDetails = payment.details as breez.PaymentDetails_Lightning;
-      final String paymentId = lightningDetails.paymentHash ?? lightningDetails.swapId;
-
-      return LightningConversionTransaction(
-        id: paymentId,
-        timestamp: DateTime.fromMillisecondsSinceEpoch(payment.timestamp * 1000),
-        details: payment,
-        isConfirmed: payment.status == breez.PaymentState.complete,
-      );
-    }).toList();
-
-    final sideShiftShifts = ref.read(sideShiftShiftsProvider);
-    final sideShiftTransactions = sideShiftShifts.map((shift) {
-      return SideShiftTransaction(
-        id: shift.id,
-        timestamp: DateTime.fromMillisecondsSinceEpoch(shift.timestamp * 1000),
-        details: shift,
-        isConfirmed: shift.status == 'settled',
-      );
-    }).toList();
-
-    return Transaction(
-      bitcoinTransactions: bitcoinTransactions,
-      liquidTransactions: liquidTransactions,
-      sideswapPegTransactions: sideswapPegTransactions,
-      sideswapInstantSwapTransactions: [],
-      eulenTransactions: eulenTransactions,
-      noxTransactions: noxTransactions,
-      lightningConversionTransactions: lightningConversionTransactions,
-      sideShiftTransactions: sideShiftTransactions,
-    );
-  }
-}
+// This file now only contains the data models.
+// The TransactionNotifier has been moved to transactions_provider.dart.
 
 abstract class BaseTransaction {
   final String id;
@@ -358,7 +220,7 @@ class Transaction {
     List<BaseTransaction> swaps = [];
     swaps.addAll(sideswapPegTransactions);
     swaps.addAll(liquidTransactions.where((tx) => tx.lwkDetails.kind == 'unknown'));
-    swaps.addAll(lightningConversionTransactions); // Add lightning swaps/payments
+    swaps.addAll(lightningConversionTransactions);
     swaps.addAll(sideShiftTransactions);
     swaps.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return swaps;
