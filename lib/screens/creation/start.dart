@@ -55,6 +55,8 @@ class _StartState extends ConsumerState<Start> with TickerProviderStateMixin {
       await _videoController!.initialize().timeout(const Duration(seconds: 7));
       if (!mounted) return;
 
+      await _videoController!.setVolume(0.0);
+
       setState(() {
         _isVideoReady = true;
         _isLoadingVideo = false; // Video loaded successfully, hide spinner
