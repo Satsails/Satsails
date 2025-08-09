@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:Satsails/providers/auth_provider.dart'; // Import auth provider
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
+import 'package:Satsails/services/background_sync_service.dart'; // Import the service
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
@@ -13,7 +15,6 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import './app_router.dart';
 
-/// The root widget of the application that manages lifecycle and theming.
 class AppWidget extends ConsumerStatefulWidget {
   const AppWidget({super.key});
 
@@ -65,17 +66,30 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
+
+    // *** CHANGE: Manage service based on app lifecycle ***
+    final container = ProviderScope.containerOf(context);
+    final isAppLocked = ref.read(appLockedProvider);
+
     switch (state) {
       case AppLifecycleState.resumed:
         _handleAppResume();
+        // Only restart the service if the user is already logged in.
+        if (!isAppLocked) {
+          debugPrint("App resumed and unlocked, starting sync service...");
+          BackgroundSyncService().start(container);
+        }
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:
         _handleAppPause();
+        // Always stop the service when the app is not active.
+        debugPrint("App paused, stopping sync service...");
+        BackgroundSyncService().stop();
         break;
       case AppLifecycleState.detached:
-      // Do nothing when detached, as the view is gone.
+        BackgroundSyncService().stop();
         break;
     }
   }
@@ -117,6 +131,7 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
 
   @override
   Widget build(BuildContext context) {
+    // ... (UI code is the same, no changes needed here) ...
     final language = ref.watch(settingsProvider).language;
     I18n.define(Locale(language));
 

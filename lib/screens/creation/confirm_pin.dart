@@ -6,6 +6,7 @@ import 'package:Satsails/screens/creation/set_pin.dart'; // Contains pinProvider
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/custom_keypad.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
+import 'package:Satsails/services/background_sync_service.dart'; // Import the service
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,8 +15,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-
-// Define the loading provider for this screen
 final confirmPinLoadingProvider = StateProvider<bool>((ref) => false);
 
 class ConfirmPin extends ConsumerStatefulWidget {
@@ -48,7 +47,6 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
       });
   }
 
-  // Asynchronous method to handle setting the PIN (only called when PINs match)
   Future<void> _handleSetPin(String originalPin) async {
     ref.read(confirmPinLoadingProvider.notifier).state = true;
     try {
@@ -59,7 +57,12 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
         await authModel.setMnemonic(await authModel.generateMnemonic());
       }
       ref.read(pinProvider.notifier).state = '';
+
       if (mounted) {
+        // *** CHANGE: Start the service after setting up the new wallet ***
+        final container = ProviderScope.containerOf(context);
+        BackgroundSyncService().start(container);
+
         ref.invalidate(bitcoinConfigProvider);
         ref.invalidate(liquidConfigProvider);
         ref.read(addressProvider);
@@ -99,6 +102,7 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
 
   @override
   Widget build(BuildContext context) {
+    // ... (UI code is the same, no changes needed here) ...
     final originalPin = ref.watch(pinProvider);
     final isLoading = ref.watch(confirmPinLoadingProvider);
 
@@ -118,7 +122,6 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
             SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 32.w),
-                // Removed the fixed-height SizedBox wrapper
                 child: Column(
                   children: [
                     SizedBox(height: 20.h),
@@ -130,7 +133,7 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 50.h), // Replaced Spacer
+                    SizedBox(height: 50.h),
                     AnimatedBuilder(
                       animation: _animation,
                       builder: (context, child) {
@@ -142,7 +145,7 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
                       child:
                       PinProgressIndicator(currentLength: confirmPin.length),
                     ),
-                    SizedBox(height: 50.h), // Replaced Spacer(flex: 2)
+                    SizedBox(height: 50.h),
                     CustomKeypad(
                       onDigitPressed: (digit) {
                         if (confirmPin.length < 6) {
@@ -158,7 +161,7 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
                         }
                       },
                     ),
-                    SizedBox(height: 30.h), // Replaced Spacer
+                    SizedBox(height: 30.h),
                     AnimatedOpacity(
                       opacity: confirmPin.length == 6 ? 1.0 : 0.5,
                       duration: const Duration(milliseconds: 300),

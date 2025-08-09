@@ -145,6 +145,11 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
       syncOperation: () async {
         final previousBalance = await ref.refresh(balanceFutureProvider.future);
 
+        try {
+          await ref.read(getFiatPurchasesProvider.future);
+        } catch (e) {
+          debugPrint('Fiat purchase fetch failed within background sync: $e');
+        }
         // --- STEP 1: INSTANTLY LOAD LOCAL DATA ---
         // This provides an immediate UI update with cached/local data.
         debugPrint("Performing initial fast transaction load...");
@@ -167,11 +172,6 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
           anySyncFailed = true;
         }
 
-        try {
-          await ref.read(getFiatPurchasesProvider.future);
-        } catch (e) {
-          debugPrint('Fiat purchase fetch failed within background sync: $e');
-        }
 
         // --- STEP 3: RE-LOAD DATA AFTER SYNC ---
         // This updates the UI with the fresh data from the network.
@@ -242,7 +242,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   }
 
   void setBackgroundSyncInProgress(bool inProgress) {
-    Future.microtask(() => ref.read(backgroundSyncInProgressProvider.notifier).state = inProgress);
+    ref.read(backgroundSyncInProgressProvider.notifier).state = inProgress;
   }
 
   void _compareBalances(WalletBalance previous, WalletBalance current) {

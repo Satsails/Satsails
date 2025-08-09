@@ -373,7 +373,7 @@ final recoverLnurlProvider = FutureProvider<Lnurl>((ref) async {
 });
 
 
-final setupLnAddressProvider = FutureProvider<Lnurl>((ref) async {
+final setupLnAddressProvider = FutureProvider.autoDispose<Lnurl>((ref) async {
   final bool allowed = await FirebaseService.checkNotificationPermissionStatus();
 
   if (!allowed) {

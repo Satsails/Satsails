@@ -10,6 +10,7 @@ import 'package:Satsails/screens/shared/custom_alert_dialog.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/custom_keypad.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
+import 'package:Satsails/services/background_sync_service.dart'; // Import the service
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,7 +20,6 @@ import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:local_auth/local_auth.dart';
 
-// Define the loading provider
 final loadingProvider = StateProvider<bool>((ref) => false);
 
 class OpenPin extends ConsumerStatefulWidget {
@@ -35,7 +35,6 @@ class _OpenPinState extends ConsumerState<OpenPin>
   final LocalAuthentication _localAuth = LocalAuthentication();
   int _attempts = 0;
 
-  // Animation controller for the shake animation on incorrect PIN
   late AnimationController _animationController;
   late Animation<double> _animation;
 
@@ -66,7 +65,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
       final storedPin = await authModel.getPin();
 
       if (storedPin == pin) {
-        _unlockApp(context, ref);
+        await _unlockApp(context, ref); // Changed to await
       } else {
         _handleIncorrectPin();
       }
@@ -90,7 +89,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
     });
 
     if (_attempts >= 6) {
-      _forgotPin(context, ref);
+      _showForgotPinConfirmation(context, ref); // Changed to show dialog before deleting
     }
   }
 
@@ -107,7 +106,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
         );
 
         if (authenticated && mounted) {
-          _unlockApp(context, ref);
+          await _unlockApp(context, ref); // Changed to await
         }
       }
     } catch (e) {
@@ -115,10 +114,15 @@ class _OpenPinState extends ConsumerState<OpenPin>
     }
   }
 
-  void _unlockApp(BuildContext context, WidgetRef ref) {
+  Future<void> _unlockApp(BuildContext context, WidgetRef ref) async {
     ref.read(loadingProvider.notifier).state = true;
     try {
       _attempts = 0;
+
+      // *** CHANGE: Start the background service on successful unlock ***
+      final container = ProviderScope.containerOf(context);
+      BackgroundSyncService().start(container);
+
       ref.read(appLockedProvider.notifier).state = false;
       ref.read(sendTxProvider.notifier).resetToDefault();
       ref.read(sendBlocksProvider.notifier).state = 1;
@@ -132,6 +136,9 @@ class _OpenPinState extends ConsumerState<OpenPin>
   }
 
   Future<void> _forgotPin(BuildContext context, WidgetRef ref) async {
+    // *** CHANGE: Stop the background service before deleting wallet ***
+    BackgroundSyncService().stop();
+
     final authModel = ref.read(authModelProvider);
     await authModel.deleteAuthentication();
     ref.read(appLockedProvider.notifier).state = true;
@@ -176,6 +183,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
 
   @override
   Widget build(BuildContext context) {
+    // ... (UI code is the same, no changes needed here) ...
     final isLoading = ref.watch(loadingProvider);
     final biometricsEnabled = ref.watch(settingsProvider.select((s) => s.biometricsEnabled));
 

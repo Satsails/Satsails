@@ -23,7 +23,6 @@ class _StartState extends ConsumerState<Start> with TickerProviderStateMixin {
 
   VideoPlayerController? _videoController;
   bool _isVideoReady = false;
-  // New state to track if the video is currently trying to load.
   bool _isLoadingVideo = true;
 
   @override
@@ -40,7 +39,11 @@ class _StartState extends ConsumerState<Start> with TickerProviderStateMixin {
       curve: Curves.easeIn,
     );
 
-    _initializeVideo();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _initializeVideo();
+      }
+    });
   }
 
   Future<void> _initializeVideo() async {
@@ -59,7 +62,7 @@ class _StartState extends ConsumerState<Start> with TickerProviderStateMixin {
         _videoController!.play();
       });
     } catch (e) {
-      // This includes timeouts and other errors like the SSLHandshakeException
+      // This includes timeouts and other errors
       print("Video failed to load, falling back to static background. Error: $e");
       if (!mounted) return;
       setState(() {

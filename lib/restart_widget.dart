@@ -19,7 +19,6 @@ class RestartWidget extends StatefulWidget {
 
 class _RestartWidgetState extends State<RestartWidget> with WidgetsBindingObserver {
   late ProviderContainer _container;
-  // Static flag to ensure one-time services are only initialized once per app run.
   static bool _servicesInitialized = false;
 
   @override
@@ -27,17 +26,10 @@ class _RestartWidgetState extends State<RestartWidget> with WidgetsBindingObserv
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _createNewContainerAndServices();
-
-    // --- ADDED: Reset the sync progress state on every start ---
-    // This prevents the app from getting stuck in an "offline" state.
     _container.read(backgroundSyncInProgressProvider.notifier).state = false;
-    // -----------------------------------------------------------
-
-    debugPrint("initState: Starting sync service...");
-    BackgroundSyncService().start(_container);
+    // Service is no longer started here
   }
 
-  /// Creates a new ProviderContainer and initializes services that need it.
   void _createNewContainerAndServices() {
     _container = ProviderContainer();
 
@@ -50,25 +42,14 @@ class _RestartWidgetState extends State<RestartWidget> with WidgetsBindingObserv
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    switch (state) {
-      case AppLifecycleState.resumed:
-        debugPrint("App resumed, ensuring sync service is running...");
-        BackgroundSyncService().start(_container);
-        break;
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.paused:
-      case AppLifecycleState.detached:
-      case AppLifecycleState.hidden:
-        debugPrint("App paused, stopping sync service...");
-        BackgroundSyncService().stop();
-        break;
-    }
+    // Lifecycle is now handled by AppWidget, so this can be removed.
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _container.dispose();
+    // *** CHANGE: Ensure service is stopped on final dispose ***
     BackgroundSyncService().stop();
     super.dispose();
   }
@@ -76,11 +57,10 @@ class _RestartWidgetState extends State<RestartWidget> with WidgetsBindingObserv
   void restartApp() {
     setState(() {
       _container.dispose();
+      // *** CHANGE: Stop the service before recreating the container ***
       BackgroundSyncService().stop();
       _createNewContainerAndServices();
-      // Reset sync state and start the service immediately after a manual restart.
       _container.read(backgroundSyncInProgressProvider.notifier).state = false;
-      BackgroundSyncService().start(_container);
     });
   }
 
