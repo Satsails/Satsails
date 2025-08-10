@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:Satsails/providers/auth_provider.dart'; // Import auth provider
+import 'package:Satsails/notifications/firebase.dart';
+import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
-import 'package:Satsails/services/background_sync_service.dart'; // Import the service
+import 'package:Satsails/services/background_sync_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
@@ -36,7 +38,15 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
     _router = AppRouter.createRouter('/splash');
     WidgetsBinding.instance.addObserver(this);
     _initializeDeepLinkListener();
+    _setupForegroundMessageListener();
     _setSystemUIOverlayStyle();
+  }
+
+  /// Sets up the listener for incoming foreground push notifications.
+  void _setupForegroundMessageListener() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      FirebaseService.handleForegroundMessage(ref, message);
+    });
   }
 
   void _initializeDeepLinkListener() {
@@ -67,14 +77,12 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    // *** CHANGE: Manage service based on app lifecycle ***
     final container = ProviderScope.containerOf(context);
     final isAppLocked = ref.read(appLockedProvider);
 
     switch (state) {
       case AppLifecycleState.resumed:
         _handleAppResume();
-        // Only restart the service if the user is already logged in.
         if (!isAppLocked) {
           debugPrint("App resumed and unlocked, starting sync service...");
           BackgroundSyncService().start(container);
@@ -84,7 +92,6 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:
         _handleAppPause();
-        // Always stop the service when the app is not active.
         debugPrint("App paused, stopping sync service...");
         BackgroundSyncService().stop();
         break;
@@ -131,7 +138,6 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
 
   @override
   Widget build(BuildContext context) {
-    // ... (UI code is the same, no changes needed here) ...
     final language = ref.watch(settingsProvider).language;
     I18n.define(Locale(language));
 

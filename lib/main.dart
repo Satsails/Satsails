@@ -23,13 +23,18 @@ import 'models/auth_model.dart';
 
 /// The main entry point for the application.
 Future<void> main() async {
-  // Ensure that the Flutter binding is initialized before calling native code.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Run all app initialization tasks concurrently for faster startup.
+  // Enable edge-to-edge with transparent bars
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+  ));
+
   await _initializeApp();
 
-  // Run the app with the RestartWidget at the root.
   runApp(
     const OverlaySupport.global(
       child: RestartWidget(
@@ -41,41 +46,44 @@ Future<void> main() async {
 
 /// Handles all asynchronous app initialization.
 Future<void> _initializeApp() async {
-  // Use Future.wait to run non-dependent initializations in parallel.
+  // Run non-dependent initializations in parallel
   await Future.wait([
-    // Set preferred screen orientation.
+    // Lock orientation
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]),
-    // Load environment variables.
+
+    // Load environment variables
     dotenv.load(fileName: ".env"),
-    // Initialize Firebase.
+
+    // Initialize Firebase
     Firebase.initializeApp().then((_) {
-      // Set up Crashlytics after Firebase is initialized.
       PlatformDispatcher.instance.onError = (error, stack) {
         FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
         return true;
       };
     }),
-    // Initialize Hive for local storage.
+
+    // Initialize Hive for local storage
     _initHive(),
   ]);
 
-  // These must run after the above initializations.
+  // Sequential initializations
   await migrateMnemonicStorage();
   await LibLwk.init();
   await initialize();
 
   try {
     await FlutterBranchSdk.init(
-        enableLogging: false,
-        branchAttributionLevel: BranchAttributionLevel.NONE);
+      enableLogging: false,
+      branchAttributionLevel: BranchAttributionLevel.NONE,
+    );
   } catch (e) {
     debugPrint("Branch SDK initialization failed: $e");
   }
 }
 
-/// Initializes Hive and registers all necessary adapters.
+/// Initializes Hive and registers adapters.
 Future<void> _initHive() async {
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);

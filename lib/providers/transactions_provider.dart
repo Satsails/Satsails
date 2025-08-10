@@ -41,6 +41,11 @@ final rawTransactionDataProvider = StateProvider<RawTransactionData?>((ref) => n
 /// This provider fetches the latest fiat purchase transactions.
 /// It's called by the background sync process.
 final getFiatPurchasesProvider = FutureProvider.autoDispose<void>((ref) async {
+  final userIsNotCreated = ref.watch(userProvider).jwt.isEmpty;
+  if (userIsNotCreated) {
+    return;
+  }
+
   await Future.wait([
     ref.read(getNoxUserPurchasesProvider.future).catchError((e, s) {
       debugPrint("Failed to get Nox purchases: $e");

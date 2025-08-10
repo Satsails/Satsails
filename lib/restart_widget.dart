@@ -27,14 +27,14 @@ class _RestartWidgetState extends State<RestartWidget> with WidgetsBindingObserv
     WidgetsBinding.instance.addObserver(this);
     _createNewContainerAndServices();
     _container.read(backgroundSyncInProgressProvider.notifier).state = false;
-    // Service is no longer started here
   }
 
   void _createNewContainerAndServices() {
     _container = ProviderContainer();
 
     if (!_servicesInitialized) {
-      FirebaseService.initialize(_container);
+      // CHANGE: No longer pass the container here
+      FirebaseService.initialize();
       _servicesInitialized = true;
     }
   }
@@ -42,14 +42,12 @@ class _RestartWidgetState extends State<RestartWidget> with WidgetsBindingObserv
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    // Lifecycle is now handled by AppWidget, so this can be removed.
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _container.dispose();
-    // *** CHANGE: Ensure service is stopped on final dispose ***
     BackgroundSyncService().stop();
     super.dispose();
   }
@@ -57,7 +55,6 @@ class _RestartWidgetState extends State<RestartWidget> with WidgetsBindingObserv
   void restartApp() {
     setState(() {
       _container.dispose();
-      // *** CHANGE: Stop the service before recreating the container ***
       BackgroundSyncService().stop();
       _createNewContainerAndServices();
       _container.read(backgroundSyncInProgressProvider.notifier).state = false;
