@@ -58,8 +58,7 @@ dependencies:
   icons_plus: ^5.0.0
   loading_animation_widget: ^1.3.0
   video_player: ^2.10.0
-#  n
-  is_lock_screen: ^2.0.0
+#  is_lock_screen: ^2.0.0
 
   # Device & System Interaction
   webview_flutter: ^4.13.0
@@ -100,7 +99,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - lib/assets/app_icon.png
+    - lib/assets/splash_white.png
     - lib/assets/satsails.png
     - lib/assets/arbitrum-logo.png
     - lib/assets/satsails.svg
@@ -133,11 +132,8 @@ android_notification_icons:
 
 flutter_native_splash:
   color: "#000000"
-  image: "lib/assets/satsails.png"
+  image: "lib/assets/splash_white.png"
   web: false
-  android: true
   android_12:
-    image: "lib/assets/app_icon.png"
-    icon_background_color: "#000000"
     color: "#000000"
-  image_android: "lib/assets/app_icon.png"
+    image: "lib/assets/splash_white.png"

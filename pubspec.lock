@@ -927,14 +927,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  is_lock_screen:
-    dependency: "direct main"
-    description:
-      name: is_lock_screen
-      sha256: "7f45c22b1bb4bd9849aa699bc45b5b9473ada262a4266e1d7d51babdf50c0c83"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
   js:
     dependency: transitive
     description:
