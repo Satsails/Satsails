@@ -168,7 +168,7 @@ class _ExchangeState extends ConsumerState<Exchange> {
                                 ..._buildInternalSwapWidgets()
                               else
                                 ..._buildExternalSwapWidgets(),
-                              SizedBox(height: 100.sp),
+                              SizedBox(height: 150.h)
                             ],
                           ),
                         ),
