@@ -1,66 +1,125 @@
-name: Flutter Build APK and App Bundle
-
-on:
-  workflow_dispatch: # Allows the workflow to be triggered manually
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    env:
-      FLUTTER_VERSION: '3.22.3'
-      RUN_PIPELINE: 'true'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Install Flutter
-        if: env.RUN_PIPELINE == 'true'
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-
-      - name: Create google-services.json
-        if: env.RUN_PIPELINE == 'true'
-        run: |
-          echo "$GOOGLE_SERVICES_JSON" > $GITHUB_WORKSPACE/android/app/google-services.json
-        env:
-          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-
-      - name: Create key.properties
-        if: env.RUN_PIPELINE == 'true'
-        run: |
-          echo "$KEY_PROPERTIES_FILE" > $GITHUB_WORKSPACE/android/key.properties
-        env:
-          KEY_PROPERTIES_FILE: ${{ secrets.KEY_PROPERTIES_FILE }}
-
-      - name: Install dependencies
-        if: env.RUN_PIPELINE == 'true'
-        run: flutter pub get
-
-      - name: Clean before build
-        if: env.RUN_PIPELINE == 'true'
-        run: flutter clean
-
-      - name: Build APK
-        if: env.RUN_PIPELINE == 'true'
-        run: flutter build apk --release
-
-      - name: Build App Bundle
-        if: env.RUN_PIPELINE == 'true'
-        run: flutter build appbundle --release
-
-      - name: Upload APK
-        if: env.RUN_PIPELINE == 'true'
-        uses: actions/upload-artifact@v3
-        with:
-          name: app-release.apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-
-      - name: Upload App Bundle
-        if: env.RUN_PIPELINE == 'true'
-        uses: actions/upload-artifact@v3
-        with:
-          name: app-release.aab
-          path: build/app/outputs/bundle/release/app-release.aab
+## .github/workflows/create-release.yml
+#
+#name: Build, Sign & Create Release
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#
+#jobs:
+#  build-and-release:
+#    name: Build & Release
+#    runs-on: macos-latest
+#
+#    steps:
+#      # 1. Check out the code
+#      - name: Check out code
+#        uses: actions/checkout@v4
+#
+#      # 2. Set up Java
+#      - name: Set up Java
+#        uses: actions/setup-java@v4
+#        with:
+#          distribution: 'zulu'
+#          java-version: '11'
+#
+#      # ====================================================================
+#      #  Rust & NDK Setup
+#      # ====================================================================
+#      - name: Install Android NDK
+#        run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;27.0.12077973" --sdk_root=${ANDROID_SDK_ROOT}
+#      - name: Set up Rust
+#        uses: dtolnay/rust-toolchain@stable
+#        with:
+#          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android,aarch64-apple-ios,aarch64-apple-ios-sim
+#      - name: Install Rust build dependencies
+#        run: |
+#          cargo install flutter_rust_bridge_codegen --version 2.9.0
+#          cargo install cargo-expand
+#          cargo install cargo-ndk
+#          cargo install cargo-lipo
+#
+#      # ====================================================================
+#      # Flutter Setup & Internal Signing
+#      # ====================================================================
+#      - name: Set up Flutter
+#        uses: subosito/flutter-action@v2
+#        with:
+#          flutter-version: '3.29.2'
+#      - name: Install Dart ffigen
+#        run: dart pub global activate ffigen
+#      - name: Get Flutter packages
+#        run: flutter pub get
+#
+#      # Restore Android Keystore for internal signing
+#      - name: Decode Android Keystore
+#        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > ${{ runner.temp }}/upload-keystore.jks
+#
+#      # Restore iOS Certificates for internal signing
+#      - name: Install iOS Certificate and Provisioning Profile
+#        env:
+#          DIST_CERT_BASE64: ${{ secrets.IOS_DIST_CERT_BASE64 }}
+#          DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+#          PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+#        run: |
+#          # Omitted for brevity, same as your previous file
+#          keychain_path=$RUNNER_TEMP/app-signing.keychain-db; security create-keychain -p "" $keychain_path; security set-keychain-settings -lut 21600 $keychain_path; security unlock-keychain -p "" $keychain_path; cert_path=$RUNNER_TEMP/dist_cert.p12; echo -n "$DIST_CERT_BASE64" | base64 --decode -o $cert_path; security import $cert_path -P "$DIST_CERT_PASSWORD" -A -t cert -f pkcs12 -k $keychain_path; security list-keychain -d user -s $keychain_path; mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles; profile_path=$RUNNER_TEMP/app.mobileprovision; echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode -o $profile_path; cp $profile_path ~/Library/MobileDevice/Provisioning\ Profiles
+#
+#      # ====================================================================
+#      # Build, Sign & Release
+#      # ====================================================================
+#      - name: Restore OpenSSL Signing Keys
+#        run: |
+#          echo "${{ secrets.SIGNING_PRIVATE_KEY }}" > private_key.pem
+#          echo "${{ secrets.SIGNING_PUBLIC_KEY }}" > public_key.pem
+#
+#      - name: Make script executable
+#        run: chmod +x build_and_sign.sh
+#
+#      # Run your script to build and sign all artifacts
+#      - name: Run Build and Sign Script
+#        run: ./build_and_sign.sh
+#        env:
+#          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.12077973
+#          KEYSTORE_PATH: ${{ runner.temp }}/upload-keystore.jks
+#          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+#          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+#          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+#
+#      # (NEW STEP) Upload dSYM files to Firebase Crashlytics
+#      - name: Upload iOS Symbols to Firebase
+#        run: |
+#          # Find the Firebase upload-symbols script
+#          UPLOAD_SYMBOLS_PATH="ios/Pods/FirebaseCrashlytics/upload-symbols"
+#          if [ ! -f "$UPLOAD_SYMBOLS_PATH" ]; then
+#            echo "Firebase upload-symbols script not found!"
+#            exit 1
+#          fi
+#
+#          # Find the dSYM file generated by the build
+#          DSYM_PATH=$(find build/ios/archive/Runner.xcarchive/dSYMs -name "*.dSYM")
+#
+#          echo "Found dSYM at: $DSYM_PATH"
+#          echo "Running upload script..."
+#
+#          # Run the script
+#          $UPLOAD_SYMBOLS_PATH -gsp ios/Runner/GoogleService-Info.plist -p ios "$DSYM_PATH"
+#
+#      # Create a new GitHub Release with all the generated files
+#      - name: Create GitHub Release
+#        uses: softprops/action-gh-release@v2
+#        with:
+#          body: "Automated release of Satsails artifacts. This release includes the APK for direct installation, the App Bundle for Google Play, and the IPA for iOS."
+#          name: "Satsails v1.0.${{ github.run_number }}"
+#          tag_name: "v1.0.${{ github.run_number }}"
+#          files: |
+#            satsails.apk
+#            satsails.sig
+#            satsails.hash
+#            satsails.aab
+#            satsails.aab.sig
+#            satsails.aab.hash
+#            satsails.ipa
+#            satsails.ipa.sig
+#            satsails.ipa.hash
