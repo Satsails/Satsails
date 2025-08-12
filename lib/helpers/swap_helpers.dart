@@ -380,18 +380,6 @@ final pegFee = StateProvider.autoDispose<String>((ref) => "0");
 final networkFee = StateProvider.autoDispose<String>((ref) => "0");
 final providerFee = StateProvider.autoDispose<String>((ref) => "0");
 
-class _FeeOptionData {
-  final String label;
-  final double feeRate;
-  final double blockTarget;
-
-  _FeeOptionData({
-    required this.label,
-    required this.feeRate,
-    required this.blockTarget,
-  });
-}
-
 Widget bitcoinFeeSlider(WidgetRef ref) {
   final feeRateAsyncValue = ref.watch(bitcoinFeeRatePerBlockProvider);
   final selectedBlockTarget = ref.watch(sendBlocksProvider);
@@ -2047,56 +2035,109 @@ Widget _feeRow(String label, String value, WidgetRef ref) {
 }
 
 Widget pickBitcoinFeeSuggestionsPegOut(WidgetRef ref) {
+  // Watch the fee rate suggestions from the provider.
   final status = ref.watch(sideswapStatusProvider).bitcoinFeeRates ?? [];
   final selectedBlocks = ref.watch(pegOutBlocksProvider);
 
-  // Reverse the status list
-  final reversedStatus = status.reversed.toList();
-
-  // If empty, show a placeholder message or return an empty widget
-  if (reversedStatus.isEmpty) {
-    return const SizedBox.shrink();
+  // If fee rates are not yet available, show a loading indicator.
+  if (status.isEmpty) {
+    return Center(
+      child: LoadingAnimationWidget.fourRotatingDots(
+        size: 30.w,
+        color: Colors.white,
+      ),
+    );
   }
 
-  final indexFromBlocks = reversedStatus.indexWhere((item) => item["blocks"] == selectedBlocks);
-  final validInitialIndex = indexFromBlocks >= 0 ? indexFromBlocks : 0;
+  // The slider should go from slow to fast, so we reverse the list from the provider.
+  final reversedStatus = status.reversed.toList();
 
-  // Define fixed labels for display
-  final labels = ["10 min", "30 min", "60 min", "Days", "Weeks"].reversed.toList();
+  // Find the index of the currently selected block target for the slider's value.
+  final currentIndex =
+  reversedStatus.indexWhere((item) => item["blocks"] == selectedBlocks);
+  final validInitialIndex = currentIndex >= 0 ? currentIndex : 0;
+
+  // Get the data for the currently selected fee.
+  final selectedFeeData = reversedStatus[validInitialIndex];
+  final currentFee = selectedFeeData["value"].toDouble();
+
+  // Helper to map block targets to human-readable time estimates.
+  String getLabelForBlocks(int blocks) {
+    if (blocks <= 1) return '~10 min'.i18n;
+    if (blocks <= 3) return '~30 min'.i18n;
+    if (blocks <= 6) return '~60 min'.i18n;
+    if (blocks <= 144) return 'Days'.i18n;
+    return 'Weeks'.i18n;
+  }
+
+  final currentLabel = getLabelForBlocks(selectedBlocks);
 
   return Column(
     children: [
-      Slider(
-        value: validInitialIndex.toDouble(),
-        onChanged: (value) {
-          final index = value.round();
-          final newValue = reversedStatus[index];
-          ref.read(bitcoinReceiveSpeedProvider.notifier).state = "${newValue["value"]} sats/vbyte";
-          ref.read(pegOutBlocksProvider.notifier).state = newValue["blocks"];
-        },
-        min: 0,
-        max: (reversedStatus.length - 1).toDouble(),
-        divisions: reversedStatus.length - 1,
-        activeColor: Colors.orange,
-      ),
+      // Header row displaying the current fee and time estimate.
       Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(reversedStatus.length, (index) {
-          final value = reversedStatus[index];
-          final label = (labels.length > index) ? labels[index] : "";
-          return _simpleFeeText(
-            label,
-            value["value"].toDouble(),
-            ref,
-          );
-        }),
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Flexible(
+            child: Text(
+              '$currentLabel: $currentFee sat/vB',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+      // The custom-styled slider.
+      SliderTheme(
+        data: SliderThemeData(
+          trackHeight: 8.h,
+          activeTrackColor: Colors.orangeAccent,
+          inactiveTrackColor: Colors.white.withOpacity(0.2),
+          thumbColor: Colors.white,
+          overlayColor: Colors.orangeAccent.withOpacity(0.2),
+          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10.r),
+          overlayShape: RoundSliderOverlayShape(overlayRadius: 20.r),
+          trackShape: const RoundedRectSliderTrackShape(),
+        ),
+        child: Slider(
+          value: validInitialIndex.toDouble(),
+          min: 0,
+          max: (reversedStatus.length - 1).toDouble(),
+          divisions: reversedStatus.length - 1,
+          onChanged: (value) {
+            final index = value.round();
+            final newValue = reversedStatus[index];
+            // Update the provider with the new block target.
+            ref.read(pegOutBlocksProvider.notifier).state = newValue["blocks"];
+            ref.read(bitcoinReceiveSpeedProvider.notifier).state =
+            "${newValue["value"]} sats/vbyte";
+          },
+        ),
+      ),
+      // Labels for the slider ends.
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Slow'.i18n,
+              style: TextStyle(color: Colors.white70, fontSize: 13.sp),
+            ),
+            Text(
+              'Fast'.i18n,
+              style: TextStyle(color: Colors.white70, fontSize: 13.sp),
+            ),
+          ],
+        ),
       ),
     ],
   );
 }
-
-
-
 
 Widget feeSelection(WidgetRef ref) {
   final swapType = ref.watch(swapTypeProvider);

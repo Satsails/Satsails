@@ -3813,6 +3813,14 @@ extension Localization on String {
       {
         'en': 'Enter your PIN to view seed words',
         'pt': 'Insira o seu PIN para ver as palavras secretas',
+      } +
+      {
+        'en': 'Slow',
+        'pt': 'Lento',
+      } +
+      {
+        'en': 'Fast',
+        'pt': 'Rapido',
       };
   String get i18n => localize(this, _t);
 
