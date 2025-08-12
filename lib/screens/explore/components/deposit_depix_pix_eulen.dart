@@ -294,7 +294,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                             SizedBox(height: 12.h),
                             _buildDetailRow('Satsails fee'.i18n, '${feePercentage.toStringAsFixed(2)} %'),
                             SizedBox(height: 12.h),
-                            _buildDetailRow('Cashback in bitcoin'.i18n, cashBack.toString()),
+                            _buildDetailRow('Cashback'.i18n, cashBack.toString()),
                           ],
                         ),
                       ),

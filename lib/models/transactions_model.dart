@@ -8,9 +8,6 @@ import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
 import 'package:lwk/lwk.dart' as lwk;
 
-// This file now only contains the data models.
-// The TransactionNotifier has been moved to transactions_provider.dart.
-
 abstract class BaseTransaction {
   final String id;
   final DateTime timestamp;
@@ -173,6 +170,25 @@ class Transaction {
     return sorted;
   }
 
+  Map<String, double> get unpaidCashbackByCurrency {
+    final Map<String, double> cashbackMap = {};
+
+    for (final tx in eulenTransactions) {
+      if (tx.details.cashback != null && tx.details.cashback! > 0 && !(tx.details.cashbackPayed ?? false)) {
+        final currency = tx.details.to_currency?.toUpperCase() ?? 'UNKNOWN';
+        cashbackMap.update(currency, (value) => value + tx.details.cashback!, ifAbsent: () => tx.details.cashback!);
+      }
+    }
+
+    for (final tx in noxTransactions) {
+      if (tx.details.cashback != null && tx.details.cashback! > 0 && !(tx.details.cashbackPayed ?? false)) {
+        final currency = tx.details.to_currency?.toUpperCase() ?? 'UNKNOWN';
+        cashbackMap.update(currency, (value) => value + tx.details.cashback!, ifAbsent: () => tx.details.cashback!);
+      }
+    }
+    return cashbackMap;
+  }
+
   List<BitcoinTransaction> filterBitcoinTransactions(DateTimeSelect range) {
     return bitcoinTransactions.where((tx) {
       return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(range.start * 1000)) &&
@@ -246,34 +262,6 @@ class Transaction {
   DateTime? get earliestTimestamp {
     if (allTransactions.isEmpty) return null;
     return allTransactions.map((tx) => tx.timestamp).reduce((a, b) => a.isBefore(b) ? a : b);
-  }
-
-  double get totalCashback {
-    final eulenSum = eulenTransactions.fold<double>(
-      0.0,
-          (sum, tx) => sum + (tx.details.cashback ?? 0.0),
-    );
-    final noxSum = noxTransactions.fold<double>(
-      0.0,
-          (sum, tx) => sum + (tx.details.cashback ?? 0.0),
-    );
-    return eulenSum + noxSum;
-  }
-
-  double get unpaidCashback {
-    final eulenUnpaidSum = eulenTransactions
-        .where((tx) => (tx.details.cashbackPayed ?? false) == false && tx.details.completed)
-        .fold<double>(
-      0.0,
-          (sum, tx) => sum + (tx.details.cashback ?? 0.0),
-    );
-    final noxUnpaidSum = noxTransactions
-        .where((tx) => (tx.details.cashbackPayed ?? false) == false && tx.details.completed)
-        .fold<double>(
-      0.0,
-          (sum, tx) => sum + (tx.details.cashback ?? 0.0),
-    );
-    return eulenUnpaidSum + noxUnpaidSum;
   }
 
   factory Transaction.empty() {

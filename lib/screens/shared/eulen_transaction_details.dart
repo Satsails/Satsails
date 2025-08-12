@@ -18,22 +18,39 @@ class EulenTransactionDetails extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final transaction = ref.watch(singleEulenTransfersDetailsProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        title: Text('Transaction Details'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
+    // It's good practice to handle the case where a transaction might not be found.
+    if (transaction == null) {
+      return Scaffold(
         backgroundColor: Colors.black,
-        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w), onPressed: () => context.pop()),
-      ),
-      backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        child: Column(
-          children: [
-            _buildHeader(context, ref, transaction),
-            SizedBox(height: 24.h),
-            _buildDetailsCard(context, ref, transaction),
-          ],
+        appBar: AppBar(backgroundColor: Colors.black),
+        body: Center(
+          child: Text(
+            'Transaction not found.'.i18n,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    }
+
+    return SafeArea(
+      bottom: true,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          title: Text('Transaction Details'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
+          backgroundColor: Colors.black,
+          leading: IconButton(icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w), onPressed: () => context.pop()),
+        ),
+        backgroundColor: Colors.black,
+        body: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          child: Column(
+            children: [
+              _buildHeader(context, ref, transaction),
+              SizedBox(height: 24.h),
+              _buildDetailsCard(context, ref, transaction),
+            ],
+          ),
         ),
       ),
     );
@@ -42,28 +59,30 @@ class EulenTransactionDetails extends ConsumerWidget {
 
   Widget _buildHeader(BuildContext context, WidgetRef ref, EulenTransfer transaction) {
     final isBuy = transaction.transactionType == "BUY";
-    final primaryAmount = isBuy ? "${transaction.originalAmount.toStringAsFixed(2)} ${transaction.from_currency ?? 'N/A'}" : "${transaction.receivedAmount.toStringAsFixed(2)} ${transaction.to_currency ?? 'N/A'}";
-    final secondaryAmount = isBuy ? "${transaction.receivedAmount.toStringAsFixed(2)} ${transaction.to_currency ?? 'N/A'}" : "≈ ${transaction.originalAmount.toStringAsFixed(2)} ${transaction.from_currency ?? 'N/A'}";
+    // Using explicit labels like "You Sent" / "You Received" is clearer
+    final sentAmount = "${transaction.originalAmount.toStringAsFixed(2)} ${transaction.from_currency ?? 'N/A'}";
+    final receivedAmount = "${transaction.receivedAmount.toStringAsFixed(2)} ${transaction.to_currency ?? 'N/A'}";
+
     final statusIcon = transaction.failed ? Icons.error_rounded : transaction.completed ? Icons.check_circle_rounded : Icons.access_time_rounded;
     final statusColor = transaction.failed ? Colors.red : transaction.completed ? Colors.green : Colors.orange;
 
     return Container(
-      width: double.infinity, // <-- ADD THIS LINE
+      width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
       decoration: BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(20.r)),
-      child: SizedBox(
-        height: 160.h, // Enforces a consistent height for the header card
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(statusIcon, color: statusColor, size: 40.w),
-            const Spacer(),
-            Text(primaryAmount, style: TextStyle(color: Colors.white, fontSize: 32.sp, fontWeight: FontWeight.bold)),
-            SizedBox(height: 4.h),
-            Text(secondaryAmount, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 18.sp, fontWeight: FontWeight.w500)),
-            const Spacer(),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(statusIcon, color: statusColor, size: 40.w),
+          SizedBox(height: 16.h),
+          Text("You Sent".i18n, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 16.sp)),
+          SizedBox(height: 4.h),
+          Text(sentAmount, style: TextStyle(color: Colors.white, fontSize: 24.sp, fontWeight: FontWeight.bold)),
+          SizedBox(height: 16.h),
+          Text("You Received".i18n, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 16.sp)),
+          SizedBox(height: 4.h),
+          Text(receivedAmount, style: TextStyle(color: Colors.white, fontSize: 24.sp, fontWeight: FontWeight.bold)),
+        ],
       ),
     );
   }
@@ -81,6 +100,12 @@ class EulenTransactionDetails extends ConsumerWidget {
             Divider(color: Colors.white.withOpacity(0.1), height: 32.h),
             _buildSectionHeader("Fees".i18n),
             _buildFeeDetails(ref, transaction),
+          ],
+          // --- Conditionally render Cashback section ---
+          if (transaction.cashback != null && transaction.cashback! > 0) ...[
+            Divider(color: Colors.white.withOpacity(0.1), height: 32.h),
+            _buildSectionHeader("Cashback".i18n),
+            _buildCashbackDetails(transaction),
           ],
         ],
       ),
@@ -101,14 +126,15 @@ class EulenTransactionDetails extends ConsumerWidget {
       case "pending": statusText = "Pending".i18n; break;
       case "depix_sent": statusText = "Depix Sent".i18n; break;
       case "under_review": statusText = "Under Review".i18n; break;
-      default: statusText = status?.i18n ?? "Unknown".i18n;
+      case "completed": statusText = "Completed".i18n; break;
+      default: statusText = status?.replaceAll('_', ' ').i18n.capitalize() ?? "Unknown".i18n;
     }
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 
     return Column(
       children: [
         TransactionDetailRow(label: "Type".i18n, value: transaction.transactionType?.i18n ?? 'Unknown'.i18n),
-        TransactionDetailRow(label: "Status".i18n, value: statusText.capitalize(), valueColor: transaction.failed ? Colors.red : transaction.completed ? Colors.green : Colors.orange),
+        TransactionDetailRow(label: "Status".i18n, value: statusText, valueColor: transaction.failed ? Colors.red : transaction.completed ? Colors.green : Colors.orange),
         TransactionDetailRow(label: "Provider".i18n, value: transaction.provider ?? "N/A"),
         TransactionDetailRow(label: "Payment Method".i18n, value: transaction.paymentMethod ?? "N/A".i18n),
         TransactionDetailRow(label: "Date".i18n, value: dateFormat.format(transaction.createdAt)),
@@ -121,7 +147,6 @@ class EulenTransactionDetails extends ConsumerWidget {
               context: context,
               message: 'Transaction ID copied'.i18n,
               error: false,
-              info: true,
             );
           },
         ),
@@ -130,14 +155,38 @@ class EulenTransactionDetails extends ConsumerWidget {
   }
 
   Widget _buildFeeDetails(WidgetRef ref, EulenTransfer transaction) {
-    final isBuy = transaction.transactionType == "BUY";
     final fee = (transaction.originalAmount - transaction.receivedAmount).abs();
+    // The fee should be calculated based on the input amount
     final feePercentage = transaction.originalAmount != 0 ? (fee / transaction.originalAmount) * 100 : 0.0;
+    // The fee is denominated in the currency the user sent
+    final feeCurrency = transaction.from_currency ?? 'N/A';
 
     return Column(
       children: [
-        TransactionDetailRow(label: "Fee".i18n, value: "${fee.toStringAsFixed(2)} ${isBuy ? transaction.from_currency : transaction.to_currency ?? 'N/A'}"),
+        TransactionDetailRow(label: "Fee".i18n, value: "${fee.toStringAsFixed(2)} $feeCurrency"),
         TransactionDetailRow(label: "Fee Percentage".i18n, value: "${feePercentage.toStringAsFixed(2)}%"),
+      ],
+    );
+  }
+
+  // --- New Widget to build the Cashback Details ---
+  Widget _buildCashbackDetails(EulenTransfer transaction) {
+    final isPaid = transaction.cashbackPayed ?? false;
+    final cashbackAmount = transaction.cashback ?? 0;
+    // Assume cashback is paid in the destination currency (e.g., L-BTC)
+    final cashbackCurrency = transaction.to_currency ?? '';
+
+    return Column(
+      children: [
+        TransactionDetailRow(
+            label: "Cashback Amount".i18n,
+            value: "${cashbackAmount.toStringAsFixed(8)} $cashbackCurrency"
+        ),
+        TransactionDetailRow(
+          label: "Cashback Status".i18n,
+          value: isPaid ? "Paid".i18n : "Pending".i18n,
+          valueColor: isPaid ? Colors.green : Colors.orange,
+        ),
       ],
     );
   }
@@ -154,11 +203,12 @@ class TransactionDetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLongValue = value.length > 20;
+    final bool isLongValue = value.length > 20 && onCopy != null;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 16.sp)),
           SizedBox(width: 16.w),

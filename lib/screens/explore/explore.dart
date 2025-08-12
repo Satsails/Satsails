@@ -8,7 +8,6 @@ import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
-import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -130,9 +129,8 @@ class _BalanceDisplayState extends ConsumerState<_BalanceDisplay> {
     final onChainBtcBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.onChainBtcBalance, denomination) : '***';
     final liquidBtcBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.liquidBtcBalance, denomination) : '***';
 
-    final transaction = ref.watch(transactionNotifierProvider);
-    final cashbackAmount = transaction.unpaidCashback ?? 0;
-    final cashbackToReceive = isBalanceVisible ? btcInDenominationFormatted(cashbackAmount, denomination) : '***';
+    final transactionState = ref.watch(transactionNotifierProvider);
+    final unpaidCashback = transactionState.unpaidCashbackByCurrency;
 
     return Card(
       color: const Color(0xFF333333).withOpacity(0.4),
@@ -149,78 +147,64 @@ class _BalanceDisplayState extends ConsumerState<_BalanceDisplay> {
             Row(children: [_buildBalanceRow(imagePath: 'lib/assets/eurx.png', label: 'Liquid EURx', balance: euroBalance), _buildBalanceRow(imagePath: 'lib/assets/tether.png', label: 'Liquid USDT', balance: liquidUsdtBalance)]),
             SizedBox(height: 12.h),
             Row(children: [_buildBalanceRow(imagePath: 'lib/assets/depix.png', label: 'Liquid Depix', balance: depixBalance), Expanded(child: Container())]),
-            SizedBox(height: 12.h),
-            InkWell(
-              onTap: () => setState(() => _isCashbackExpanded = !_isCashbackExpanded),
-              borderRadius: BorderRadius.circular(8.r),
-              child: AnimatedCrossFade(
-                duration: const Duration(milliseconds: 300),
-                firstChild: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                  child: Text(
-                    'See cashback to receive'.i18n,
-                    style: TextStyle(color: Colors.grey, fontSize: 16.sp, fontWeight: FontWeight.w500),
-                  ),
-                ),
-                secondChild: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 4.h),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Cashback to receive'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500)),
-                          Icon(Icons.expand_less, color: Colors.grey, size: 28.sp),
-                        ],
-                      ),
+            if (unpaidCashback.isNotEmpty) ...[
+              SizedBox(height: 12.h),
+              InkWell(
+                onTap: () => setState(() => _isCashbackExpanded = !_isCashbackExpanded),
+                borderRadius: BorderRadius.circular(8.r),
+                child: AnimatedCrossFade(
+                  duration: const Duration(milliseconds: 300),
+                  firstChild: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    child: Text(
+                      'See cashback to receive'.i18n,
+                      style: TextStyle(color: Colors.grey, fontSize: 16.sp, fontWeight: FontWeight.w500),
                     ),
-                    SizedBox(height: 8.h),
-                    Text(cashbackToReceive, style: TextStyle(fontSize: 20.sp, color: Colors.white, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 8.h),
-                    _buildCashbackList(ref),
-                  ],
+                  ),
+                  secondChild: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 4.h),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Cashback to receive'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500)),
+                            Icon(Icons.expand_less, color: Colors.grey, size: 28.sp),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      _buildCashbackDetails(unpaidCashback),
+                    ],
+                  ),
+                  crossFadeState: _isCashbackExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
                 ),
-                crossFadeState: _isCashbackExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
               ),
-            ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCashbackList(WidgetRef ref) {
-    // NOTE: Replace with your actual cashback data provider.
-    final dummyCashbacks = [
-      {'amount': 5000, 'source': 'SideShift Swap'},
-      {'amount': 2500, 'source': 'Boltz Swap'},
-      {'amount': 10000, 'source': 'Eulen Transfer'},
-    ];
-    final denomination = ref.watch(settingsProvider).btcFormat;
-
-    if (dummyCashbacks.isEmpty) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 8.h),
-        child: Text(
-          "No pending cashback".i18n,
-          style: TextStyle(fontSize: 16.sp, color: Colors.white70),
-        ),
-      );
-    }
-
+  Widget _buildCashbackDetails(Map<String, double> cashbackData) {
     return Column(
-      children: dummyCashbacks.map((cashback) {
+      children: cashbackData.entries.map((entry) {
+        final currencyCode = entry.key;
+        final amount = entry.value;
+        final formattedAmount = "${amount.toStringAsFixed(8)} $currencyCode";
+
         return Padding(
           padding: EdgeInsets.symmetric(vertical: 6.h),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                cashback['source'] as String,
+                'Cashback'.i18n,
                 style: TextStyle(fontSize: 16.sp, color: Colors.white70),
               ),
               Text(
-                btcInDenominationFormatted(cashback['amount'] as int, denomination),
+                formattedAmount,
                 style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.w600),
               ),
             ],

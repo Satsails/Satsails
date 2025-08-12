@@ -197,7 +197,7 @@ class NoxTransfer extends HiveObject {
       transactionType: data['type']?.toString() ?? 'BUY',
       provider: 'Nox',
       price: double.tryParse(data['price']?.toString() ?? '') ?? 0.0,
-      cashback: double.tryParse(data['cashback_to_pay_user_in_bitcoin']?.toString() ?? '') ?? 0.0, // Default to 0.0
+      cashback: double.tryParse(data['cashback_to_pay_user']?.toString() ?? '') ?? 0.0, // Default to 0.0
       cashbackPayed: data['cashback_payed'] ?? false, // Default to false
     );
   }

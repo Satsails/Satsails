@@ -3820,11 +3820,35 @@ extension Localization on String {
       } +
       {
         'en': 'Fast',
-        'pt': 'Rapido',
+        'pt': 'Rápido',
       } +
       {
         'en': 'Edit',
         'pt': 'Editar',
+      } +
+      {
+        'en': 'You Sent',
+        'pt': 'Você Enviou',
+      } +
+      {
+        'en': 'You Received',
+        'pt': 'Você Recebeu',
+      } +
+      {
+        'en': 'Cashback',
+        'pt': 'Cashback',
+      } +
+      {
+        'en': 'Cashback Amount',
+        'pt': 'Valor do Cashback',
+      } +
+      {
+        'en': 'Cashback Status',
+        'pt': 'Estado do Cashback',
+      } +
+      {
+        'en': 'Transaction ID copied',
+        'pt': 'ID da Transação copiado',
       };
   String get i18n => localize(this, _t);
 
