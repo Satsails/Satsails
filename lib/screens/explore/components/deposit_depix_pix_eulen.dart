@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
-import 'package:Satsails/screens/shared/copy_text.dart';
+import 'package:Satsails/screens/shared/address_display_widget.dart';
 import 'package:shimmer/shimmer.dart';
 
 class DepositDepixPixEulen extends ConsumerStatefulWidget {
@@ -261,7 +261,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                       child: buildQrCode(_pixQRCode, context),
                     ),
                     SizedBox(height: 16.h),
-                    buildAddressText(_pixQRCode, context, ref),
+                    AddressDisplayWidget(address: _pixQRCode, isEditable: false, onEditPressed: null),
                     SizedBox(height: 24.h),
                     Card(
                       color: const Color(0x00333333).withOpacity(0.4),

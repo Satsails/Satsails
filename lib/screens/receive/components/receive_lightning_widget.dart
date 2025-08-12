@@ -4,6 +4,7 @@ import 'package:Satsails/models/breez/lnurl_webhook_manager.dart';
 import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/breez_provider.dart';
+import 'package:Satsails/screens/shared/address_display_widget.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:app_settings/app_settings.dart';
@@ -19,8 +20,7 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shimmer/shimmer.dart';
 
-// Assuming EditUsernameModalSheet is in the same file or imported
-// from the context you provided.
+// Assuming EditUsernameModalSheet is in the same file or imported.
 
 class ReceiveLightningWidget extends ConsumerStatefulWidget {
   const ReceiveLightningWidget({super.key});
@@ -160,7 +160,8 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
                   width: 250.w,
                   height: 250.w,
                   decoration: BoxDecoration(
-                      color: Colors.white, borderRadius: BorderRadius.circular(8.r))),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8.r))),
               SizedBox(height: 16.h),
               Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12.w),
@@ -172,99 +173,27 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
             ])));
   }
 
-  // This widget now handles both permanent addresses and one-time invoices.
   Widget _buildQrDisplay(String content, {required bool isInvoice}) {
     return Center(
       child: Column(
         children: [
           buildQrCode(content, context),
           SizedBox(height: 16.h),
-          if (isInvoice)
-          // Display for one-time invoice with a copy button
-            _buildCopyableText(content)
-          else
-          // Display for permanent Lightning Address with an edit button
-            GestureDetector(
-              onTap: () {
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: AddressDisplayWidget(
+              address: content,
+              isEditable: !isInvoice,
+              isLnurl: !isInvoice,
+              onEditPressed: isInvoice
+                  ? null
+                  : () {
                 final username = content.split('@').first;
                 _showEditUsernameModal(username);
               },
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(16.r),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      content,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Icon(
-                      Icons.edit_outlined,
-                      color: Colors.white70,
-                      size: 18.sp,
-                    ),
-                  ],
-                ),
-              ),
             ),
+          ),
         ],
-      ),
-    );
-  }
-
-  // A local helper widget to display text with a copy icon.
-  Widget _buildCopyableText(String text) {
-    // Truncate long invoice strings for better display
-    final displayText = text.length > 40
-        ? '${text.substring(0, 20)}...${text.substring(text.length - 20)}'
-        : text;
-
-    return GestureDetector(
-      onTap: () {
-        Clipboard.setData(ClipboardData(text: text));
-        showMessageSnackBar(
-          context: context,
-          message: 'Copied to clipboard'.i18n,
-          error: false,
-        );
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: Text(
-                displayText,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            SizedBox(width: 8.w),
-            Icon(
-              Icons.copy_all_outlined,
-              color: Colors.white70,
-              size: 18.sp,
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -358,7 +287,6 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
                 style: TextStyle(color: Colors.red, fontSize: 16.sp))));
   }
 }
-
 
 class EditUsernameModalSheet extends ConsumerStatefulWidget {
   final String currentUsername;

@@ -3821,6 +3821,10 @@ extension Localization on String {
       {
         'en': 'Fast',
         'pt': 'Rapido',
+      } +
+      {
+        'en': 'Edit',
+        'pt': 'Editar',
       };
   String get i18n => localize(this, _t);
 

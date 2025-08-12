@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
-import 'package:Satsails/screens/shared/copy_text.dart';
+import 'package:Satsails/screens/shared/address_display_widget.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/screens/exchange/exchange.dart'; // For SwapSection enum
@@ -64,7 +64,7 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
               SizedBox(height: 5.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: buildAddressText(addressToShow, context, ref),
+                child: AddressDisplayWidget(address: addressToShow, isEditable: false, onEditPressed: null),
               ),
             ],
           ),
