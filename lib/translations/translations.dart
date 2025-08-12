@@ -3849,6 +3849,10 @@ extension Localization on String {
       {
         'en': 'Transaction ID copied',
         'pt': 'ID da Transação copiado',
+      } +
+      {
+        'en': 'Affiliate code inserted',
+        'pt': 'Codigo de Afiliado inserido',
       };
   String get i18n => localize(this, _t);
 

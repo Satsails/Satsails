@@ -370,16 +370,27 @@ class Settings extends ConsumerWidget {
   }
 
   Widget _buildAffiliateSection(BuildContext context, WidgetRef ref) {
+    // Watch the user provider to get the user state and rebuild on change.
+    final user = ref.watch(userProvider);
+    // Assuming the user object has a nullable `affiliateCode` property.
+    final affiliateCode = user.affiliateCode;
+    final bool hasAffiliateCode = affiliateCode != null && affiliateCode.isNotEmpty;
+
     return _buildSection(
       context: context,
       ref: ref,
       title: 'Affiliate Section'.i18n,
       icon: Icons.account_circle_sharp,
       subtitle: Text(
-        'Insert an affiliate code to get 6.67% cashback on purchases'.i18n,
+        hasAffiliateCode
+            ? "${'Affiliate code inserted'.i18n}: $affiliateCode"
+            : 'Insert an affiliate code to get 6.67% cashback on purchases'.i18n,
         style: TextStyle(color: Colors.grey, fontSize: 14.sp),
       ),
-      onTap: () {
+      // If a code is inserted, onTap does nothing. Otherwise, it opens the modal.
+      onTap: hasAffiliateCode
+          ? null
+          : () {
         _showInsertAffiliateModal(context, ref);
       },
     );
@@ -395,8 +406,6 @@ class Settings extends ConsumerWidget {
       },
     );
   }
-
-  // --- MODAL BUILDERS ---
 
   Widget _buildLanguageModal(WidgetRef ref, BuildContext context) {
     return Container(
