@@ -304,7 +304,17 @@ class _ActionCards extends ConsumerWidget {
             child: Container(
               height: 80.h,
               alignment: Alignment.center,
-              child: Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                  SizedBox(width: 12.w),
+                  Icon(Icons.shopping_cart,
+                    color: Colors.white,
+                    size: 28.sp,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

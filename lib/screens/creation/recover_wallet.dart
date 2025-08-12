@@ -1,3 +1,4 @@
+import 'dart:ui'; // Required for BackdropFilter
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/words_provider.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RecoverWallet extends ConsumerStatefulWidget {
   const RecoverWallet({super.key});
@@ -16,106 +18,71 @@ class RecoverWallet extends ConsumerStatefulWidget {
   _RecoverWalletState createState() => _RecoverWalletState();
 }
 
-class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTickerProviderStateMixin {
-  final List<TextEditingController> _controllers = List.generate(24, (_) => TextEditingController());
+class _RecoverWalletState extends ConsumerState<RecoverWallet>
+    with SingleTickerProviderStateMixin {
+  final List<TextEditingController> _controllers =
+  List.generate(24, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(24, (_) => FocusNode());
   List<String> _filteredWords = [];
   int _totalWords = 12;
-  bool _keyboardVisible = false;
   int _selectedWordIndex = -1;
-  late AnimationController _suggestionController;
-  late Animation<double> _suggestionFadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    for (var controller in _controllers) {
-      controller.addListener(_onTextChanged);
+    for (var i = 0; i < _controllers.length; i++) {
+      _controllers[i].addListener(() => _onTextChanged(i));
     }
-
-    _suggestionController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    _suggestionFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _suggestionController, curve: Curves.easeInOut),
-    );
-
-    KeyboardVisibilityController().onChange.listen((bool visible) {
-      setState(() {
-        _keyboardVisible = visible;
-      });
-      if (visible && _filteredWords.isNotEmpty) {
-        _suggestionController.forward();
-      } else {
-        _suggestionController.reverse();
-      }
-    });
   }
 
   @override
   void dispose() {
     for (var controller in _controllers) {
-      controller.removeListener(_onTextChanged);
       controller.dispose();
     }
     for (var focusNode in _focusNodes) {
       focusNode.dispose();
     }
-    _suggestionController.dispose();
     super.dispose();
   }
 
-  void _onTextChanged() {
-    final currentIndex = _focusNodes.indexWhere((node) => node.hasFocus);
-    if (currentIndex == -1) return;
-    final query = _controllers[currentIndex].text;
+  void _onTextChanged(int index) {
+    if (!_focusNodes[index].hasFocus) return;
+
+    final query = _controllers[index].text;
     final wordsState = ref.read(wordsProvider);
 
-    setState(() {
-      _selectedWordIndex = currentIndex;
-    });
-
     if (query.isEmpty) {
-      setState(() {
-        _filteredWords = [];
-      });
-      _suggestionController.reverse();
+      setState(() => _filteredWords = []);
       return;
     }
 
-    final filtered = wordsState.words!
-        .where((word) => word.toLowerCase().startsWith(query.toLowerCase()))
-        .toList();
-
-    setState(() {
-      _filteredWords = filtered.length > 3 ? filtered.sublist(0, 3) : filtered;
-    });
-    if (_keyboardVisible && _filteredWords.isNotEmpty) {
-      _suggestionController.forward();
+    if (wordsState.words != null) {
+      final filtered = wordsState.words!
+          .where((word) => word.toLowerCase().startsWith(query.toLowerCase()))
+          .take(4) // Show up to 4 suggestions
+          .toList();
+      setState(() => _filteredWords = filtered);
     }
   }
 
   void _onWordSelected(String word) {
-    final currentIndex = _focusNodes.indexWhere((node) => node.hasFocus);
-    if (currentIndex == -1) return;
-    _controllers[currentIndex].text = word;
-    if (currentIndex < _totalWords - 1) {
-      FocusScope.of(context).requestFocus(_focusNodes[currentIndex + 1]);
-    } else {
-      FocusScope.of(context).unfocus();
+    if (_selectedWordIndex != -1) {
+      _controllers[_selectedWordIndex].text = word;
+      if (_selectedWordIndex < _totalWords - 1) {
+        FocusScope.of(context).requestFocus(_focusNodes[_selectedWordIndex + 1]);
+      } else {
+        FocusScope.of(context).unfocus();
+      }
+      setState(() => _filteredWords = []);
     }
-    setState(() {
-      _filteredWords = [];
-    });
-    _suggestionController.reverse();
   }
 
   Future<void> _recoverAccount(BuildContext context) async {
     final authModel = ref.read(authModelProvider);
     final mnemonic = _controllers
         .take(_totalWords)
-        .map((controller) => controller.text.trim())
+        .map((controller) => controller.text.trim().toLowerCase())
         .join(' ');
 
     if (await authModel.validateMnemonic(mnemonic)) {
@@ -132,64 +99,132 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
     }
   }
 
-  Widget _buildSuggestionList(BuildContext context) {
-    if (_filteredWords.isEmpty || !_keyboardVisible) {
-      return const SizedBox.shrink();
+  @override
+  Widget build(BuildContext context) {
+    final wordsState = ref.watch(wordsProvider);
+
+    if (wordsState.loading) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator(color: Colors.white)),
+      );
     }
 
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 10.0), // Small gap above the keyboard
-        child: FadeTransition(
-          opacity: _suggestionFadeAnimation,
-          child: Container(
-            padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.8),
-              borderRadius: BorderRadius.circular(12.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+    if (wordsState.words == null || wordsState.words!.isEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: Text('Error: ${wordsState.err}')),
+      );
+    }
+
+    return KeyboardVisibilityBuilder(
+      builder: (context, isKeyboardVisible) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            title: Text('Recover Account'.i18n,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.bold)),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+              onPressed: () => context.pop(),
+            ),
+          ),
+          body: SafeArea(
+            bottom: true, // Let the content handle padding
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 16.h),
+                        _buildWordCountToggle(),
+                        SizedBox(height: 16.h),
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Text(
+                            "Enter your key. Carefully enter your seed words below to recover your Bitcoin account."
+                                .i18n,
+                            textAlign: TextAlign.center,
+                            style:
+                            const TextStyle(color: Colors.white, fontSize: 14),
+                          ),
+                        ),
+                        SizedBox(height: 24.h),
+                        _buildMnemonicGrid(),
+                      ],
+                    ),
+                  ),
+                ),
+                if (isKeyboardVisible) _buildSuggestionList(),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 24.h),
+                  child: CustomButton(
+                    text: 'Recover Account'.i18n,
+                    onPressed: () => _recoverAccount(context),
+                    primaryColor: Colors.white.withOpacity(0.2),
+                    secondaryColor: Colors.white.withOpacity(0.15),
+                    textColor: Colors.white,
+                  ),
                 ),
               ],
             ),
-            constraints: const BoxConstraints(
-              maxHeight: 150, // Limits height to keep it compact
-            ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: _filteredWords.length,
-              itemBuilder: (context, index) {
-                final word = _filteredWords[index];
-                return Card(
-                  color: Colors.grey[850],
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 2.0),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-                    title: Text(
-                      word,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    onTap: () {
-                      _onWordSelected(word);
-                      setState(() {
-                        _filteredWords = [];
-                      });
-                    },
-                  ),
-                );
-              },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildWordCountToggle() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      padding: EdgeInsets.all(4.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildToggleButton("12 words".i18n, 12),
+          _buildToggleButton("24 words".i18n, 24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleButton(String text, int wordCount) {
+    bool isSelected = _totalWords == wordCount;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _totalWords = wordCount),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12.h),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Colors.white.withOpacity(0.25)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Center(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16.sp,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
           ),
         ),
@@ -197,174 +232,103 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet> with SingleTicker
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final wordsState = ref.watch(wordsProvider);
+  Widget _buildMnemonicGrid() {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 12.w,
+        mainAxisSpacing: 12.h,
+        childAspectRatio: 1.8,
+      ),
+      itemCount: _totalWords,
+      itemBuilder: (context, index) {
+        return _buildWordInputField(index);
+      },
+    );
+  }
 
-    if (wordsState.loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (wordsState.words == null || wordsState.words!.isEmpty) {
-      return Center(child: Text('Error: ${wordsState.err}'));
-    }
-
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    return SafeArea(
-      bottom: true,
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        appBar: AppBar(
-          title: Text('Recover Account'.i18n, style: const TextStyle(color: Colors.white)),
-          backgroundColor: Colors.black,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-            onPressed: () {
-              context.pop();
-            },
+  Widget _buildWordInputField(int index) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16.r),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: Colors.white.withOpacity(0.2)),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                left: 8.w,
+                child: Text(
+                  '${index + 1}',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              TextField(
+                controller: _controllers[index],
+                focusNode: _focusNodes[index],
+                style: TextStyle(color: Colors.white, fontSize: 15.sp),
+                textAlign: TextAlign.center,
+                autocorrect: false,
+                enableSuggestions: false,
+                keyboardType: TextInputType.visiblePassword,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                onTap: () => setState(() => _selectedWordIndex = index),
+              ),
+            ],
           ),
         ),
-        body: Stack(
-          children: [
-            Column(
-              children: [
-                SizedBox(height: screenHeight * 0.02),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _totalWords = 12;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: _totalWords == 12 ? const Color(0xFF2B2B2B) : const Color(0xFF1A1A1A),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Text("12 words".i18n, style: const TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _totalWords = 24;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: _totalWords == 24 ? const Color(0xFF2B2B2B) : const Color(0xFF1A1A1A),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Text("24 words".i18n, style: const TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: screenHeight * 0.02),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.all(10),
+      ),
+    );
+  }
+
+  Widget _buildSuggestionList() {
+    if (_filteredWords.isEmpty) return const SizedBox.shrink();
+
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: Container(
+          height: 60.h,
+          color: Colors.black.withOpacity(0.5),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            itemCount: _filteredWords.length,
+            itemBuilder: (context, index) {
+              final word = _filteredWords[index];
+              return GestureDetector(
+                onTap: () => _onWordSelected(word),
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 6.w),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(8.0),
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
-                  child: Text(
-                    "Enter your key. Carefully enter your seed words below to recover your Bitcoin account.".i18n,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
-                SizedBox(height: screenHeight * 0.02),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: screenWidth * 0.05,
-                      right: screenWidth * 0.05,
-                      bottom: screenHeight * 0.02,
-                    ),
-                    child: SingleChildScrollView(
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: List.generate(
-                          _totalWords,
-                              (index) => SizedBox(
-                            width: screenWidth * 0.28,
-                            child: Stack(
-                              alignment: Alignment.centerLeft,
-                              children: [
-                                TextField(
-                                  controller: _controllers[index],
-                                  focusNode: _focusNodes[index],
-                                  style: const TextStyle(color: Colors.white),
-                                  autocorrect: false,
-                                  enableSuggestions: false,
-                                  keyboardType: TextInputType.visiblePassword,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: const Color(0xFF212121),
-                                    contentPadding: const EdgeInsets.only(
-                                      top: 8,
-                                      bottom: 8,
-                                      left: 24,
-                                      right: 10,
-                                    ),
-                                    // Use enabledBorder for the non-focused state with a subtle color
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      borderSide: BorderSide(color: Colors.grey.shade800, width: 1.0),
-                                    ),
-                                    // The focusedBorder remains unchanged, as requested
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      borderSide: const BorderSide(color: Colors.orangeAccent, width: 2.0),
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedWordIndex = index;
-                                    });
-                                  },
-                                ),
-                                Positioned(
-                                  left: 8,
-                                  child: Text(
-                                    '${index + 1}',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
+                  child: Center(
+                    child: Text(
+                      word,
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.15, vertical: screenHeight * 0.02),
-                  child: CustomButton(
-                    text: 'Recover Account'.i18n,
-                    onPressed: () => _recoverAccount(context),
-                    primaryColor: Colors.green,
-                    secondaryColor: Colors.green,
-                  ),
-                ),
-              ],
-            ),
-            _buildSuggestionList(context),
-          ],
+              );
+            },
+          ),
         ),
       ),
     );

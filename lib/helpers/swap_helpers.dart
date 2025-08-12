@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
@@ -378,46 +380,140 @@ final pegFee = StateProvider.autoDispose<String>((ref) => "0");
 final networkFee = StateProvider.autoDispose<String>((ref) => "0");
 final providerFee = StateProvider.autoDispose<String>((ref) => "0");
 
+class _FeeOptionData {
+  final String label;
+  final double feeRate;
+  final double blockTarget;
+
+  _FeeOptionData({
+    required this.label,
+    required this.feeRate,
+    required this.blockTarget,
+  });
+}
+
 Widget bitcoinFeeSlider(WidgetRef ref) {
   final feeRateAsyncValue = ref.watch(bitcoinFeeRatePerBlockProvider);
+  final selectedBlockTarget = ref.watch(sendBlocksProvider);
 
-  return Column(
-    children: [
-      Slider(
-        value: 6 - ref.watch(sendBlocksProvider).toDouble(),
-        onChanged: (value) => ref.read(sendBlocksProvider.notifier).state = 6 - value,
-        min: 1,
-        max: 5,
-        divisions: 4,
-        activeColor: Colors.orange,
-      ),
-      feeRateAsyncValue.when(
-        data: (feeRate) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  // Maps the slider's discrete value (0.0 to 4.0) to a block target (1 to 5)
+  double sliderValueToBlockTarget(double value) {
+    return 5 - value;
+  }
+
+  // Maps the block target (1 to 5) to the slider's value (0.0 to 4.0)
+  double blockTargetToSliderValue(int blockTarget) {
+    return (5 - blockTarget).toDouble();
+  }
+
+  return feeRateAsyncValue.when(
+    data: (feeRate) {
+      // Determine the current fee rate and label based on the selected block target
+      String currentLabel = '';
+      double currentFee = 0;
+
+      switch (selectedBlockTarget) {
+        case 1:
+          currentLabel = '~10 min'.i18n;
+          currentFee = feeRate.fastestFee;
+          break;
+        case 2:
+          currentLabel = '~30 min'.i18n;
+          currentFee = feeRate.halfHourFee;
+          break;
+        case 3:
+          currentLabel = '~60 min'.i18n;
+          currentFee = feeRate.hourFee;
+          break;
+        case 4:
+          currentLabel = '~24 H'.i18n;
+          currentFee = feeRate.economyFee;
+          break;
+        case 5:
+          currentLabel = 'Weeks'.i18n;
+          currentFee = feeRate.minimumFee;
+          break;
+      }
+
+      return Column(
+        children: [
+          // Header row with title and current fee/label
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _simpleFeeText("Weeks", feeRate.minimumFee, ref),
-              _simpleFeeText("Days", feeRate.economyFee, ref),
-              _simpleFeeText("60 min", feeRate.hourFee, ref),
-              _simpleFeeText("30 min", feeRate.halfHourFee, ref),
-              _simpleFeeText("10 min", feeRate.fastestFee, ref),
+              Flexible(
+                child: Text(
+                  '$currentLabel: $currentFee sat/vB',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             ],
-          );
-        },
-        loading: () => Center(
-          child: LoadingAnimationWidget.fourRotatingDots(
-            size: 20.w,
-            color: Colors.white,
           ),
-        ),
-        error: (e, _) => Text(
-          'Error',
-          style: TextStyle(color: Colors.white, fontSize: 14.sp),
-        ),
+          SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 8.h,
+              activeTrackColor: Colors.orangeAccent,
+              inactiveTrackColor: Colors.white.withOpacity(0.2),
+              thumbColor: Colors.white,
+              overlayColor: Colors.orangeAccent.withOpacity(0.2),
+              thumbShape:
+              RoundSliderThumbShape(enabledThumbRadius: 10.r),
+              overlayShape:
+              RoundSliderOverlayShape(overlayRadius: 20.r),
+              trackShape: const RoundedRectSliderTrackShape(),
+            ),
+            child: Slider(
+              value: blockTargetToSliderValue(selectedBlockTarget.toInt()),
+              min: 0,
+              max: 4,
+              divisions: 4,
+              onChanged: (value) {
+                ref.read(sendBlocksProvider.notifier).state =
+                    sliderValueToBlockTarget(value);
+              },
+            ),
+          ),
+
+          // Labels for the slider ends
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Slow'.i18n,
+                  style: TextStyle(
+                      color: Colors.white70, fontSize: 13.sp),
+                ),
+                Text(
+                  'Fast'.i18n,
+                  style: TextStyle(
+                      color: Colors.white70, fontSize: 13.sp),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    },
+    loading: () => Center(
+      child: LoadingAnimationWidget.fourRotatingDots(
+        size: 30.w,
+        color: Colors.white,
       ),
-    ],
+    ),
+    error: (e, _) => Text(
+      'Error loading fees'.i18n,
+      style: TextStyle(color: Colors.redAccent, fontSize: 14.sp),
+    ),
   );
 }
+
 
 Widget _simpleFeeText(String label, double fee, WidgetRef ref) {
   final wholeFee = fee.toInt();

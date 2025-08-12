@@ -23,20 +23,89 @@ import 'package:intl/intl.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
-Widget buildNoTransactionsFound(double screenHeight) {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Text(
-        'No transactions found'.i18n,
-        style: TextStyle(
-          fontSize: 16.sp,
-          color: Colors.grey,
+Widget buildHiddenTransactionsView(BuildContext context, WidgetRef ref) {
+  return GestureDetector(
+    onTap: () {
+      // Toggle the visibility state by updating the settings provider
+      final currentVisibility = ref.read(settingsProvider).balanceVisible;
+      ref.read(settingsProvider.notifier).setBalanceVisible(!currentVisibility);
+    },
+    // Use a transparent color to make the entire area tappable
+    child: Container(
+      color: Colors.transparent,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.visibility_off_outlined,
+              size: 50.sp,
+              color: Colors.white.withOpacity(0.6),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Transactions Hidden'.i18n,
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withOpacity(0.8),
+              ),
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              'Tap to show'.i18n,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.white54,
+              ),
+            ),
+          ],
         ),
       ),
-    ],
+    ),
   );
 }
+
+Widget buildNoTransactionsFound(double screenHeight) {
+  return Center(
+    child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: 32.w),
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.satellite_alt_outlined,
+              size: 60.sp,
+              color: Colors.white.withOpacity(0.7),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'No transactions found'.i18n,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600,
+                  color: Colors.white.withOpacity(0.8)
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'Your recent transactions will appear here.'.i18n,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.white54,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 
 class TransactionListByWeek extends ConsumerWidget {
   final List<BaseTransaction> transactions;
@@ -200,9 +269,7 @@ class _TransactionListState extends ConsumerState<TransactionList> {
                 Expanded(
                   child: !isBalanceVisible
                       ? Center(
-                      child: Text('Transactions hidden'.i18n,
-                          style: TextStyle(
-                              fontSize: 16.sp, color: Colors.grey)))
+                      child: buildHiddenTransactionsView(context, ref))
                       : settledTransactions.isEmpty
                       ? Center(
                       child: buildNoTransactionsFound(screenHeight))

@@ -65,8 +65,9 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
           child: CustomButton(
             onPressed: _onCreateAddress,
             text: 'Create Address'.i18n,
-            primaryColor: Colors.green,
-            secondaryColor: Colors.green,
+            primaryColor: Colors.green.withOpacity(0.8),
+            secondaryColor: Colors.green.withOpacity(0.6),
+            textColor: Colors.white,
           ),
         ),
       ],

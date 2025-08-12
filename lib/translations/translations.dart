@@ -2818,8 +2818,8 @@ extension Localization on String {
         'pt': 'Expirado',
       } +
       {
-        'en': 'Backup completed',
-        'pt': 'Backup completo',
+        'en': 'Backup Completed',
+        'pt': 'Backup Completo',
       } +
       {
         'en': 'Amount is too small',
@@ -3780,11 +3780,39 @@ extension Localization on String {
       } +
       {
         'en': 'Last attempt. If incorrect, the wallet will be deleted.',
-        'pt': 'Ultima tentativa. Se incorreto, a carteira será excluída.'
+        'pt': 'Última tentativa. Se incorreto, a carteira será excluída.'
       } +
       {
         'en': 'All information will be permanently deleted. This action is irreversible.',
         'pt': 'Toda a informação será permanentemente excluída. Esta ação é irreversível.'
+      } +
+      {
+        'en': 'Transactions Hidden',
+        'pt': 'Transações Ocultas'
+      } +
+      {
+        'en': 'Tap to show',
+        'pt': 'Toque para mostrar'
+      } +
+      {
+        'en': 'Your recent transactions will appear here.',
+        'pt': 'As suas transações recentes aparecerão aqui.'
+      } +
+      {
+        'en': 'Your Secret Phrase',
+        'pt': 'A sua Frase Secreta'
+      } +
+      {
+        'en': 'Verify Backup',
+        'pt': 'Verificar Backup'
+      } +
+      {
+        'en': 'Seed words copied to clipboard',
+        'pt': 'Palavras-semente copiadas para a área de transferência.'
+      } +
+      {
+        'en': 'Enter your PIN to view seed words',
+        'pt': 'Insira o seu PIN para ver as palavras secretas',
       };
   String get i18n => localize(this, _t);
 
