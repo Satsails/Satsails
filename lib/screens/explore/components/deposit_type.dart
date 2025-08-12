@@ -1,4 +1,5 @@
 import 'package:Satsails/helpers/deposit_type_helper.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -116,28 +117,24 @@ class DepositTypeScreen extends ConsumerWidget {
                               selectedProvider == DepositProvider.Nox;
                           final buttonText = isButtonEnabled ? 'Buy'.i18n : 'Coming soon'.i18n;
 
-                          return ElevatedButton(
+                          return CustomButton(
+                            text: buttonText,
                             onPressed: isButtonEnabled
                                 ? () {
-                              final route = selectedProvider == DepositProvider.Eulen
+                              final route =
+                              selectedProvider == DepositProvider.Eulen
                                   ? 'DepositPixEulen'
                                   : 'DepositPixNox';
                               context.pushNamed(route);
                             }
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isButtonEnabled ? Colors.green : Colors.red,
-                              disabledBackgroundColor:
-                              isButtonEnabled ? Colors.green : Colors.red,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              padding: EdgeInsets.symmetric(vertical: 16.h),
-                            ),
-                            child: Text(
-                              buttonText,
-                              style: TextStyle(color: Colors.black, fontSize: 16.sp),
-                            ),
+                                : () {}, // Provide an empty function for disabled state
+                            primaryColor: isButtonEnabled
+                                ? Colors.green.shade700
+                                : Colors.red.withOpacity(0.8),
+                            secondaryColor: isButtonEnabled
+                                ? Colors.green.shade700
+                                : Colors.red.withOpacity(0.6),
+                            textColor: Colors.white,
                           );
                         },
                       ),

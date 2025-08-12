@@ -1,4 +1,5 @@
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
@@ -205,17 +206,12 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                       ),
                     ),
                     SizedBox(height: 16.h),
-                    ElevatedButton(
+                    CustomButton(
                       onPressed: _generateQRCode,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 32.w),
-                      ),
-                      child: Text(
-                        'Generate Payment'.i18n,
-                        style: TextStyle(color: Colors.black, fontSize: 16.sp),
-                      ),
+                      primaryColor: Colors.green.withOpacity(0.8),
+                      secondaryColor: Colors.green.withOpacity(0.6),
+                      textColor: Colors.white,
+                      text: 'Generate Payment'.i18n,
                     ),
                     SizedBox(height: 24.h),
                     Card(

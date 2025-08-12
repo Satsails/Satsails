@@ -248,14 +248,14 @@ class _ActionCards extends ConsumerWidget {
             Expanded(
               child: Card(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                color: Colors.green,
+                color: Colors.green.withOpacity(0.8),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
                   onTap: () => _handleOnPress(ref, context, paymentId, true),
                   child: Container(
                     height: 80.h,
                     alignment: Alignment.center,
-                    child: Text('Buy'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold)),
+                    child: Text('Buy'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),
@@ -264,14 +264,14 @@ class _ActionCards extends ConsumerWidget {
             Expanded(
               child: Card(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                color: Colors.red,
+                color: Colors.red.withOpacity(0.8),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
                   onTap: () => showMessageSnackBar(message: "Coming soon".i18n, context: context, error: true),
                   child: Container(
                     height: 80.h,
                     alignment: Alignment.center,
-                    child: Text('Sell'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold)),
+                    child: Text('Sell'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),
