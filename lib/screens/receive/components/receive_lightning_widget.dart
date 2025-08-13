@@ -141,8 +141,8 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
           child: CustomButton(
             onPressed: _createInvoice,
             text: 'Generate One-Time Invoice'.i18n,
-            primaryColor: Colors.white.withOpacity(0.2),
-            secondaryColor: Colors.white.withOpacity(0.15),
+            primaryColor: Colors.green.withOpacity(0.8),
+            secondaryColor: Colors.green.withOpacity(0.6),
             textColor: Colors.white,
           ),
         ),
