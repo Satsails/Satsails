@@ -325,7 +325,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                             decoration: BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
                             child: Column(
                               children: [
-                                Text('Balance'.i18n, style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                                Text('Lightning Balance'.i18n, style: TextStyle(color: Colors.white, fontSize: 16.sp)),
                                 Text('$btcBalanceInFormat $btcFormat', style: TextStyle(color: Colors.white, fontSize: 32.sp, fontWeight: FontWeight.bold)),
                                 Text('$balanceInSelectedCurrency $currency', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
                               ],

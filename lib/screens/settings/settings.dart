@@ -9,6 +9,7 @@ import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -660,112 +661,114 @@ class _CustomNodeModalContentState
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF212121),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-              left: 24.w,
-              right: 24.w,
-              top: 20.h),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Custom Electrum Node'.i18n,
-                  style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
-                SizedBox(height: 16.sp),
-                Container(
-                  padding:
-                  EdgeInsets.symmetric(horizontal: 12.sp, vertical: 8.sp),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: Colors.orange, width: 1),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.warning_amber_rounded,
-                          color: Colors.orange, size: 20.sp),
-                      SizedBox(width: 10.sp),
-                      Expanded(
-                        child: Text(
-                          'Make sure the node you write works correctly, otherwise you might see wrong balances and not able to send your coins'
-                              .i18n,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14.sp,
-                          ),
-                          softWrap: true,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20.sp),
-                TextField(
-                  controller: bitcoinController,
-                  decoration: InputDecoration(
-                    labelText: 'Bitcoin Node (host:port)'.i18n,
-                    labelStyle:
-                    TextStyle(color: Colors.white70, fontSize: 16.sp),
-                    border: const OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey.shade800)),
-                    fillColor: Colors.black,
-                    filled: true,
-                    focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.orange)),
-                  ),
-                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                ),
-                SizedBox(height: 20.sp),
-                TextField(
-                  controller: liquidController,
-                  decoration: InputDecoration(
-                    labelText: 'Liquid Node (host:port)'.i18n,
-                    labelStyle:
-                    TextStyle(color: Colors.white70, fontSize: 16.sp),
-                    border: const OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey.shade800)),
-                    fillColor: Colors.black,
-                    filled: true,
-                    focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.orange)),
-                  ),
-                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                ),
-                SizedBox(height: 20.sp),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    padding: EdgeInsets.symmetric(vertical: 14.h),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r)),
-                  ),
-                  onPressed: handleSave,
-                  child: Text(
-                    'Save & Exit'.i18n,
+    return KeyboardDismissOnTap(
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF212121),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 24.w,
+                right: 24.w,
+                top: 20.h),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Custom Electrum Node'.i18n,
                     style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                  SizedBox(height: 16.sp),
+                  Container(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 12.sp, vertical: 8.sp),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: Border.all(color: Colors.orange, width: 1),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded,
+                            color: Colors.orange, size: 20.sp),
+                        SizedBox(width: 10.sp),
+                        Expanded(
+                          child: Text(
+                            'Make sure the node you write works correctly, otherwise you might see wrong balances and not able to send your coins'
+                                .i18n,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14.sp,
+                            ),
+                            softWrap: true,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                )
-              ],
+                  SizedBox(height: 20.sp),
+                  TextField(
+                    controller: bitcoinController,
+                    decoration: InputDecoration(
+                      labelText: 'Bitcoin Node (host:port)'.i18n,
+                      labelStyle:
+                      TextStyle(color: Colors.white70, fontSize: 16.sp),
+                      border: const OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey.shade800)),
+                      fillColor: Colors.black,
+                      filled: true,
+                      focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.orange)),
+                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                  ),
+                  SizedBox(height: 20.sp),
+                  TextField(
+                    controller: liquidController,
+                    decoration: InputDecoration(
+                      labelText: 'Liquid Node (host:port)'.i18n,
+                      labelStyle:
+                      TextStyle(color: Colors.white70, fontSize: 16.sp),
+                      border: const OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey.shade800)),
+                      fillColor: Colors.black,
+                      filled: true,
+                      focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.orange)),
+                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                  ),
+                  SizedBox(height: 20.sp),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r)),
+                    ),
+                    onPressed: handleSave,
+                    child: Text(
+                      'Save & Exit'.i18n,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
@@ -839,83 +842,85 @@ class _InsertAffiliateModalContentState
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF212121),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 24.w,
-            right: 24.w,
-            top: 20.h,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Icon(
-                  Icons.group_add_outlined,
-                  size: 40.sp,
-                  color: Colors.white.withOpacity(0.7),
-                ),
-                SizedBox(height: 12.h),
-                Text(
-                  'Insert Affiliate Code'.i18n,
-                  style: TextStyle(
-                      fontSize: 22.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 24.h),
-                TextField(
-                  controller: _controller,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.black.withOpacity(0.2),
-                    labelText: 'Affiliate Code'.i18n,
-                    labelStyle: TextStyle(color: Colors.grey[400]),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                      borderSide:
-                      BorderSide(color: Colors.white.withOpacity(0.2)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                      borderSide: const BorderSide(color: Colors.orange),
+    return KeyboardDismissOnTap(
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF212121),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 24.w,
+              right: 24.w,
+              top: 20.h,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Icon(
+                    Icons.group_add_outlined,
+                    size: 40.sp,
+                    color: Colors.white.withOpacity(0.7),
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    'Insert Affiliate Code'.i18n,
+                    style: TextStyle(
+                        fontSize: 22.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 24.h),
+                  TextField(
+                    controller: _controller,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.black.withOpacity(0.2),
+                      labelText: 'Affiliate Code'.i18n,
+                      labelStyle: TextStyle(color: Colors.grey[400]),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide:
+                        BorderSide(color: Colors.white.withOpacity(0.2)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: const BorderSide(color: Colors.orange),
+                      ),
                     ),
                   ),
-                ),
-                if (_errorMessage != null)
-                  Padding(
-                    padding: EdgeInsets.only(top: 12.h, bottom: 4.h),
-                    child: Text(
-                      _errorMessage!,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.redAccent, fontSize: 14.sp),
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: EdgeInsets.only(top: 12.h, bottom: 4.h),
+                      child: Text(
+                        _errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Colors.redAccent, fontSize: 14.sp),
+                      ),
                     ),
+                  SizedBox(height: 20.h),
+                  _isLoading
+                      ? Center(
+                    child: LoadingAnimationWidget.fourRotatingDots(
+                        size: 40.h, color: Colors.white),
+                  )
+                      : CustomButton(
+                    text: 'Insert'.i18n,
+                    onPressed: _submitAffiliateCode,
+                    primaryColor: Colors.white.withOpacity(0.2),
+                    secondaryColor: Colors.white.withOpacity(0.15),
+                    textColor: Colors.white,
                   ),
-                SizedBox(height: 20.h),
-                _isLoading
-                    ? Center(
-                  child: LoadingAnimationWidget.fourRotatingDots(
-                      size: 40.h, color: Colors.white),
-                )
-                    : CustomButton(
-                  text: 'Insert'.i18n,
-                  onPressed: _submitAffiliateCode,
-                  primaryColor: Colors.white.withOpacity(0.2),
-                  secondaryColor: Colors.white.withOpacity(0.15),
-                  textColor: Colors.white,
-                ),
-                SizedBox(height: 16.h),
-              ],
+                  SizedBox(height: 16.h),
+                ],
+              ),
             ),
           ),
         ),

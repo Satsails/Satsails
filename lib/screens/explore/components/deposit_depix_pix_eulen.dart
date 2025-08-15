@@ -76,17 +76,25 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
         createEulenTransferRequestProvider(amountInInt).future,
       );
 
+      // Get the cashback amount, defaulting to 0 if null.
+      final cashbackAmount = purchase.cashback ?? 0;
+      // Calculate the total fee in BRL.
       final totalFeeInBrl = purchase.originalAmount - purchase.receivedAmount;
+      // Isolate the variable fee by subtracting the fixed fee.
       final variableFeeInBrl = totalFeeInBrl - 0.99;
-      final newFeePercentage = (variableFeeInBrl / purchase.originalAmount) * 100;
+      // The final Satsails fee is the variable fee minus the cashback.
+      final satsailsFeeAfterCashback = variableFeeInBrl - cashbackAmount;
+      // Calculate the new fee percentage based on the fee after cashback.
+      final newFeePercentage = (satsailsFeeAfterCashback / purchase.originalAmount) * 100;
 
 
       setState(() {
         _pixQRCode = purchase.pixKey;
         _isLoading = false;
         _amountToReceive = purchase.receivedAmount;
+        // Ensure the fee percentage is not negative.
         feePercentage = newFeePercentage > 0 ? newFeePercentage : 0;
-        cashBack = purchase.cashback ?? 0;
+        cashBack = cashbackAmount;
       });
     } catch (e) {
       setState(() => _isLoading = false);

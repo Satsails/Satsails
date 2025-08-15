@@ -58,7 +58,6 @@ class EulenTransactionDetails extends ConsumerWidget {
 
 
   Widget _buildHeader(BuildContext context, WidgetRef ref, EulenTransfer transaction) {
-    final isBuy = transaction.transactionType == "BUY";
     // Using explicit labels like "You Sent" / "You Received" is clearer
     final sentAmount = "${transaction.originalAmount.toStringAsFixed(2)} ${transaction.from_currency ?? 'N/A'}";
     final receivedAmount = "${transaction.receivedAmount.toStringAsFixed(2)} ${transaction.to_currency ?? 'N/A'}";
@@ -155,16 +154,33 @@ class EulenTransactionDetails extends ConsumerWidget {
   }
 
   Widget _buildFeeDetails(WidgetRef ref, EulenTransfer transaction) {
-    final fee = (transaction.originalAmount - transaction.receivedAmount).abs();
-    // The fee should be calculated based on the input amount
-    final feePercentage = transaction.originalAmount != 0 ? (fee / transaction.originalAmount) * 100 : 0.0;
-    // The fee is denominated in the currency the user sent
+    // Total fee is the difference between what was sent and what was received.
+    final totalFee = (transaction.originalAmount - transaction.receivedAmount).abs();
     final feeCurrency = transaction.from_currency ?? 'N/A';
+
+    // Assume a fixed fee of 0.99, similar to the deposit screen.
+    // This might need to be fetched from the transaction data if it's dynamic.
+    const fixedFee = 0.99;
+    final variableFee = totalFee - fixedFee;
+
+    // Get the cashback amount, defaulting to 0 if null.
+    final cashbackAmount = transaction.cashback ?? 0;
+
+    // The final Satsails fee is the variable portion minus the cashback.
+    final satsailsFeeAfterCashback = variableFee - cashbackAmount;
+
+    // Calculate the fee percentage based on the adjusted Satsails fee.
+    final feePercentage = transaction.originalAmount != 0
+        ? (satsailsFeeAfterCashback / transaction.originalAmount) * 100
+        : 0.0;
+
+    // Ensure the fee percentage is not negative.
+    final displayFeePercentage = feePercentage > 0 ? feePercentage : 0.0;
 
     return Column(
       children: [
-        TransactionDetailRow(label: "Fee".i18n, value: "${fee.toStringAsFixed(2)} $feeCurrency"),
-        TransactionDetailRow(label: "Fee Percentage".i18n, value: "${feePercentage.toStringAsFixed(2)}%"),
+        TransactionDetailRow(label: "Fixed fee".i18n, value: "${fixedFee.toStringAsFixed(2)} $feeCurrency"),
+        TransactionDetailRow(label: "Satsails fee".i18n, value: "${displayFeePercentage.toStringAsFixed(2)}%"),
       ],
     );
   }
@@ -173,7 +189,7 @@ class EulenTransactionDetails extends ConsumerWidget {
   Widget _buildCashbackDetails(EulenTransfer transaction) {
     final isPaid = transaction.cashbackPayed ?? false;
     final cashbackAmount = transaction.cashback ?? 0;
-    // Assume cashback is paid in the destination currency (e.g., L-BTC)
+    // Assume cashback is paid in the destination currency
     final cashbackCurrency = transaction.to_currency ?? '';
 
     return Column(
