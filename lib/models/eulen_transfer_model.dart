@@ -277,7 +277,7 @@ class EulenTransfer extends HiveObject {
 
 class EulenService {
   /// Creates a new Eulen transaction (purchase or sale).
-  static Future<Result<EulenTransfer>> createTransaction(String auth, int amount, String liquidAddress, {String transactionType = 'BUY'}) async {
+  static Future<Result<EulenTransfer>> createTransaction(String auth, double amount, String liquidAddress, {String transactionType = 'BUY'}) async {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final response = await http.post(

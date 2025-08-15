@@ -1,3 +1,5 @@
+import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
+import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
@@ -57,13 +59,13 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
       return;
     }
 
-    final int? amountInInt = int.tryParse(amount);
-    if (amountInInt == null || amountInInt <= 0) {
+    final double? amountInDouble = double.tryParse(amount);
+    if (amountInDouble == null || amountInDouble <= 0) {
       showMessageSnackBar(context: context, message: 'Please enter a valid amount.'.i18n, error: true, top: true);
       return;
     }
 
-    if (amountInInt > 5000) {
+    if (amountInDouble > 5000) {
       showMessageSnackBar(context: context, message: 'The maximum allowed transfer amount is 5000 BRL'.i18n, error: true, top: true);
       return;
     }
@@ -73,7 +75,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
 
     try {
       final purchase = await ref.read(
-        createEulenTransferRequestProvider(amountInInt).future,
+        createEulenTransferRequestProvider(amountInDouble).future,
       );
 
       // Get the cashback amount, defaulting to 0 if null.
@@ -200,7 +202,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
                     TextField(
                       controller: _amountController,
                       keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      inputFormatters: [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 20.sp, color: Colors.white),
                       decoration: InputDecoration(
