@@ -132,17 +132,9 @@ class _StartState extends ConsumerState<Start> with TickerProviderStateMixin {
           // Shows a splash-like loading screen while the video is loading.
           if (_isLoadingVideo)
             Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Logo(
-                    size: 150.sp,
-                    opacity: 0.8,
-                  ),
-                  SizedBox(height: screenHeight * 0.05),
-                  LoadingAnimationWidget.fourRotatingDots(
-                      size: dynamicAnimationSize, color: Colors.white),
-                ],
+              child: Logo(
+                size: 150.sp,
+                opacity: 0.8, animated: true
               ),
             ),
 

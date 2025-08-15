@@ -42,8 +42,7 @@ final availablePaymentMethodsProvider = Provider<List<DepositMethod>>((ref) {
 final availableDepositTypesProvider = Provider<List<DepositType>>((ref) {
   final currency = ref.watch(selectedCurrencyProvider);
   if (currency == CurrencyDeposit.BRL) {
-    // return [DepositType.Bitcoin, DepositType.Depix];
-    return [DepositType.Depix];
+    return [DepositType.Bitcoin, DepositType.Depix];
   } else {
     return DepositType.values.where((type) => type != DepositType.Depix).toList();
   }

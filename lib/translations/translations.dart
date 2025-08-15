@@ -3853,6 +3853,22 @@ extension Localization on String {
       {
         'en': 'Affiliate code inserted',
         'pt': 'Codigo de Afiliado inserido',
+      } +
+      {
+        'en': 'Warning: Sending from any other network might result in loss of funds.',
+        'pt': 'Aviso: Enviar de qualquer outra rede pode resultar na perda de fundos.',
+      } +
+      {
+        'en': 'Enable Notifications',
+        'pt': 'Activar notificações',
+      } +
+      {
+        'en': 'Enable Notifications',
+        'pt': 'Activar notificações',
+      } +
+      {
+        'en': 'Get a permanent Lightning Address and receive payments anytime.',
+        'pt': 'Obtenha um Endereço Lightning permanente e receba pagamentos a qualquer momento.'
       };
   String get i18n => localize(this, _t);
 
