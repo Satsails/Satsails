@@ -42,28 +42,37 @@ class Chart extends StatefulWidget {
 }
 
 class _ChartState extends State<Chart> with TickerProviderStateMixin {
-  late AnimationController _lineController;
-  late Animation<double> _lineAnimation;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _lineController = AnimationController(duration: const Duration(milliseconds: 700), vsync: this);
-    _lineAnimation = CurvedAnimation(parent: _lineController, curve: Curves.easeInOut);
-    _lineController.forward();
+    _animationController = AnimationController(duration: const Duration(milliseconds: 1000), vsync: this);
+    _animation = CurvedAnimation(parent: _animationController, curve: Curves.easeInOutCubic);
+
+    _fadeController = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
+    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
+
+    _animationController.forward();
+    _fadeController.forward();
   }
 
   @override
   void didUpdateWidget(Chart oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.mainData != oldWidget.mainData) {
-      _lineController.forward(from: 0.0);
+      _animationController.forward(from: 0.0);
+      _fadeController.forward(from: 0.0);
     }
   }
 
   @override
   void dispose() {
-    _lineController.dispose();
+    _animationController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -79,38 +88,67 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     return Padding(
       padding: EdgeInsets.only(right: 18.w, left: 8.w, top: 12.h, bottom: 12.h),
       child: AnimatedBuilder(
-        animation: _lineAnimation,
-        builder: (context, child) => LineChart(
-          LineChartData(
-            lineTouchData: _buildLineTouchData(context, sortedDays),
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              horizontalInterval: bounds.horizontalInterval,
-              getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey.shade800, strokeWidth: 1),
+        animation: Listenable.merge([_animation, _fadeAnimation]),
+        builder: (context, child) {
+          return Opacity(
+            opacity: _fadeAnimation.value,
+            child: LineChart(
+              LineChartData(
+                lineTouchData: _buildLineTouchData(context, sortedDays),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: bounds.horizontalInterval,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: Colors.grey.shade800,
+                    strokeWidth: 0.8,
+                    dashArray: [4, 4],
+                  ),
+                ),
+                titlesData: _buildTitlesData(sortedDays, bounds),
+                borderData: FlBorderData(show: false),
+                minX: 0,
+                maxX: (sortedDays.length - 1).toDouble().clamp(0, double.infinity),
+                minY: bounds.minY,
+                maxY: bounds.maxY,
+                lineBarsData: [_buildLineBarData(sortedDays, _animation.value)],
+              ),
             ),
-            titlesData: _buildTitlesData(sortedDays, bounds),
-            borderData: FlBorderData(show: false),
-            minX: 0,
-            maxX: (sortedDays.length - 1).toDouble().clamp(0, double.infinity),
-            minY: bounds.minY,
-            maxY: bounds.maxY,
-            lineBarsData: [_buildLineBarData(sortedDays, _lineAnimation.value)],
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 
+// In your chart.dart file
+
   LineChartBarData _buildLineBarData(List<DateTime> sortedDays, double animationValue) {
-    final spots = _createSpots(widget.mainData, sortedDays).map((spot) => FlSpot(spot.x, spot.y * animationValue)).toList();
+    final spots = _createSpots(widget.mainData, sortedDays);
+    final animatedSpots = spots.sublist(0, (spots.length * animationValue).ceil());
+
     return LineChartBarData(
-      spots: spots, isCurved: true, preventCurveOverShooting: true,
-      gradient: const LinearGradient(colors: [Colors.orangeAccent, Colors.orange]),
-      barWidth: 3.5, isStrokeCapRound: true, dotData: const FlDotData(show: false),
+      spots: animatedSpots,
+      isCurved: true,
+      // REFACTORED: This property makes the curves much smoother.
+      // The default is 0.35. A higher value gives a more rounded look.
+      curveSmoothness: 0.6,
+      preventCurveOverShooting: true,
+      color: Colors.white,
+      barWidth: 4,
+      isStrokeCapRound: true,
+      dotData: const FlDotData(show: false),
       belowBarData: BarAreaData(
         show: true,
-        gradient: LinearGradient(colors: [Colors.orange.withOpacity(0.3), Colors.orange.withOpacity(0.0)], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+        gradient: LinearGradient(
+          colors: [Colors.white.withOpacity(0.3), Colors.white.withOpacity(0.0)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      shadow: Shadow(
+        color: Colors.black.withOpacity(0.4),
+        blurRadius: 10,
+        offset: const Offset(0, 5),
       ),
     );
   }
@@ -122,22 +160,30 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
       topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       bottomTitles: AxisTitles(
         sideTitles: SideTitles(
-          showTitles: true, reservedSize: 30.h,
+          showTitles: true,
+          reservedSize: 30.h,
           interval: _calculateDateInterval(sortedDays.length),
           getTitlesWidget: (value, meta) {
             final index = value.toInt();
             if (index < 0 || index >= sortedDays.length) return const SizedBox.shrink();
-            return SideTitleWidget(meta: meta, child: Text(sortedDays[index].formatMD(), style: TextStyle(color: Colors.grey.shade500, fontSize: 12.sp)));
+            return SideTitleWidget(meta: meta, child: Text(sortedDays[index].formatMD(), style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp, fontWeight: FontWeight.w500)));
           },
         ),
       ),
       leftTitles: AxisTitles(
         sideTitles: SideTitles(
-          showTitles: true, reservedSize: 80.w,
+          showTitles: true,
+          reservedSize: 80.w,
           interval: bounds.horizontalInterval,
           getTitlesWidget: (value, meta) {
-            final decimals = widget.isBitcoinAsset ? (widget.btcFormat == 'BTC' && !widget.isCurrency ? 8 : (widget.btcFormat == 'sats' && !widget.isCurrency ? 0 : 2)) : 2;
-            return SideTitleWidget(meta: meta, child: Text(value.toStringAsFixed(decimals), style: TextStyle(color: Colors.grey.shade500, fontSize: 12.sp)));
+            String text;
+            if (widget.isCurrency && !widget.isBitcoinAsset) {
+              text = NumberFormat.compact().format(value);
+            } else {
+              final decimals = widget.isBitcoinAsset ? (widget.btcFormat == 'BTC' && !widget.isCurrency ? 8 : (widget.btcFormat == 'sats' && !widget.isCurrency ? 0 : 2)) : 2;
+              text = value.toStringAsFixed(decimals);
+            }
+            return SideTitleWidget(meta: meta, child: Text(text, style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp, fontWeight: FontWeight.w500)));
           },
         ),
       ),
@@ -147,9 +193,15 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
   LineTouchData _buildLineTouchData(BuildContext context, List<DateTime> sortedDays) {
     return LineTouchData(
       handleBuiltInTouches: true,
+      touchSpotThreshold: 20,
       touchTooltipData: LineTouchTooltipData(
-        getTooltipColor: (_) => const Color(0xFF2C2C2E),
-        tooltipBorder: BorderSide(color: Colors.orangeAccent.withOpacity(0.5)),
+        // FIX: These two lines ensure the tooltip stays within the screen bounds.
+        fitInsideHorizontally: true,
+        fitInsideVertically: true,
+
+        getTooltipColor: (_) => Colors.black.withOpacity(0.8),
+        tooltipBorder: BorderSide(color: Colors.white.withOpacity(0.5)),
+        tooltipPadding: const EdgeInsets.all(12),
         getTooltipItems: (touchedSpots) {
           if (touchedSpots.isEmpty) return [];
           final spot = touchedSpots.first;
@@ -168,21 +220,26 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
             final price = _getValueForDate(widget.priceByDay, date);
             final btcBalance = _getValueForDate(widget.bitcoinBalanceByDayformatted, date);
             children.addAll([
-              TextSpan(text: 'Value: ${currencyFormatter.format(value)}\n', style: TextStyle(color: Colors.white70, fontSize: 14.sp)),
-              TextSpan(text: '${widget.btcFormat.toUpperCase()}: $btcBalance\n', style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp)),
-              TextSpan(text: 'Price: ${currencyFormatter.format(price)}', style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp)),
+              TextSpan(text: currencyFormatter.format(value), style: TextStyle(color: Colors.white70, fontSize: 14.sp, height: 1.5)),
+              TextSpan(text: '\n${widget.btcFormat.toUpperCase()}: $btcBalance', style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp, height: 1.4)),
+              TextSpan(text: '\nPrice: ${currencyFormatter.format(price)}', style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp)),
             ]);
           } else {
-            children.add(TextSpan(text: 'Balance: $value', style: TextStyle(color: Colors.white70, fontSize: 14.sp)));
+            children.add(TextSpan(text: 'Balance: $value', style: TextStyle(color: Colors.white70, fontSize: 14.sp, height: 1.5)));
           }
 
           return [LineTooltipItem('', const TextStyle(), children: children, textAlign: TextAlign.start)];
         },
       ),
-      getTouchedSpotIndicator: (barData, spotIndexes) => spotIndexes.map((index) => TouchedSpotIndicatorData(
-        FlLine(color: Colors.orange.withOpacity(0.7), strokeWidth: 1.5, dashArray: [4, 4]),
-        FlDotData(getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(radius: 6, color: Colors.orange, strokeColor: Colors.black, strokeWidth: 2)),
-      )).toList(),
+      getTouchedSpotIndicator: (barData, spotIndexes) => spotIndexes.map((index) {
+        return TouchedSpotIndicatorData(
+          FlLine(color: Colors.white.withOpacity(0.7), strokeWidth: 2),
+          FlDotData(
+            getDotPainter: (spot, percent, barData, index) =>
+                FlDotCirclePainter(radius: 8, color: Colors.white, strokeColor: Colors.black, strokeWidth: 4),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -200,12 +257,8 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     return spots;
   }
 
-  // =========================================================================
-  // FIX: This method is now correctly implemented to be simple and type-safe.
-  // =========================================================================
   num _getValueForDate(Map<DateTime, num> data, DateTime date) {
     final normalizedDate = date.dateOnly();
-    // Provides the value for the key, or returns 0 if the key is not found.
     return data[normalizedDate] ?? 0;
   }
 

@@ -17,7 +17,6 @@ import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 
-
 enum AnalyticsSection { internal, market }
 
 class Analytics extends ConsumerStatefulWidget {
@@ -33,7 +32,16 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   String _selectedRange = '1M';
   String? _selectedAsset;
 
+  // REFACTORED: State variables to hold a "snapshot" of the chart data.
+  // This prevents the chart from rebuilding on every background price update.
+  bool _isChartLoading = true;
+  Map<DateTime, num> _chartMainData = {};
+  Map<DateTime, num> _chartBitcoinBalanceData = {};
+  Map<DateTime, num> _chartDollarBalanceData = {};
+  Map<DateTime, num> _chartPriceData = {};
+
   final List<String> _assetOptions = ['Bitcoin', 'Liquid Bitcoin', 'Depix', 'USDT', 'EURx'];
+  // ... (rest of your maps and lists are unchanged) ...
   final Map<String, String> _assetImages = {
     'Bitcoin': 'lib/assets/bitcoin-logo.png',
     'Liquid Bitcoin': 'lib/assets/l-btc.png',
@@ -58,10 +66,58 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   void initState() {
     super.initState();
     _selectedAsset = 'Bitcoin';
-    WidgetsBinding.instance.addPostFrameCallback((_) => _updateDateRange(_selectedRange));
+    // Load initial data after the first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateDateRange(_selectedRange);
+      _loadChartData();
+    });
+  }
+
+  // REFACTORED: This new method fetches data ONCE and stores it in the state.
+  Future<void> _loadChartData() async {
+    if (!mounted) return;
+    setState(() => _isChartLoading = true);
+
+    // Read all necessary providers using ref.read to get the current value without listening.
+    final settings = ref.read(settingsProvider);
+    final btcFormat = settings.btcFormat;
+    final selectedDays = ref.read(selectedDaysDateArrayProvider);
+    final isBitcoinAsset = ['Bitcoin', 'Liquid Bitcoin'].contains(_selectedAsset);
+
+    final balanceByDay = switch (_selectedAsset) {
+      'Bitcoin' => ref.read(bitcoinBalanceInFormatByDayProvider),
+      'Liquid Bitcoin' || 'Depix' || 'USDT' || 'EURx' => ref.read(liquidBalancePerDayInFormatProvider(_assetIdMap[_selectedAsset!]!)),
+      _ => <DateTime, num>{},
+    };
+
+    // Await the market data future to get a static snapshot.
+    final marketData = await ref.read(bitcoinMarketDataProvider.future);
+    final dailyPrices = { for (var dp in marketData) dp.date.toLocal().dateOnly(): dp.price ?? 0 };
+
+    final dailyDollarBalance = <DateTime, num>{};
+    num lastKnownBalance = 0, lastKnownPrice = 0;
+    for (var day in selectedDays) {
+      final normalizedDay = day.dateOnly();
+      if (balanceByDay.containsKey(normalizedDay)) {
+        lastKnownBalance = balanceByDay[normalizedDay]! / (isBitcoinAsset && btcFormat == 'sats' ? 1e8 : (isBitcoinAsset ? 1 : pow(10, _assetPrecisionMap[_assetIdMap[_selectedAsset!]!] ?? 8)));
+      }
+      if (dailyPrices.containsKey(normalizedDay)) { lastKnownPrice = dailyPrices[normalizedDay]!; }
+      dailyDollarBalance[normalizedDay] = lastKnownBalance * (isBitcoinAsset ? lastKnownPrice : 1);
+    }
+
+    // Update the state with the snapshotted data, triggering a single rebuild.
+    if (!mounted) return;
+    setState(() {
+      _chartBitcoinBalanceData = balanceByDay;
+      _chartPriceData = dailyPrices;
+      _chartDollarBalanceData = dailyDollarBalance;
+      _chartMainData = (viewMode == 0 ? balanceByDay : dailyDollarBalance);
+      _isChartLoading = false;
+    });
   }
 
   void _updateDateRange(String range) {
+    // ... (this method is unchanged)
     final now = DateTime.now().dateOnly();
     DateTime start;
     switch (range) {
@@ -79,6 +135,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   }
 
   void _showAssetMenu(BuildContext context, GlobalKey key) async {
+    // ... (this method is mostly unchanged)
     final renderBox = key.currentContext!.findRenderObject() as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
     final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
@@ -103,11 +160,14 @@ class _AnalyticsState extends ConsumerState<Analytics> {
         _selectedAsset = selected;
         viewMode = 0;
       });
+      // REFACTORED: Trigger a data reload when the asset changes.
+      _loadChartData();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // ... (this method is unchanged)
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -146,6 +206,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     );
   }
 
+  // ... (_buildSectionPicker and _buildPickerOption are unchanged)
   Widget _buildSectionPicker() {
     return Container(
       padding: EdgeInsets.all(4.w),
@@ -174,7 +235,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     );
   }
 
-  // --- WIDGET BUILDERS for Internal Analytics ---
+  // REFACTORED: This widget is now much simpler. It just displays the data from the state.
   Widget _buildInternalAnalyticsView({Key? key}) {
     final settings = ref.watch(settingsProvider);
     final selectedCurrency = settings.currency;
@@ -183,34 +244,8 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     final isBitcoinAsset = ['Bitcoin', 'Liquid Bitcoin'].contains(_selectedAsset);
     final cardColor = const Color(0xFF333333).withOpacity(0.4);
 
-    final balanceByDay = switch (_selectedAsset) {
-      'Bitcoin' => ref.read(bitcoinBalanceInFormatByDayProvider),
-      'Liquid Bitcoin' || 'Depix' || 'USDT' || 'EURx' => ref.read(liquidBalancePerDayInFormatProvider(_assetIdMap[_selectedAsset!]!)),
-      _ => <DateTime, num>{},
-    };
-
-    final marketDataAsync = ref.read(bitcoinMarketDataProvider);
-
-    final (dollarBalanceByDay, priceByDay) = marketDataAsync.when(
-      data: (marketData) {
-        final dailyPrices = { for (var dp in marketData) dp.date.toLocal().dateOnly(): dp.price ?? 0 };
-        final dailyDollarBalance = <DateTime, num>{};
-        num lastKnownBalance = 0, lastKnownPrice = 0;
-        for (var day in selectedDays) {
-          final normalizedDay = day.dateOnly();
-          if (balanceByDay.containsKey(normalizedDay)) {
-            lastKnownBalance = balanceByDay[normalizedDay]! / (isBitcoinAsset && btcFormat == 'sats' ? 1e8 : (isBitcoinAsset ? 1 : pow(10, _assetPrecisionMap[_assetIdMap[_selectedAsset!]!] ?? 8)));
-          }
-          if (dailyPrices.containsKey(normalizedDay)) { lastKnownPrice = dailyPrices[normalizedDay]!; }
-          dailyDollarBalance[normalizedDay] = lastKnownBalance * (isBitcoinAsset ? lastKnownPrice : 1);
-        }
-        return (dailyDollarBalance, dailyPrices);
-      },
-      loading: () => (<DateTime, num>{}, <DateTime, num>{}),
-      error: (_, __) => (<DateTime, num>{}, <DateTime, num>{}),
-    );
-
-    final balance = ref.read(balanceNotifierProvider);
+    // This logic still needs to run in build to get the latest balance for the header card.
+    final balance = ref.watch(balanceNotifierProvider);
     final currentBalanceFormatted = switch (_selectedAsset) {
       'Bitcoin' => btcInDenominationFormatted(balance.onChainBtcBalance, btcFormat),
       'Liquid Bitcoin' => btcInDenominationFormatted(balance.liquidBtcBalance, btcFormat),
@@ -230,20 +265,29 @@ class _AnalyticsState extends ConsumerState<Analytics> {
           child: _buildChartContainer(
             cardColor: cardColor,
             isBitcoinAsset: isBitcoinAsset,
-            chartView: marketDataAsync.when(
-              data: (_) => Chart(
-                selectedDays: selectedDays, mainData: (viewMode == 0 ? balanceByDay : dollarBalanceByDay), bitcoinBalanceByDayformatted: balanceByDay,
-                dollarBalanceByDay: dollarBalanceByDay, priceByDay: priceByDay, selectedCurrency: selectedCurrency,
-                isShowingMainData: true, isCurrency: viewMode == 1, btcFormat: btcFormat, isBitcoinAsset: isBitcoinAsset,
-              ),
-              loading: () => _buildChartShimmer(),
-              error: (e, s) => Center(child: Text('Error Loading Chart'.i18n, style: const TextStyle(color: Colors.redAccent))),
+            chartView: _isChartLoading
+                ? _buildChartShimmer()
+                : Chart(
+              selectedDays: selectedDays,
+              mainData: (viewMode == 0 ? _chartBitcoinBalanceData : _chartDollarBalanceData),
+              bitcoinBalanceByDayformatted: _chartBitcoinBalanceData,
+              dollarBalanceByDay: _chartDollarBalanceData,
+              priceByDay: _chartPriceData,
+              selectedCurrency: selectedCurrency,
+              isShowingMainData: true,
+              isCurrency: viewMode == 1,
+              btcFormat: btcFormat,
+              isBitcoinAsset: isBitcoinAsset,
             ),
           ),
         ),
       ],
     );
   }
+
+  // ... (the rest of your file, including _buildChartShimmer, _buildHeaderCard,
+  // _MarketDataView, _ViewModeSelector, etc., remains largely the same, but the
+  // onSelected for _DateRangeSelector needs to be updated)
 
   Widget _buildChartShimmer() {
     return Shimmer.fromColors(
@@ -289,18 +333,30 @@ class _AnalyticsState extends ConsumerState<Analytics> {
       padding: EdgeInsets.symmetric(vertical: 16.h),
       decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(16.r)),
       child: Column(children: [
-        if (isBitcoinAsset) Padding(padding: EdgeInsets.symmetric(horizontal: 16.w), child: _ViewModeSelector(selectedIndex: viewMode, onSelected: (index) => setState(() => viewMode = index))),
+        if (isBitcoinAsset) Padding(padding: EdgeInsets.symmetric(horizontal: 16.w), child: _ViewModeSelector(selectedIndex: viewMode, onSelected: (index) {
+          // REFACTORED: Update main data source on view mode change and setState
+          setState(() {
+            viewMode = index;
+            _chartMainData = (viewMode == 0 ? _chartBitcoinBalanceData : _chartDollarBalanceData);
+          });
+        })),
         if (isBitcoinAsset) SizedBox(height: 16.h),
         Expanded(child: chartView),
         SizedBox(height: 16.h),
         const Divider(color: Colors.grey, thickness: 0.2),
         SizedBox(height: 16.h),
-        Padding(padding: EdgeInsets.symmetric(horizontal: 16.w), child: _DateRangeSelector(selectedRange: _selectedRange, onSelected: (range) { setState(() => _selectedRange = range); _updateDateRange(range); })),
+        Padding(padding: EdgeInsets.symmetric(horizontal: 16.w), child: _DateRangeSelector(selectedRange: _selectedRange, onSelected: (range) {
+          // REFACTORED: Trigger a data reload when the date range changes.
+          setState(() => _selectedRange = range);
+          _updateDateRange(range);
+          _loadChartData();
+        })),
       ]),
     );
   }
 }
 
+// ... (_MarketDataView and its state are unchanged)
 class _MarketDataView extends ConsumerStatefulWidget {
   const _MarketDataView({Key? key}) : super(key: key);
   @override
