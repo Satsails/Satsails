@@ -81,7 +81,7 @@ class Home extends ConsumerWidget {
   }
 
   Widget _buildBackupButton(BuildContext context) {
-    return CustomButton(
+    return HomeCustomButton(
       icon: Icons.warning_amber_rounded,
       label: 'Backup Wallet'.i18n,
       iconColor: Colors.red,
@@ -92,10 +92,8 @@ class Home extends ConsumerWidget {
   }
 
   Widget _buildBuyButton(BuildContext context, WidgetRef ref) {
-    return CustomButton(
-      icon: Icons.add,
+    return HomeCustomButton(
       label: 'Add money'.i18n,
-      iconColor: Colors.black,
       textColor: Colors.black,
       backgroundColor: Colors.white.withOpacity(0.9),
       onPressed: () => ref.read(navigationProvider.notifier).state = 3,
@@ -103,9 +101,9 @@ class Home extends ConsumerWidget {
   }
 }
 
-/// A reusable custom button widget.
-class CustomButton extends StatelessWidget {
-  const CustomButton({
+/// A reusable custom button widget for the Home screen.
+class HomeCustomButton extends StatelessWidget {
+  const HomeCustomButton({
     super.key,
     required this.onPressed,
     required this.label,
@@ -113,8 +111,6 @@ class CustomButton extends StatelessWidget {
     this.backgroundColor,
     this.textColor,
     this.iconColor,
-    this.fontSize,
-    this.iconWeight,
   });
 
   final VoidCallback onPressed;
@@ -123,8 +119,6 @@ class CustomButton extends StatelessWidget {
   final Color? backgroundColor;
   final Color? textColor;
   final Color? iconColor;
-  final double? fontSize;
-  final double? iconWeight;
 
   @override
   Widget build(BuildContext context) {
@@ -138,14 +132,13 @@ class CustomButton extends StatelessWidget {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min, // Allows the button to shrink to its content size
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             if (icon != null) ...[
               Icon(
                 icon,
                 color: iconColor ?? textColor ?? Colors.white,
                 size: 20.sp,
-                weight: iconWeight,
               ),
               SizedBox(width: 10.w),
             ],
@@ -153,7 +146,7 @@ class CustomButton extends StatelessWidget {
               label,
               style: TextStyle(
                 color: textColor ?? Colors.white,
-                fontSize: fontSize ?? 15.sp,
+                fontSize: 15.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),

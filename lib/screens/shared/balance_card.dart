@@ -572,7 +572,7 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
               Padding(
                 padding: EdgeInsets.only(left: 4.w, bottom: 12.h),
                 child: Text(
-                  "Funds will be stored as $assetName in your wallet.".i18n,
+                  "Fees apply".i18n,
                   style: TextStyle(color: Colors.grey.shade500, fontSize: 13.sp),
                 ),
               ),

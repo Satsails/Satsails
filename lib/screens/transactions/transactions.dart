@@ -106,7 +106,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
       body: Stack(
         children: [
           SafeArea(
-            bottom: false,
+            bottom: true,
             child: Column(
               children: [
                 AppBar(
