@@ -60,8 +60,7 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
           child: Column(
             children: [
               buildQrCode(addressToShow, context),
-              _buildReceiveFromDifferentNetworkButton(context, ref),
-              SizedBox(height: 5.h),
+              SizedBox(height: 16.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: AddressDisplayWidget(address: addressToShow, isEditable: false, onEditPressed: null),
@@ -85,33 +84,6 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
           ),
         ),
       ],
-    );
-  }
-
-  /// Builds a subtle button to navigate to the Exchange screen for receiving from another network.
-  Widget _buildReceiveFromDifferentNetworkButton(BuildContext context, WidgetRef ref) {
-    return Container(
-      alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: TextButton(
-        onPressed: () {
-          context.pop();
-          ref.read(navigationProvider.notifier).state = 2;
-          ref.read(swapSectionProvider.notifier).state = SwapSection.external;
-        },
-        style: TextButton.styleFrom(
-          foregroundColor: Colors.grey.shade400,
-        ),
-        child: Text(
-          'Receive from a different network'.i18n,
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 14.sp,
-            decoration: TextDecoration.underline,
-            decorationColor: Colors.white70,
-          ),
-        ),
-      ),
     );
   }
 }

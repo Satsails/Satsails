@@ -2,9 +2,11 @@ import 'dart:ui';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/providers/analytics_provider.dart';
 import 'package:Satsails/providers/background_sync_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/providers/sideshift_provider.dart';
 import 'package:Satsails/screens/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,10 +16,26 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
+// Helper classes and enums for Bridge functionality
+abstract class BridgeOption {
+  const BridgeOption();
+}
+
+class SideShiftBridgeOption extends BridgeOption {
+  final ShiftPair pair;
+  const SideShiftBridgeOption(this.pair);
+}
+
+class LightningBridgeOption extends BridgeOption {
+  const LightningBridgeOption();
+}
+// End of helper classes
 
 final selectedNetworkTypeProvider = StateProvider<String>((ref) => "Bitcoin Network");
 
@@ -52,6 +70,21 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _showTransactionSheet({required bool isSend}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) {
+        // The sheet now sizes itself based on its content.
+        return TransactionOptionsSheet(
+          isSend: isSend,
+          allNativeAssets: _allAssets,
+        );
+      },
+    );
   }
 
   @override
@@ -314,8 +347,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     const textColor = Colors.white;
     final buttonColor = Colors.white.withOpacity(0.15);
     final buttonFontSize = isSmallScreen ? 14.sp : 15.sp;
-    final selectedAsset = ref.watch(selectedAssetProvider);
-    final network = _allAssets.firstWhere((asset) => asset['name'] == selectedAsset)['network']!;
 
     return Row(
       children: [
@@ -323,14 +354,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
           child: _buildActionButton(
             icon: Icons.arrow_downward,
             label: 'Receive'.i18n,
-            onPressed: () {
-              if (network == 'Lightning Network') {
-                ref.read(selectedNetworkTypeProvider.notifier).state = 'Boltz Network';
-              } else {
-                ref.read(selectedNetworkTypeProvider.notifier).state = network;
-              }
-              context.push('/home/receive');
-            },
+            onPressed: () => _showTransactionSheet(isSend: false),
             textColor: textColor,
             buttonColor: buttonColor,
             fontSize: buttonFontSize,
@@ -341,10 +365,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
           child: _buildActionButton(
             icon: Icons.arrow_upward,
             label: 'Send'.i18n,
-            onPressed: () {
-              ref.read(sendTxProvider.notifier).resetToDefault();
-              _handleSendNavigation(context, ref, selectedAsset);
-            },
+            onPressed: () => _showTransactionSheet(isSend: true),
             textColor: textColor,
             buttonColor: buttonColor,
             fontSize: buttonFontSize,
@@ -387,41 +408,544 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
       ),
     );
   }
+}
 
-  void _handleSendNavigation(BuildContext context, WidgetRef ref, String selectedAsset) {
+class TransactionOptionsSheet extends ConsumerStatefulWidget {
+  final bool isSend;
+  final List<Map<String, String>> allNativeAssets;
+
+  const TransactionOptionsSheet({
+    required this.isSend,
+    required this.allNativeAssets,
+    super.key,
+  });
+
+  @override
+  ConsumerState<TransactionOptionsSheet> createState() =>
+      _TransactionOptionsSheetState();
+}
+
+class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsSheet> {
+  final GlobalKey _firstViewKey = GlobalKey();
+  double? _firstViewHeight;
+
+  // --- Data and constants remain the same ---
+  static final List<ShiftPair> _selectablePairs = [
+    ShiftPair.btcToLiquidBtc, ShiftPair.usdtArbitrumToLiquidUsdt,
+    ShiftPair.usdcEthToLiquidUsdt, ShiftPair.usdcSolToLiquidUsdt, ShiftPair.usdcPolygonToLiquidUsdt,
+    ShiftPair.usdtEthToLiquidUsdt, ShiftPair.usdtTronToLiquidUsdt, ShiftPair.usdtSolToLiquidUsdt, ShiftPair.usdtPolygonToLiquidUsdt,
+    ShiftPair.ethToLiquidBtc, ShiftPair.bnbToLiquidBtc, ShiftPair.solToLiquidBtc,
+  ];
+
+  static final List<BridgeOption> _allBridgeOptions = [
+    ..._selectablePairs.map((pair) => SideShiftBridgeOption(pair)),
+  ];
+
+  static const Map<ShiftPair, ShiftPair> _receiveToSendMap = {
+    ShiftPair.usdcEthToLiquidUsdt: ShiftPair.liquidUsdtToUsdcEth,
+    ShiftPair.usdcSolToLiquidUsdt: ShiftPair.liquidUsdtToUsdcSol,
+    ShiftPair.usdcPolygonToLiquidUsdt: ShiftPair.liquidUsdtToUsdcPolygon,
+    ShiftPair.usdtEthToLiquidUsdt: ShiftPair.liquidUsdtToUsdtEth,
+    ShiftPair.usdtTronToLiquidUsdt: ShiftPair.liquidUsdtToUsdtTron,
+    ShiftPair.usdtSolToLiquidUsdt: ShiftPair.liquidUsdtToUsdtSol,
+    ShiftPair.usdtPolygonToLiquidUsdt: ShiftPair.liquidUsdtToUsdtPolygon,
+    ShiftPair.btcToLiquidBtc: ShiftPair.liquidBtcToBtc,
+    ShiftPair.usdtArbitrumToLiquidUsdt: ShiftPair.liquidUsdtToUsdtArbitrum,
+  };
+
+  Map<String, String>? _selectedNativeAsset;
+
+  @override
+  void initState() {
+    super.initState();
+    // After the first frame is rendered, measure the height of the first view.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final context = _firstViewKey.currentContext;
+      if (context != null) {
+        setState(() {
+          _firstViewHeight = context.size?.height;
+        });
+      }
+    });
+  }
+
+  // --- Main Build Method ---
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildGrabber(),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) {
+              final slideIn = Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
+              if (child.key == const ValueKey('BridgeSelection')) {
+                return SlideTransition(position: slideIn, child: child);
+              }
+              return FadeTransition(opacity: animation, child: child);
+            },
+            child: _selectedNativeAsset == null
+                ? _buildNativeAssetSelectionView()
+                : _buildBridgeOptionsView(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- View Builders ---
+  Widget _buildNativeAssetSelectionView() {
+    return SingleChildScrollView(
+      key: const ValueKey('NativeSelection'),
+      child: Padding(
+        key: _firstViewKey, // Key to measure the height of this content
+        padding: EdgeInsets.only(
+          left: 16.w,
+          right: 16.w,
+          bottom: MediaQuery.of(context).padding.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildSheetHeader(
+              title: widget.isSend ? 'Send From'.i18n : 'Receive To'.i18n,
+            ),
+            SizedBox(height: 8.h),
+            ...widget.allNativeAssets.map((asset) => _buildNativeAssetTile(context, ref, asset)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBridgeOptionsView() {
+    final assetIcon = _selectedNativeAsset!['icon']!;
+    final bridgeOptions = _getFilteredBridgeOptions();
+
+    // Constrain the second view to the height of the first view.
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: _firstViewHeight ?? MediaQuery.of(context).size.height * 0.85,
+      ),
+      child: SingleChildScrollView(
+        key: const ValueKey('BridgeSelection'),
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 16.w,
+            right: 16.w,
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildSheetHeader(
+                title: widget.isSend ? "Send via".i18n : "Receive via".i18n,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                  onPressed: () => setState(() => _selectedNativeAsset = null),
+                ),
+                assetIcon: assetIcon,
+              ),
+              SizedBox(height: 16.h),
+              _buildSectionHeader("On-chain".i18n),
+              _buildNativeAssetTile(context, ref, _selectedNativeAsset!, isSecondStep: true),
+              if (bridgeOptions.isNotEmpty) ...[
+                SizedBox(height: 16.h),
+                _buildSectionHeader("via Smart Contracts".i18n),
+                Padding(
+                  padding: EdgeInsets.only(left: 4.w, bottom: 12.h),
+                  child: Text(
+                    "Fees apply".i18n,
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 13.sp),
+                  ),
+                ),
+                GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12.w,
+                    mainAxisSpacing: 12.h,
+                    childAspectRatio: 1.4,
+                  ),
+                  itemCount: bridgeOptions.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return _buildBridgeAssetTile(context, ref, bridgeOptions[index]);
+                  },
+                )
+              ]
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- Tile Builders ---
+  Widget _buildNativeAssetTile(BuildContext context, WidgetRef ref, Map<String, String> asset, {bool isSecondStep = false}) {
+    final assetName = asset['name']!;
+    final network = asset['network']!;
+    final isBridgeable = ['Liquid Bitcoin', 'USDT'].contains(assetName);
+
+    return _buildOptionCard(
+      leading: Image.asset(asset['icon']!, width: 36.sp, height: 36.sp),
+      title: assetName,
+      subtitle: isSecondStep ? network.replaceAll(' Network', '') : null,
+      trailing: (isBridgeable && !isSecondStep) ? Icon(Icons.arrow_forward_ios, color: Colors.grey.shade600, size: 16) : null,
+      onTap: () {
+        if (isBridgeable && !isSecondStep) {
+          setState(() => _selectedNativeAsset = asset);
+          return;
+        }
+
+        Navigator.pop(context);
+        if (widget.isSend) {
+          ref.read(sendTxProvider.notifier).resetToDefault();
+          _handleNativeSendNavigation(context, ref, assetName);
+        } else {
+          if (network == 'Lightning Network') {
+            ref.read(selectedNetworkTypeProvider.notifier).state = 'Boltz Network';
+          } else {
+            ref.read(selectedNetworkTypeProvider.notifier).state = network;
+          }
+          ref.read(selectedAssetProvider.notifier).state = assetName;
+          context.push('/home/receive');
+        }
+      },
+    );
+  }
+
+  Widget _buildBridgeAssetTile(BuildContext context, WidgetRef ref, BridgeOption option) {
+    if (option is SideShiftBridgeOption) {
+      final pair = option.pair;
+      final sendPair = _receiveToSendMap[pair];
+      if (widget.isSend && sendPair == null) {
+        return const SizedBox.shrink();
+      }
+
+      return _buildOptionCard(
+        leading: _buildAssetIcon(pair),
+        title: _getPairDisplayText(pair),
+        subtitle: "via SideShift".i18n,
+        isGrid: true,
+        onTap: () {
+          Navigator.pop(context);
+          if (widget.isSend) {
+            if (sendPair != null) {
+              final isLbtcPair = sendPair.name.contains('liquidBtc');
+              ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(isLbtcPair ? AssetId.LBTC : AssetId.USD));
+              ref.read(selectedSendShiftPairProvider.notifier).state = sendPair;
+              context.push('/home/pay', extra: 'non_native_asset');
+            }
+          } else {
+            ref.read(selectedNetworkTypeProvider.notifier).state = 'SideShift';
+            ref.read(selectedShiftPairProvider.notifier).state = pair;
+            context.push('/home/receive');
+          }
+        },
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  // --- Generic UI Components ---
+  Widget _buildGrabber() {
+    return Container(
+      width: 40.w,
+      height: 5.h,
+      margin: EdgeInsets.symmetric(vertical: 8.h),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade700,
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+    );
+  }
+
+  Widget _buildSheetHeader({required String title, Widget? leading, String? assetIcon}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(width: 48.w, child: leading ?? const SizedBox.shrink()),
+          const Spacer(),
+          if (assetIcon != null) ...[
+            Image.asset(assetIcon, width: 24.sp, height: 24.sp),
+            SizedBox(width: 10.w),
+          ],
+          Text(
+            title,
+            style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.white),
+            textAlign: TextAlign.center,
+          ),
+          const Spacer(),
+          SizedBox(width: 48.w), // Balance the row for centering
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: EdgeInsets.only(left: 4.w, bottom: 12.h, top: 4.h),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(color: Colors.grey.shade500, fontSize: 13.sp, fontWeight: FontWeight.w600, letterSpacing: 0.5),
+      ),
+    );
+  }
+
+  Widget _buildOptionCard({
+    required Widget leading,
+    required String title,
+    String? subtitle,
+    Widget? trailing,
+    required VoidCallback onTap,
+    bool isGrid = false,
+  }) {
+    final content = isGrid
+        ? Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        leading,
+        const Spacer(),
+        Text(title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15.sp), maxLines: 1, overflow: TextOverflow.ellipsis),
+        if (subtitle != null) ...[
+          SizedBox(height: 2.h),
+          Text(subtitle, style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp)),
+        ],
+      ],
+    )
+        : Row(
+      children: [
+        leading,
+        SizedBox(width: 16.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp)),
+              if (subtitle != null) ...[
+                SizedBox(height: 3.h),
+                Text(subtitle, style: TextStyle(color: Colors.grey.shade400, fontSize: 14.sp)),
+              ],
+            ],
+          ),
+        ),
+        if (trailing != null) trailing,
+      ],
+    );
+
+    return Card(
+      elevation: 0,
+      margin: isGrid ? EdgeInsets.zero : EdgeInsets.only(bottom: 12.h),
+      color: const Color(0xFF2C2C2C),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.r),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: isGrid ? 16.h : 14.h,
+          ),
+          child: content,
+        ),
+      ),
+    );
+  }
+
+
+  // --- Helper and Logic Methods (unchanged, but moved here for organization) ---
+  List<BridgeOption> _getFilteredBridgeOptions() {
+    final assetName = _selectedNativeAsset!['name']!;
+    if (widget.isSend) { // Sending from our wallet
+      if (assetName == 'Liquid Bitcoin') {
+        return _allBridgeOptions.whereType<SideShiftBridgeOption>()
+            .where((opt) => _receiveToSendMap[opt.pair]?.name.contains('liquidBtcTo') ?? false)
+            .toList();
+      }
+      if (assetName == 'USDT') {
+        return _allBridgeOptions.whereType<SideShiftBridgeOption>()
+            .where((opt) => _receiveToSendMap[opt.pair]?.name.contains('liquidUsdtTo') ?? false)
+            .toList();
+      }
+    } else { // Receiving to our wallet
+      if (assetName == 'Liquid Bitcoin') {
+        return _allBridgeOptions.whereType<SideShiftBridgeOption>()
+            .where((opt) => opt.pair.name.contains('ToLiquidBtc'))
+            .toList();
+      }
+      if (assetName == 'USDT') {
+        return _allBridgeOptions.whereType<SideShiftBridgeOption>()
+            .where((opt) => opt.pair.name.contains('ToLiquidUsdt'))
+            .toList();
+      }
+    }
+    return [];
+  }
+
+  void _handleNativeSendNavigation(BuildContext context, WidgetRef ref, String selectedAsset) {
     switch (selectedAsset) {
-      case 'Bitcoin':
-        context.push('/home/pay', extra: 'bitcoin');
-        break;
-      case 'Lightning Bitcoin':
-        context.push('/home/pay', extra: 'lightning');
-        break;
+      case 'Bitcoin': context.push('/home/pay', extra: 'bitcoin'); break;
+      case 'Lightning Bitcoin': context.push('/home/pay', extra: 'lightning'); break;
       case 'Liquid Bitcoin':
-        ref
-            .read(sendTxProvider.notifier)
-            .updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         context.push('/home/pay', extra: 'liquid');
         break;
       default:
         String assetId;
         switch (selectedAsset) {
-          case 'USDT':
-            assetId = AssetMapper.reverseMapTicker(AssetId.USD);
-            break;
-          case 'EURx':
-            assetId = AssetMapper.reverseMapTicker(AssetId.EUR);
-            break;
-          case 'Depix':
-            assetId = AssetMapper.reverseMapTicker(AssetId.BRL);
-            break;
-          default:
-            assetId = '';
+          case 'USDT': assetId = AssetMapper.reverseMapTicker(AssetId.USD); break;
+          case 'EURx': assetId = AssetMapper.reverseMapTicker(AssetId.EUR); break;
+          case 'Depix': assetId = AssetMapper.reverseMapTicker(AssetId.BRL); break;
+          default: assetId = '';
         }
         ref.read(sendTxProvider.notifier).updateAssetId(assetId);
         context.push('/home/pay', extra: 'liquid_asset');
     }
   }
+
+  String _getPairDisplayText(ShiftPair pair) {
+    final info = _getAssetInfo(pair);
+    final network = info['network']!;
+    final name = info['name']!;
+    if (widget.isSend) { // Display the destination
+      final sendPair = _receiveToSendMap[pair];
+      if (sendPair == ShiftPair.liquidBtcToBtc) return 'Bitcoin';
+      if (sendPair == ShiftPair.liquidUsdtToUsdcEth) return 'Ethereum USDC';
+      if (sendPair == ShiftPair.liquidUsdtToUsdcSol) return 'Solana USDC';
+      if (sendPair == ShiftPair.liquidUsdtToUsdcPolygon) return 'Polygon USDC';
+      if (sendPair == ShiftPair.liquidUsdtToUsdtEth) return 'Ethereum USDT';
+      if (sendPair == ShiftPair.liquidUsdtToUsdtTron) return 'Tron USDT';
+      if (sendPair == ShiftPair.liquidUsdtToUsdtSol) return 'Solana USDT';
+      if (sendPair == ShiftPair.liquidUsdtToUsdtPolygon) return 'Polygon USDT';
+      if (sendPair == ShiftPair.liquidUsdtToUsdtArbitrum) return 'Arbitrum USDT';
+    } else { // Display the source
+      if (network == 'Ethereum' && name == 'ETH') return 'Ethereum';
+      if (network == 'Solana' && name == 'SOL') return 'Solana';
+      if (network == 'BNB Chain' && name == 'BNB') return 'BNB';
+      if (network == 'Bitcoin' && name == 'Bitcoin') return 'Bitcoin';
+      return '$network $name';
+    }
+    return 'Unknown';
+  }
+
+  Map<String, String> _getAssetInfo(ShiftPair pair) {
+    switch (pair) {
+      case ShiftPair.usdcEthToLiquidUsdt: return {'name': 'USDC', 'network': 'Ethereum'};
+      case ShiftPair.usdcSolToLiquidUsdt: return {'name': 'USDC', 'network': 'Solana'};
+      case ShiftPair.usdcPolygonToLiquidUsdt: return {'name': 'USDC', 'network': 'Polygon'};
+      case ShiftPair.usdtEthToLiquidUsdt: return {'name': 'USDT', 'network': 'Ethereum'};
+      case ShiftPair.usdtTronToLiquidUsdt: return {'name': 'USDT', 'network': 'Tron'};
+      case ShiftPair.usdtSolToLiquidUsdt: return {'name': 'USDT', 'network': 'Solana'};
+      case ShiftPair.usdtPolygonToLiquidUsdt: return {'name': 'USDT', 'network': 'Polygon'};
+      case ShiftPair.ethToLiquidBtc: return {'name': 'ETH', 'network': 'Ethereum'};
+      case ShiftPair.bnbToLiquidBtc: return {'name': 'BNB', 'network': 'BNB Chain'};
+      case ShiftPair.solToLiquidBtc: return {'name': 'SOL', 'network': 'Solana'};
+      case ShiftPair.btcToLiquidBtc: return {'name': 'Bitcoin', 'network': 'Bitcoin'};
+      case ShiftPair.usdtArbitrumToLiquidUsdt: return {'name': 'USDT', 'network': 'Arbitrum'};
+      default: return {'name': 'Unknown', 'network': 'Unknown'};
+    }
+  }
+
+  Widget _buildAssetIcon(ShiftPair pair) {
+    ShiftPair pairToShow = pair;
+    if (widget.isSend) {
+      pairToShow = _receiveToSendMap[pair] ?? pair;
+    }
+
+    final logos = {
+      // Receive pairs
+      ShiftPair.usdcEthToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/eth.svg'},
+      ShiftPair.usdcSolToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/sol.svg'},
+      ShiftPair.usdcPolygonToLiquidUsdt: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/pol.svg'},
+      ShiftPair.usdtEthToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/eth.svg'},
+      ShiftPair.usdtTronToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/trx.svg'},
+      ShiftPair.usdtSolToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/sol.svg'},
+      ShiftPair.usdtPolygonToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/pol.svg'},
+      ShiftPair.ethToLiquidBtc: {'coin': 'lib/assets/eth.svg'},
+      ShiftPair.bnbToLiquidBtc: {'coin': 'lib/assets/bnb.svg'},
+      ShiftPair.solToLiquidBtc: {'coin': 'lib/assets/sol.svg'},
+      ShiftPair.btcToLiquidBtc: {'coin': 'lib/assets/bitcoin-logo.png'},
+      ShiftPair.usdtArbitrumToLiquidUsdt: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/arbitrum-logo.png'},
+      // Send pairs
+      ShiftPair.liquidBtcToBtc: {'coin': 'lib/assets/bitcoin-logo.png'},
+      ShiftPair.liquidUsdtToUsdcEth: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/eth.svg'},
+      ShiftPair.liquidUsdtToUsdcSol: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/sol.svg'},
+      ShiftPair.liquidUsdtToUsdcPolygon: {'coin': 'lib/assets/usdc.svg', 'network': 'lib/assets/pol.svg'},
+      ShiftPair.liquidUsdtToUsdtEth: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/eth.svg'},
+      ShiftPair.liquidUsdtToUsdtTron: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/trx.svg'},
+      ShiftPair.liquidUsdtToUsdtSol: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/sol.svg'},
+      ShiftPair.liquidUsdtToUsdtPolygon: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/pol.svg'},
+      ShiftPair.liquidUsdtToUsdtArbitrum: {'coin': 'lib/assets/usdt.svg', 'network': 'lib/assets/arbitrum-logo.png'},
+    }[pairToShow];
+
+    final coinPath = logos?['coin'];
+    final networkPath = logos?['network'];
+    final bool showNetworkBadge = networkPath != null;
+    final double iconSize = 36.sp;
+
+    Widget coinIcon;
+    if (coinPath == null) {
+      coinIcon = Icon(Icons.error, color: Colors.red, size: iconSize);
+    } else if (coinPath.endsWith('.svg')) {
+      coinIcon = SvgPicture.asset(coinPath, width: iconSize, height: iconSize);
+    } else {
+      coinIcon = Image.asset(coinPath, width: iconSize, height: iconSize);
+    }
+
+    Widget? networkIcon;
+    if (networkPath != null) {
+      final double networkIconSize = 18.sp;
+      if (networkPath.endsWith('.svg')) {
+        networkIcon = SvgPicture.asset(networkPath, width: networkIconSize, height: networkIconSize);
+      } else {
+        networkIcon = Image.asset(networkPath, width: networkIconSize, height: networkIconSize);
+      }
+    }
+
+    return SizedBox(
+      width: iconSize,
+      height: iconSize,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          coinIcon,
+          if (showNetworkBadge && networkIcon != null)
+            Positioned(
+              bottom: -4,
+              right: -4,
+              child: Container(
+                padding: EdgeInsets.all(2.sp),
+                decoration: const BoxDecoration(color: Color(0xFF1A1A1A), shape: BoxShape.circle),
+                child: networkIcon,
+              ),
+            )
+        ],
+      ),
+    );
+  }
 }
+
+
+// --- Widgets below this line are unchanged ---
 
 class _AssetDetailsView extends ConsumerWidget {
   final Map<String, String> assetData;
