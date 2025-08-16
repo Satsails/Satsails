@@ -100,7 +100,7 @@ class FirebaseService {
       if (token != null && token.isNotEmpty) {
         await sendTokenToBackend(jwt, token);
         await storeFCMToken(token);
-        await subscribeToTopics();
+        // await subscribeToTopics();
       }
     } catch (e) {
       debugPrint("Error storing token on backend: $e");
@@ -156,8 +156,8 @@ class FirebaseService {
 
   static Future<void> subscribeToTopics() async {
     try {
-      await _firebaseMessaging.subscribeToTopic('priceUpdates');
-      await _firebaseMessaging.subscribeToTopic('campaigns');
+      await _firebaseMessaging.subscribeToTopic('prices');
+      await _firebaseMessaging.subscribeToTopic('errors');
     } catch (e) {
       debugPrint('Error subscribing to topics: $e');
     }

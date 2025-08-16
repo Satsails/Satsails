@@ -1,6 +1,8 @@
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
+import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
+import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -74,6 +76,8 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
     setState(() => _isLoading = true);
 
     try {
+      await FirebaseService.requestNotificationPermissions();
+      await ref.read(depositInitializerProvider.future);
       final purchase = await ref.read(
         createEulenTransferRequestProvider(amountInDouble).future,
       );

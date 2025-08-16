@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
-import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
@@ -240,7 +237,6 @@ class _ActionCards extends ConsumerWidget {
   const _ActionCards();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final paymentId = ref.watch(userProvider).paymentId;
     return Column(
       children: [
         Row(
@@ -251,7 +247,8 @@ class _ActionCards extends ConsumerWidget {
                 color: Colors.green.withOpacity(0.8),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
-                  onTap: () => _handleOnPress(ref, context, paymentId, true),
+                  // REFACTORED: The onTap now simply navigates. All logic is moved.
+                  onTap: () => context.push('/home/explore/deposit_type'),
                   child: Container(
                     height: 80.h,
                     alignment: Alignment.center,
@@ -483,33 +480,5 @@ class _PriceSparklineChart extends StatelessWidget {
     if (minY < 0) minY = 0;
 
     return (minY: minY, maxY: maxY);
-  }
-}
-
-// Global Helper Functions
-Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentId, bool buy) async {
-  final userProviderState = ref.watch(userProvider);
-  ref.read(isLoadingProvider.notifier).state = true;
-  try {
-    if (paymentId.isEmpty) {
-      await ref.watch(createUserProvider.future);
-      if (context.mounted) await FirebaseService.requestNotificationPermissions();
-    } else {
-      if (userProviderState.recoveryCode?.isNotEmpty ?? false) {
-        await ref.read(migrateUserToJwtProvider.future);
-      }
-      if ((userProviderState.affiliateCode?.isNotEmpty ?? false) && !(userProviderState.hasUploadedAffiliateCode ?? false)) {
-        await ref.read(addAffiliateCodeProvider(userProviderState.affiliateCode!).future);
-      }
-    }
-    if (context.mounted) {
-      context.push(buy ? '/home/explore/deposit_type' : '/home/explore/sell_type');
-    }
-  } catch (e) {
-    if (context.mounted) {
-      showMessageSnackBar(message: e.toString(), context: context, error: true);
-    }
-  } finally {
-    ref.read(isLoadingProvider.notifier).state = false;
   }
 }

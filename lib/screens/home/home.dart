@@ -86,7 +86,7 @@ class Home extends ConsumerWidget {
       label: 'Backup Wallet'.i18n,
       iconColor: Colors.red,
       textColor: Colors.white,
-      backgroundColor: const Color(0xFF333333).withOpacity(0.4),
+      backgroundColor: const Color(0xFF1A1A1A),
       onPressed: () => context.push('/seed_words'),
     );
   }
@@ -96,7 +96,7 @@ class Home extends ConsumerWidget {
       label: 'Add money'.i18n,
       textColor: Colors.black,
       backgroundColor: Colors.white.withOpacity(0.9),
-      onPressed: () => ref.read(navigationProvider.notifier).state = 3,
+      onPressed: () => context.push('/home/explore/deposit_type'),
     );
   }
 }

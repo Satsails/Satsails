@@ -118,3 +118,19 @@ final migrateUserToJwtProvider = FutureProvider.autoDispose<void>((ref) async {
     throw result.error!;
   }
 });
+
+final depositInitializerProvider = FutureProvider.autoDispose<void>((ref) async {
+  final user = ref.read(userProvider);
+
+  if (user.paymentId.isEmpty) {
+    await ref.read(createUserProvider.future);
+  } else {
+    if (user.recoveryCode?.isNotEmpty ?? false) {
+      await ref.read(migrateUserToJwtProvider.future);
+    }
+    if ((user.affiliateCode?.isNotEmpty ?? false) &&
+        !(user.hasUploadedAffiliateCode ?? false)) {
+      await ref.read(addAffiliateCodeProvider(user.affiliateCode!).future);
+    }
+  }
+});
