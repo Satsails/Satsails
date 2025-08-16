@@ -10,7 +10,6 @@ import 'package:Satsails/providers/navigation_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
-import 'package:Satsails/screens/shared/backup_warning.dart';
 import 'package:Satsails/screens/shared/lightning_conversion_transaction_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
@@ -26,11 +25,9 @@ import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 Widget buildHiddenTransactionsView(BuildContext context, WidgetRef ref) {
   return GestureDetector(
     onTap: () {
-      // Toggle the visibility state by updating the settings provider
       final currentVisibility = ref.read(settingsProvider).balanceVisible;
       ref.read(settingsProvider.notifier).setBalanceVisible(!currentVisibility);
     },
-    // Use a transparent color to make the entire area tappable
     child: Container(
       color: Colors.transparent,
       child: Center(
@@ -85,8 +82,8 @@ Widget buildNoTransactionsFound(double screenHeight) {
               'No transactions found'.i18n,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w600,
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white.withOpacity(0.8)
               ),
             ),
@@ -168,7 +165,7 @@ Widget _buildMonthGroup(
       Container(
         margin: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
-          color: const Color(0x00333333).withOpacity(0.4),
+          color: const Color(0xFF333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(15.r),
         ),
         child: ListView.separated(
@@ -220,98 +217,58 @@ class _TransactionListState extends ConsumerState<TransactionList> {
     final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
     final transactionState = ref.watch(transactionNotifierProvider);
 
-    final settledTransactions = transactionState.settledTransactions.take(6).toList() ?? [];
-    final allTransactions = transactionState.allTransactionsSorted ?? [];
+    final settledTransactions = transactionState.settledTransactions.take(6).toList();
+    final allTransactions = transactionState.allTransactionsSorted;
 
-    final buyButton = GestureDetector(
-      onTap: () => ref.read(navigationProvider.notifier).state = 3,
-      child: Padding(
-        padding: EdgeInsets.only(right: 8.sp),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
-          child: Text(
-            'Buy'.i18n,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 17.sp,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF333333).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(16.r),
       ),
-    );
-
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: BackupWarning(),
-            ),
-            buyButton,
-          ],
-        ),
-        const SizedBox(height: 8),
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0x00333333).withOpacity(0.4),
-              borderRadius: BorderRadius.circular(15.r),
-            ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: !isBalanceVisible
-                      ? Center(
-                      child: buildHiddenTransactionsView(context, ref))
-                      : settledTransactions.isEmpty
-                      ? Center(
-                      child: buildNoTransactionsFound(screenHeight))
-                      : SmartRefresher(
-                    enablePullDown: true,
-                    header: ClassicHeader(
-                        refreshingText: 'Refreshing'.i18n,
-                        releaseText: 'Release'.i18n,
-                        idleText: 'Pull down to refresh'.i18n),
-                    controller: _refreshController,
-                    onRefresh: _onRefresh,
-                    child: ListView.separated(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: settledTransactions.length,
-                      itemBuilder: (context, index) =>
-                          _buildUnifiedTransactionItem(
-                            settledTransactions[index],
-                            context,
-                            ref,
-                          ),
-                      separatorBuilder: (context, index) => Divider(
-                        color: Colors.white.withOpacity(0.1),
-                        height: 1.h,
-                        indent: 60.w,
-                      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: !isBalanceVisible
+                ? buildHiddenTransactionsView(context, ref)
+                : settledTransactions.isEmpty
+                ? buildNoTransactionsFound(screenHeight)
+                : SmartRefresher(
+              enablePullDown: true,
+              header: ClassicHeader(
+                  refreshingText: 'Refreshing'.i18n,
+                  releaseText: 'Release'.i18n,
+                  idleText: 'Pull down to refresh'.i18n),
+              controller: _refreshController,
+              onRefresh: _onRefresh,
+              child: ListView.separated(
+                padding: EdgeInsets.zero,
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: settledTransactions.length,
+                itemBuilder: (context, index) =>
+                    _buildUnifiedTransactionItem(
+                      settledTransactions[index],
+                      context,
+                      ref,
                     ),
-                  ),
+                separatorBuilder: (context, index) => Divider(
+                  color: Colors.white.withOpacity(0.1),
+                  height: 1.h,
+                  indent: 60.w,
                 ),
-                if (isBalanceVisible && allTransactions.isNotEmpty)
-                  TextButton(
-                    onPressed: () => context.pushNamed('transactions'),
-                    child: Text(
-                      'See all transactions'.i18n,
-                      style:
-                      const TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ),
-              ],
+              ),
             ),
           ),
-        ),
-      ],
+          if (isBalanceVisible && allTransactions.isNotEmpty)
+            TextButton(
+              onPressed: () => context.pushNamed('transactions'),
+              child: Text(
+                'See all transactions'.i18n,
+                style:
+                const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

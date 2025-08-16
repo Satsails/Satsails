@@ -78,7 +78,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (modalContext) {
-        // The sheet now sizes itself based on its content.
         return TransactionOptionsSheet(
           isSend: isSend,
           allNativeAssets: _allAssets,
@@ -297,7 +296,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Change Asset'.i18n,
+                'View Balances'.i18n,
                 style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500),
               ),
               SizedBox(width: 4.w),
@@ -427,7 +426,8 @@ class TransactionOptionsSheet extends ConsumerStatefulWidget {
 
 class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsSheet> {
   final GlobalKey _firstViewKey = GlobalKey();
-  double? _firstViewHeight;
+  final GlobalKey _secondViewKey = GlobalKey();
+  double? _sheetHeight;
 
   // --- Data and constants remain the same ---
   static final List<ShiftPair> _selectablePairs = [
@@ -458,47 +458,59 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
   @override
   void initState() {
     super.initState();
-    // After the first frame is rendered, measure the height of the first view.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final context = _firstViewKey.currentContext;
-      if (context != null) {
-        setState(() {
-          _firstViewHeight = context.size?.height;
-        });
-      }
+      _updateSheetHeight(_firstViewKey);
     });
+  }
+
+  void _updateSheetHeight(GlobalKey key) {
+    final context = key.currentContext;
+    if (context != null) {
+      final newHeight = (context.findRenderObject() as RenderBox).size.height;
+      final totalHeight = newHeight + 40.h + MediaQuery.of(context).padding.bottom;
+      final maxHeight = MediaQuery.of(context).size.height * 0.9;
+      setState(() {
+        _sheetHeight = totalHeight > maxHeight ? maxHeight : totalHeight;
+      });
+    }
   }
 
   // --- Main Build Method ---
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildGrabber(),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            transitionBuilder: (child, animation) {
-              final slideIn = Tween<Offset>(
-                begin: const Offset(1.0, 0.0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
-              if (child.key == const ValueKey('BridgeSelection')) {
-                return SlideTransition(position: slideIn, child: child);
-              }
-              return FadeTransition(opacity: animation, child: child);
-            },
-            child: _selectedNativeAsset == null
-                ? _buildNativeAssetSelectionView()
-                : _buildBridgeOptionsView(),
-          ),
-        ],
+    return SafeArea(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        height: _sheetHeight,
+        decoration: BoxDecoration(
+          color: const Color(0xFF1A1A1A),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+        ),
+        child: Column(
+          children: [
+            _buildGrabber(),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) {
+                  final slideIn = Tween<Offset>(
+                    begin: const Offset(1.0, 0.0),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
+                  if (child.key == const ValueKey('BridgeSelection')) {
+                    return SlideTransition(position: slideIn, child: child);
+                  }
+                  return FadeTransition(opacity: animation, child: child);
+                },
+                child: _selectedNativeAsset == null
+                    ? _buildNativeAssetSelectionView()
+                    : _buildBridgeOptionsView(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -508,13 +520,9 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
     return SingleChildScrollView(
       key: const ValueKey('NativeSelection'),
       child: Padding(
-        key: _firstViewKey, // Key to measure the height of this content
-        padding: EdgeInsets.only(
-          left: 16.w,
-          right: 16.w,
-          bottom: MediaQuery.of(context).padding.bottom,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Column(
+          key: _firstViewKey,
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -532,61 +540,58 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
   Widget _buildBridgeOptionsView() {
     final assetIcon = _selectedNativeAsset!['icon']!;
     final bridgeOptions = _getFilteredBridgeOptions();
+    final assetName = _selectedNativeAsset!['name'];
 
-    // Constrain the second view to the height of the first view.
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxHeight: _firstViewHeight ?? MediaQuery.of(context).size.height * 0.85,
-      ),
-      child: SingleChildScrollView(
-        key: const ValueKey('BridgeSelection'),
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 16.w,
-            right: 16.w,
-            bottom: MediaQuery.of(context).padding.bottom,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildSheetHeader(
-                title: widget.isSend ? "Send via".i18n : "Receive via".i18n,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
-                  onPressed: () => setState(() => _selectedNativeAsset = null),
-                ),
-                assetIcon: assetIcon,
+    return SingleChildScrollView(
+      key: const ValueKey('BridgeSelection'),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        child: Column(
+          key: _secondViewKey,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSheetHeader(
+              title: widget.isSend ? "Send via".i18n : "Receive via".i18n,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                onPressed: () {
+                  setState(() => _selectedNativeAsset = null);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _updateSheetHeight(_firstViewKey);
+                  });
+                },
               ),
+              assetIcon: assetIcon,
+            ),
+            SizedBox(height: 16.h),
+            _buildSectionHeader("On-chain".i18n),
+            _buildNativeAssetTile(context, ref, _selectedNativeAsset!, isSecondStep: true),
+            if (bridgeOptions.isNotEmpty) ...[
               SizedBox(height: 16.h),
-              _buildSectionHeader("On-chain".i18n),
-              _buildNativeAssetTile(context, ref, _selectedNativeAsset!, isSecondStep: true),
-              if (bridgeOptions.isNotEmpty) ...[
-                SizedBox(height: 16.h),
-                _buildSectionHeader("via Smart Contracts".i18n),
-                Padding(
-                  padding: EdgeInsets.only(left: 4.w, bottom: 12.h),
-                  child: Text(
-                    "Fees apply".i18n,
-                    style: TextStyle(color: Colors.grey.shade500, fontSize: 13.sp),
-                  ),
+              _buildSectionHeader("via Smart Contracts".i18n),
+              Padding(
+                padding: EdgeInsets.only(left: 4.w, bottom: 12.h),
+                child: Text(
+                  "Funds will be stored as $assetName in your wallet.".i18n,
+                  style: TextStyle(color: Colors.grey.shade500, fontSize: 13.sp),
                 ),
-                GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12.w,
-                    mainAxisSpacing: 12.h,
-                    childAspectRatio: 1.4,
-                  ),
-                  itemCount: bridgeOptions.length,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    return _buildBridgeAssetTile(context, ref, bridgeOptions[index]);
-                  },
-                )
-              ]
-            ],
-          ),
+              ),
+              GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12.w,
+                  mainAxisSpacing: 12.h,
+                  childAspectRatio: 1.4,
+                ),
+                itemCount: bridgeOptions.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return _buildBridgeAssetTile(context, ref, bridgeOptions[index]);
+                },
+              )
+            ]
+          ],
         ),
       ),
     );
@@ -606,6 +611,9 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
       onTap: () {
         if (isBridgeable && !isSecondStep) {
           setState(() => _selectedNativeAsset = asset);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _updateSheetHeight(_secondViewKey);
+          });
           return;
         }
 
@@ -1147,13 +1155,21 @@ class MiniExpensesGraph extends ConsumerWidget {
     }
 
     return asyncData.when(
-      data: (data) => Padding(
-        padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
-        child: SimplifiedExpensesGraph(
-          dataToDisplay: data,
-          graphColor: textColor,
-        ),
-      ),
+      data: (data) {
+        final isHistoryEmpty = data.isEmpty || data.values.toSet().length <= 1;
+
+        if (isHistoryEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Padding(
+          padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
+          child: SimplifiedExpensesGraph(
+            dataToDisplay: data,
+            graphColor: textColor,
+          ),
+        );
+      },
       loading: () => Center(
         child: LoadingAnimationWidget.fourRotatingDots(
           color: textColor,
