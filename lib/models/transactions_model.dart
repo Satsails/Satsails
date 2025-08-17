@@ -1,3 +1,6 @@
+// lib/models/transactions_model.dart
+
+import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
@@ -7,6 +10,8 @@ import 'package:Satsails/models/sideshift_model.dart';
 import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
 import 'package:lwk/lwk.dart' as lwk;
+
+enum TransactionType { received, sent }
 
 abstract class BaseTransaction {
   final String id;
@@ -18,94 +23,170 @@ abstract class BaseTransaction {
     required this.timestamp,
     required this.isConfirmed,
   });
+
+  TransactionType get type;
+  num get amount;
+  String get asset;
 }
 
 class BitcoinTransaction extends BaseTransaction {
   final bdk.TransactionDetails btcDetails;
 
   BitcoinTransaction({
-    required super.id,
-    required super.timestamp,
-    required super.isConfirmed,
+    required String id,
+    required DateTime timestamp,
+    required bool isConfirmed,
     required this.btcDetails,
-  });
+  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+
+  @override
+  TransactionType get type => btcDetails.received > btcDetails.sent ? TransactionType.received : TransactionType.sent;
+  @override
+  num get amount => (btcDetails.received - btcDetails.sent).abs().toInt(); // FIX: Convert BigInt to num
+  @override
+  String get asset => 'btc';
 }
 
 class LiquidTransaction extends BaseTransaction {
   final lwk.Tx lwkDetails;
 
   LiquidTransaction({
-    required super.id,
-    required super.timestamp,
+    required String id,
+    required DateTime timestamp,
     required this.lwkDetails,
-    required super.isConfirmed,
-  });
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+
+  // Filter balances to only include the L-BTC asset
+  // and then calculate the total net amount for it.
+  num get _lbtcNetAmount {
+    final lbtcId = AssetMapper.reverseMapTicker(AssetId.LBTC);
+    final lbtcBalance = lwkDetails.balances.firstWhere(
+          (bal) => bal.assetId == lbtcId,
+      orElse: () => lwk.Balance(assetId: lbtcId, value: 0),
+    );
+    return lbtcBalance.value;
+  }
+
+  // The type is now based on the L-BTC net amount.
+  @override
+  TransactionType get type => _lbtcNetAmount >= 0 ? TransactionType.received : TransactionType.sent;
+
+  // The amount is the absolute value of the L-BTC net amount.
+  @override
+  num get amount => _lbtcNetAmount.abs();
+
+  // The asset is always Liquid for this specific calculation.
+  @override
+  String get asset => AssetMapper.reverseMapTicker(AssetId.LBTC);
 }
 
 class LightningConversionTransaction extends BaseTransaction {
   final breez.Payment details;
 
   LightningConversionTransaction({
-    required super.id,
-    required super.timestamp,
+    required String id,
+    required DateTime timestamp,
     required this.details,
-    required super.isConfirmed,
-  });
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+
+  @override
+  TransactionType get type => TransactionType.received;
+  @override
+  num get amount => 0; // Per requirement, only BTC/Liquid flows are counted
+  @override
+  String get asset => AssetMapper.reverseMapTicker(AssetId.LBTC);
 }
 
 class EulenTransaction extends BaseTransaction {
   final EulenTransfer details;
 
   EulenTransaction({
-    required super.id,
-    required super.timestamp,
+    required String id,
+    required DateTime timestamp,
     required this.details,
-    required super.isConfirmed,
-  });
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+
+  @override
+  TransactionType get type => TransactionType.received;
+  @override
+  num get amount => 0; // Per requirement, only BTC/Liquid flows are counted
+  @override
+  String get asset => details.to_currency ?? 'unknown';
 }
 
 class NoxTransaction extends BaseTransaction {
   final NoxTransfer details;
 
   NoxTransaction({
-    required super.id,
-    required super.timestamp,
+    required String id,
+    required DateTime timestamp,
     required this.details,
-    required super.isConfirmed,
-  });
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+
+  @override
+  TransactionType get type => TransactionType.received;
+  @override
+  num get amount => 0; // Per requirement, only BTC/Liquid flows are counted
+  @override
+  String get asset => details.to_currency ?? 'unknown';
 }
 
 class SideswapPegTransaction extends BaseTransaction {
   final SideswapPegStatus sideswapPegDetails;
 
   SideswapPegTransaction({
-    required super.id,
-    required super.timestamp,
+    required String id,
+    required DateTime timestamp,
     required this.sideswapPegDetails,
-    required super.isConfirmed,
-  });
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+
+  @override
+  TransactionType get type => (sideswapPegDetails.pegIn ?? false) ? TransactionType.received : TransactionType.sent; // FIX: Handle nullable bool
+  @override
+  num get amount => 0; // Per requirement, only BTC/Liquid flows are counted
+  @override
+  String get asset => AssetMapper.reverseMapTicker(AssetId.LBTC);
 }
 
 class SideswapInstantSwapTransaction extends BaseTransaction {
   final SideswapCompletedSwap sideswapInstantSwapDetails;
 
   SideswapInstantSwapTransaction({
-    required super.id,
-    required super.timestamp,
+    required String id,
+    required DateTime timestamp,
     required this.sideswapInstantSwapDetails,
-    required super.isConfirmed,
-  });
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+
+  @override
+  TransactionType get type => TransactionType.received;
+  @override
+  num get amount => 0; // Per requirement, only BTC/Liquid flows are counted
+  @override
+  String get asset => sideswapInstantSwapDetails.recvAsset ?? 'unknown';
 }
 
 class SideShiftTransaction extends BaseTransaction {
   final SideShift details;
 
   SideShiftTransaction({
-    required super.id,
-    required super.timestamp,
+    required String id,
+    required DateTime timestamp,
     required this.details,
-    required super.isConfirmed,
-  });
+    required bool isConfirmed,
+  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+
+  @override
+  TransactionType get type => TransactionType.received;
+  @override
+  num get amount => 0; // Per requirement, only BTC/Liquid flows are counted
+  @override
+  String get asset => 'unknown';
 }
 
 class Transaction {

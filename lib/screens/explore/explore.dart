@@ -5,6 +5,7 @@ import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
+import 'package:Satsails/screens/analytics/components/chart.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -14,12 +15,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-
-// Helper Extension
-extension DateTimeExtension on DateTime {
-  DateTime dateOnly() => DateTime(year, month, day);
-  String formatYMD() => DateFormat('dd/MM/yyyy').format(this);
-}
 
 // Providers
 final isLoadingProvider = StateProvider<bool>((ref) => false);

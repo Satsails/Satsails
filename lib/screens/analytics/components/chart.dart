@@ -1,3 +1,5 @@
+// lib/screens/analytics/components/chart.dart
+
 import 'dart:math';
 import 'package:Satsails/translations/translations.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -120,8 +122,6 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     );
   }
 
-// In your chart.dart file
-
   LineChartBarData _buildLineBarData(List<DateTime> sortedDays, double animationValue) {
     final spots = _createSpots(widget.mainData, sortedDays);
     final animatedSpots = spots.sublist(0, (spots.length * animationValue).ceil());
@@ -129,8 +129,6 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     return LineChartBarData(
       spots: animatedSpots,
       isCurved: true,
-      // REFACTORED: This property makes the curves much smoother.
-      // The default is 0.35. A higher value gives a more rounded look.
       curveSmoothness: 0.6,
       preventCurveOverShooting: true,
       color: Colors.white,
@@ -177,11 +175,15 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
           interval: bounds.horizontalInterval,
           getTitlesWidget: (value, meta) {
             String text;
-            if (widget.isCurrency && !widget.isBitcoinAsset) {
+            if (widget.isCurrency) {
+              text = NumberFormat.compactSimpleCurrency(name: '').format(value);
+            } else if (widget.isBitcoinAsset && widget.btcFormat == 'sats') {
               text = NumberFormat.compact().format(value);
-            } else {
-              final decimals = widget.isBitcoinAsset ? (widget.btcFormat == 'BTC' && !widget.isCurrency ? 8 : (widget.btcFormat == 'sats' && !widget.isCurrency ? 0 : 2)) : 2;
-              text = value.toStringAsFixed(decimals);
+            } else if (widget.isBitcoinAsset && widget.btcFormat == 'BTC') {
+              text = NumberFormat('0.##').format(value);
+            }
+            else {
+              text = NumberFormat.compact().format(value);
             }
             return SideTitleWidget(meta: meta, child: Text(text, style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp, fontWeight: FontWeight.w500)));
           },
@@ -190,18 +192,18 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     );
   }
 
+  // FIX: Added percentage change to the valuation tooltip.
   LineTouchData _buildLineTouchData(BuildContext context, List<DateTime> sortedDays) {
     return LineTouchData(
       handleBuiltInTouches: true,
       touchSpotThreshold: 20,
       touchTooltipData: LineTouchTooltipData(
-        // FIX: These two lines ensure the tooltip stays within the screen bounds.
         fitInsideHorizontally: true,
         fitInsideVertically: true,
-
-        getTooltipColor: (_) => Colors.black.withOpacity(0.8),
-        tooltipBorder: BorderSide(color: Colors.white.withOpacity(0.5)),
+        getTooltipColor: (_) => const Color(0xFF1C1C1E),
+        tooltipBorder: BorderSide(color: Colors.white.withOpacity(0.2)),
         tooltipPadding: const EdgeInsets.all(12),
+        tooltipBorderRadius: BorderRadius.circular(12.r),
         getTooltipItems: (touchedSpots) {
           if (touchedSpots.isEmpty) return [];
           final spot = touchedSpots.first;
@@ -209,23 +211,68 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
           if (index < 0 || index >= sortedDays.length) return [];
           final date = sortedDays[index];
 
-          final currencyFormatter = NumberFormat.simpleCurrency(name: widget.selectedCurrency);
-          final value = _getValueForDate(widget.mainData, date);
-
+          final headerStyle = TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp);
           List<TextSpan> children = [
-            TextSpan(text: '${date.formatYMD()}\n', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp)),
+            TextSpan(text: '${date.formatYMD()}\n', style: headerStyle),
           ];
 
           if (widget.isCurrency && widget.isBitcoinAsset) {
+            final currencyFormatter = NumberFormat.simpleCurrency(name: widget.selectedCurrency, decimalDigits: 2);
+            final totalValue = _getValueForDate(widget.mainData, date);
+            final initialValue = _getValueForDate(widget.mainData, sortedDays.first);
             final price = _getValueForDate(widget.priceByDay, date);
             final btcBalance = _getValueForDate(widget.bitcoinBalanceByDayformatted, date);
+
+            final formattedBtcBalance = widget.btcFormat == 'sats'
+                ? NumberFormat.decimalPattern().format(btcBalance)
+                : NumberFormat('0.########').format(btcBalance);
+
+            // Calculate percentage change
+            TextSpan? percentageChangeSpan;
+            if (initialValue > 0) {
+              final percentageChange = ((totalValue - initialValue) / initialValue) * 100;
+              final formattedPercentage = NumberFormat('+0.00;-0.00').format(percentageChange);
+              final color = percentageChange >= 0.01 ? Colors.greenAccent : (percentageChange <= -0.01 ? Colors.redAccent : Colors.grey.shade400);
+
+              percentageChangeSpan = TextSpan(
+                text: ' ($formattedPercentage%)',
+                style: TextStyle(color: color, fontSize: 14.sp, fontWeight: FontWeight.bold),
+              );
+            }
+
             children.addAll([
-              TextSpan(text: currencyFormatter.format(value), style: TextStyle(color: Colors.white70, fontSize: 14.sp, height: 1.5)),
-              TextSpan(text: '\n${widget.btcFormat.toUpperCase()}: $btcBalance', style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp, height: 1.4)),
-              TextSpan(text: '\nPrice: ${currencyFormatter.format(price)}', style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp)),
+              TextSpan(text: '${"Valuation".i18n}\n', style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 14.sp, height: 1.5)),
+              TextSpan(
+                children: [
+                  TextSpan(text: currencyFormatter.format(totalValue), style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+                  if (percentageChangeSpan != null) percentageChangeSpan,
+                  const TextSpan(text: '\n\n')
+                ],
+              ),
+              TextSpan(text: '${widget.btcFormat.toUpperCase()}: $formattedBtcBalance\n', style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp, height: 1.4)),
+              TextSpan(text: '${"Price".i18n}: ${currencyFormatter.format(price)}', style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp)),
             ]);
+
           } else {
-            children.add(TextSpan(text: 'Balance: $value', style: TextStyle(color: Colors.white70, fontSize: 14.sp, height: 1.5)));
+            final value = _getValueForDate(widget.mainData, date);
+            String formattedValue;
+            String unit = '';
+
+            if (widget.isBitcoinAsset) {
+              unit = widget.btcFormat.toUpperCase();
+              formattedValue = widget.btcFormat == 'sats'
+                  ? NumberFormat.decimalPattern().format(value)
+                  : NumberFormat('0.########').format(value);
+            } else {
+              // For non-bitcoin assets like Depix, USDT, etc.
+              unit = widget.selectedCurrency;
+              formattedValue = NumberFormat.currency(symbol: '', decimalDigits: 2).format(value);
+            }
+
+            children.addAll([
+              TextSpan(text: '${"Balance".i18n}\n', style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 14.sp, height: 1.5)),
+              TextSpan(text: '$formattedValue $unit', style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+            ]);
           }
 
           return [LineTooltipItem('', const TextStyle(), children: children, textAlign: TextAlign.start)];
@@ -259,7 +306,21 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
 
   num _getValueForDate(Map<DateTime, num> data, DateTime date) {
     final normalizedDate = date.dateOnly();
-    return data[normalizedDate] ?? 0;
+    num lastValue = 0;
+    final sortedDataKeys = data.keys.toList()..sort();
+
+    if (sortedDataKeys.isNotEmpty && normalizedDate.isBefore(sortedDataKeys.first)) {
+      return 0;
+    }
+
+    for (var d in sortedDataKeys) {
+      if (d.isBefore(normalizedDate) || d.isAtSameMomentAs(normalizedDate)) {
+        lastValue = data[d]!;
+      } else {
+        break;
+      }
+    }
+    return lastValue;
   }
 
   double _calculateDateInterval(int days) {
@@ -273,6 +334,8 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
 
     double minY = double.maxFinite, maxY = double.negativeInfinity;
     final spots = _createSpots(dataSet, sortedDays);
+    if(spots.isEmpty) return (minY: 0, maxY: 1, horizontalInterval: 0.2);
+
     for (var spot in spots) {
       if (spot.y < minY) minY = spot.y;
       if (spot.y > maxY) maxY = spot.y;
