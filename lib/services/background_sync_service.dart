@@ -22,8 +22,8 @@ class BackgroundSyncService {
   ///
   /// [container] is the app's root ProviderContainer, which allows this
   /// service to access other providers.
-  void start(ProviderContainer container) {
-    // Prevent starting multiple timers
+// Change the start method to accept WidgetRef
+  void start(WidgetRef ref) {
     if (_timer?.isActive ?? false) {
       debugPrint("Background sync service already running.");
       return;
@@ -31,18 +31,14 @@ class BackgroundSyncService {
 
     debugPrint("Starting background sync service...");
 
-    // --- ADDED: Perform an initial sync immediately on start ---
-    _runSync(container);
-    // ---------------------------------------------------------
+    _runSync(ref); // initial sync immediately
 
-    // Start the periodic timer for subsequent syncs.
     _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
-      await _runSync(container);
+      await _runSync(ref);
     });
   }
 
-  /// The core sync logic, now extracted into its own method.
-  Future<void> _runSync(ProviderContainer container) async {
+  Future<void> _runSync(WidgetRef ref) async {
     if (_isSyncing) {
       debugPrint("Sync already in progress, skipping this interval.");
       return;
@@ -51,8 +47,7 @@ class BackgroundSyncService {
     try {
       _isSyncing = true;
       debugPrint("Performing background sync via service...");
-      // Use the container to read the provider and trigger the sync.
-      await container.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
+      await ref.read(backgroundSyncNotifierProvider.notifier).performFullUpdate();
     } catch (e) {
       debugPrint("Background sync service failed in interval: $e");
     } finally {

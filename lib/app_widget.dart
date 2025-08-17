@@ -77,16 +77,9 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    final container = ProviderScope.containerOf(context);
-    final isAppLocked = ref.read(appLockedProvider);
-
     switch (state) {
       case AppLifecycleState.resumed:
         _handleAppResume();
-        if (!isAppLocked) {
-          debugPrint("App resumed and unlocked, starting sync service...");
-          BackgroundSyncService().start(container);
-        }
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:

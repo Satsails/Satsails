@@ -1,5 +1,3 @@
-// lib/screens/analytics/analytics.dart
-
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
@@ -19,7 +17,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'dart:math';
 
 enum ChartType { balance, valuation, allocation, price }
 enum AnalyticsSection { internal, market }
@@ -81,7 +78,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
   void _showAssetSelection() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF2C2C2E),
+      backgroundColor: const Color(0xFF1A1A1A),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
       builder: (context) {
         return ListView(

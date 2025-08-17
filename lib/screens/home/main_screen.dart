@@ -6,6 +6,7 @@ import 'package:Satsails/screens/explore/explore.dart';
 import 'package:Satsails/screens/home/home.dart';
 import 'package:Satsails/screens/settings/settings.dart';
 import 'package:Satsails/screens/shared/custom_bottom_navigation_bar.dart';
+import 'package:Satsails/services/background_sync_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,6 +25,19 @@ class MainScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(navigationProvider);
+
+    // Access the BackgroundSyncService singleton
+    final backgroundSyncService = BackgroundSyncService();
+
+    // Start or stop syncing based on current index
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (currentIndex == 1 || currentIndex == 2) {
+        // Stop syncing when on Analytics or Exchange
+        backgroundSyncService.stop();
+      } else {
+        backgroundSyncService.start(ref);
+      }
+    });
 
     return Scaffold(
       extendBody: true,

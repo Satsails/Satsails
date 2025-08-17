@@ -114,9 +114,6 @@ class _OpenPinState extends ConsumerState<OpenPin>
   void _unlockApp(BuildContext context, WidgetRef ref) {
     _attempts = 0;
 
-    final container = ProviderScope.containerOf(context);
-    BackgroundSyncService().start(container);
-
     ref.read(appLockedProvider.notifier).state = false;
     ref.read(sendTxProvider.notifier).resetToDefault();
     ref.read(sendBlocksProvider.notifier).state = 1;

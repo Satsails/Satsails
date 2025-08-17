@@ -59,9 +59,6 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
       ref.read(pinProvider.notifier).state = '';
 
       if (mounted) {
-        final container = ProviderScope.containerOf(context);
-        BackgroundSyncService().start(container);
-
         ref.invalidate(bitcoinConfigProvider);
         ref.invalidate(liquidConfigProvider);
         ref.read(addressProvider); // Pre-load address data
