@@ -20,9 +20,13 @@ const _bottomSheetDecoration = BoxDecoration(
     topRight: Radius.circular(24.0),
   ),
 );
-const _fullscreenBackgroundColor = Color(0xFF1E1E1E);
+// UPDATED: Style for the top notification banner to be off-white
+const _notificationBannerDecoration = BoxDecoration(
+  color: Color(0xFF1E1E1E), // Off-white color
+  borderRadius: BorderRadius.all(Radius.circular(24.0)),
+);
 
-// NAME REVERTED - Helper to show the transaction sent bottom sheet
+// Helper to show the transaction sent bottom sheet
 void showFullscreenTransactionSendModal({
   required BuildContext context,
   required String amount,
@@ -52,7 +56,7 @@ void showFullscreenTransactionSendModal({
   );
 }
 
-// NAME REVERTED - Helper to show the exchange bottom sheet
+// Helper to show the exchange bottom sheet
 void showFullscreenExchangeModal({
   required BuildContext context,
   required SwapType swapType,
@@ -70,7 +74,7 @@ void showFullscreenExchangeModal({
   );
 }
 
-// UPDATED: This is now a fullscreen widget
+// UPDATED: This widget is now an off-white notification banner.
 class ReceiveTransactionOverlay extends ConsumerStatefulWidget {
   const ReceiveTransactionOverlay({
     super.key,
@@ -105,7 +109,7 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
     _scaleAnimation =
         CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack);
 
-    Future.delayed(const Duration(milliseconds: 200), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
         setState(() => _isChecked = true);
         _animationController.forward();
@@ -114,7 +118,7 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
         });
       }
     });
-    Future.delayed(const Duration(milliseconds: 400), () {
+    Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) setState(() => _showContent = true);
     });
   }
@@ -136,6 +140,7 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
   @override
   Widget build(BuildContext context) {
     final assetName = widget.asset ?? '';
+    const textColor = Colors.white;
 
     String primaryAmount;
     String? secondaryAmount;
@@ -150,87 +155,78 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
       }
     }
 
-    // UPDATED: Now returns a fullscreen Scaffold that can be tapped to dismiss
-    return Scaffold(
-      backgroundColor: _fullscreenBackgroundColor,
-      body: GestureDetector(
-        onTap: () => Navigator.of(context).pop(),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          decoration: _notificationBannerDecoration,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Animated Checkmark
               ScaleTransition(
                 scale: _scaleAnimation,
                 child: MSHCheckbox(
-                  size: 90.sp,
+                  size: 36.sp,
                   value: _isChecked,
                   colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
-                    checkedColor: Colors.green,
-                    uncheckedColor: Colors.transparent,
+                    checkedColor: Colors.green.shade600,
                   ),
                   style: MSHCheckboxStyle.stroke,
                   onChanged: (_) {},
                 ),
               ),
-              SizedBox(height: 24.h),
-              // Animated content that fades in
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.easeIn,
-                opacity: _showContent ? 1.0 : 0.0,
-                child: Column(
-                  children: [
-                    // Main Amount Display
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (assetName.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(right: 16.w),
-                            child: getAssetImage(assetName,
-                                width: 40.sp, height: 40.sp),
-                          ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+              SizedBox(width: 16.w),
+              Expanded(
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeIn,
+                  opacity: _showContent ? 1.0 : 0.0,
+                  child: Row(
+                    children: [
+                      if (assetName.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.only(right: 12.w),
+                          child: getAssetImage(assetName,
+                              width: 36.sp, height: 36.sp),
+                        ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               primaryAmount,
                               style: TextStyle(
-                                fontSize: 38.sp,
+                                fontSize: 20.sp,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: 0.5,
+                                color: textColor,
+                                decoration: TextDecoration.none,
+                                fontFamily: 'Roboto', // Flutter's default Material font
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            if (secondaryAmount != null)
-                              Padding(
-                                padding: EdgeInsets.only(top: 2.h),
-                                child: Text(
-                                  secondaryAmount,
-                                  style: TextStyle(
-                                    fontSize: 18.sp,
-                                    color: Colors.white.withOpacity(0.7),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
+                            SizedBox(height: 2.h),
+                            Text(
+                              secondaryAmount ??
+                                  'Payment successfully received'.i18n,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: textColor.withOpacity(0.7),
+                                fontWeight: FontWeight.w500,
+                                decoration: TextDecoration.none, // No underline
+                                fontFamily: 'Roboto', // Flutter's default Material font
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ],
                         ),
-                      ],
-                    ),
-                    SizedBox(height: 24.h),
-                    // Confirmation Text
-                    Text(
-                      'Payment successfully received'.i18n,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 16.sp,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -241,7 +237,6 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
   }
 }
 
-// This remains as bottom sheet content
 class PaymentTransactionOverlay extends ConsumerStatefulWidget {
   final String amount;
   final bool fiat;
@@ -462,7 +457,6 @@ class _PaymentTransactionOverlayState
   }
 }
 
-// This remains as bottom sheet content
 class ExchangeTransactionOverlay extends ConsumerStatefulWidget {
   final SwapType swapType;
   final int amount;
