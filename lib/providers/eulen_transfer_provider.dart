@@ -53,3 +53,17 @@ final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<Eul
     throw result.error!;
   }
 });
+
+final getEulenPixPaymentStateProvider = FutureProvider.autoDispose.family<bool, String>((ref, transactionId) async {
+  final auth = ref.read(userProvider).jwt;
+  final paymentState = await EulenService.getTransactionPaymentState(transactionId, auth);
+
+  if (paymentState.isSuccess && paymentState.data != null) {
+    if (paymentState.data!) {
+      await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+    }
+    return paymentState.data!;
+  } else {
+    throw paymentState.error!;
+  }
+});
