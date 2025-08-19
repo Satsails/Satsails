@@ -15,6 +15,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:shimmer/shimmer.dart';
 
 // Providers
 final isLoadingProvider = StateProvider<bool>((ref) => false);
@@ -259,7 +260,7 @@ class _ActionCards extends ConsumerWidget {
                 color: Colors.red.withOpacity(0.8),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
-                  onTap: () => showMessageSnackBar(message: "Coming soon".i18n, context: context, error: true),
+                  onTap: () =>  context.push('/home/explore/sell_type'),
                   child: Container(
                     height: 80.h,
                     alignment: Alignment.center,
@@ -363,7 +364,15 @@ class _BitcoinPriceChart extends ConsumerWidget {
       },
       loading: () => SizedBox(
         height: 200.h,
-        child: Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 40.sp)),
+        child: Shimmer.fromColors(
+          baseColor: const Color(0xFF333333),
+          highlightColor: const Color(0xFF444444),
+          child: Card(
+            color: const Color(0xFF333333).withOpacity(0.4),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            elevation: 2,
+          ),
+        ),
       ),
       error: (e, s) => SizedBox(
         height: 200.h,

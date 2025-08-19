@@ -67,28 +67,36 @@ class KeypadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // FIX: Set Material color to transparent to remove the visible border.
-    // The CircleBorder still constrains the InkWell's ripple for a clean, circular tap effect.
-    return Material(
-      color: Colors.transparent,
-      shape: const CircleBorder(),
-      child: InkWell(
-        onTap: onPressed,
-        customBorder: const CircleBorder(),
-        child: Center(
-          child: text != null
-              ? Text(
-            text!,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32.sp,
-              fontWeight: FontWeight.w400,
+    // FIX: Reverted to a square shape with a visible border by using a Container.
+    // The InkWell's splash effect is now constrained by a RoundedRectangleBorder.
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      // The Material and InkWell are placed inside the container.
+      child: Material(
+        color: Colors.transparent,
+        // The shape of the Material widget is set to match the container's border radius.
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+        child: InkWell(
+          onTap: onPressed,
+          // This ensures the ripple effect is also contained within the rounded corners.
+          customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+          child: Center(
+            child: text != null
+                ? Text(
+              text!,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 32.sp,
+                fontWeight: FontWeight.w400,
+              ),
+            )
+                : Icon(
+              icon,
+              color: iconColor ?? Colors.white70,
+              size: 32.w,
             ),
-          )
-              : Icon(
-            icon,
-            color: iconColor ?? Colors.white70,
-            size: 32.w,
           ),
         ),
       ),

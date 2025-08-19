@@ -331,7 +331,7 @@ class AppRouter {
                 GoRoute(
                   path: '/sell_type',
                   pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: const SellType(),
+                    child: const SellTypeScreen(),
                     state: state,
                   ),
                 ),

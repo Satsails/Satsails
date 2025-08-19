@@ -196,13 +196,9 @@ class _OpenPinState extends ConsumerState<OpenPin>
       child: Scaffold(
         backgroundColor: Colors.black,
         body: SafeArea(
-          // FIX: Wrapped the content in a SingleChildScrollView to prevent overflow.
           child: SingleChildScrollView(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.w),
-              // FIX: We need a Column with a defined height, so we use SizedBox for spacing.
-              // To ensure it feels centered on taller screens, we wrap it in a ConstrainedBox
-              // that has a minimum height of the screen's viewport.
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight: MediaQuery.of(context).size.height -
@@ -221,15 +217,6 @@ class _OpenPinState extends ConsumerState<OpenPin>
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      'Enter your PIN to unlock'.i18n,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16.sp,
-                      ),
-                    ),
-                    // FIX: Replaced Spacer with SizedBox for predictable spacing.
                     SizedBox(height: 50.h),
                     if (_attempts > 0)
                       Padding(
