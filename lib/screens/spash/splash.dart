@@ -42,22 +42,13 @@ class _SplashState extends ConsumerState<Splash> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final dynamicAnimationSize = screenHeight * 0.05;
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Logo(
-              size: 150.sp, // Made the logo larger for the splash screen
-              opacity: 0.8,
-            ),
-            SizedBox(height: screenHeight * 0.05),
-            LoadingAnimationWidget.fourRotatingDots(size: dynamicAnimationSize, color: Colors.white),
-          ],
+        child: Logo(
+          size: 150.sp, // Made the logo larger for the splash screen
+          opacity: 0.8,
+          animated: true,
         ),
       ),
     );

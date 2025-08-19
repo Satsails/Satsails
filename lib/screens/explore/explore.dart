@@ -1,14 +1,11 @@
-import 'dart:io';
-
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/fiat_format_converter.dart';
-import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
-import 'package:Satsails/screens/shared/custom_button.dart';
+import 'package:Satsails/screens/analytics/components/chart.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -18,12 +15,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-
-// Helper Extension
-extension DateTimeExtension on DateTime {
-  DateTime dateOnly() => DateTime(year, month, day);
-  String formatYMD() => DateFormat('dd/MM/yyyy').format(this);
-}
+import 'package:shimmer/shimmer.dart';
 
 // Providers
 final isLoadingProvider = StateProvider<bool>((ref) => false);
@@ -130,9 +122,8 @@ class _BalanceDisplayState extends ConsumerState<_BalanceDisplay> {
     final onChainBtcBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.onChainBtcBalance, denomination) : '***';
     final liquidBtcBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.liquidBtcBalance, denomination) : '***';
 
-    final transaction = ref.watch(transactionNotifierProvider);
-    final cashbackAmount = transaction.value?.unpaidCashback ?? 0;
-    final cashbackToReceive = isBalanceVisible ? btcInDenominationFormatted(cashbackAmount, denomination) : '***';
+    final transactionState = ref.watch(transactionNotifierProvider);
+    final unpaidCashback = transactionState.unpaidCashbackByCurrency;
 
     return Card(
       color: const Color(0xFF333333).withOpacity(0.4),
@@ -149,78 +140,64 @@ class _BalanceDisplayState extends ConsumerState<_BalanceDisplay> {
             Row(children: [_buildBalanceRow(imagePath: 'lib/assets/eurx.png', label: 'Liquid EURx', balance: euroBalance), _buildBalanceRow(imagePath: 'lib/assets/tether.png', label: 'Liquid USDT', balance: liquidUsdtBalance)]),
             SizedBox(height: 12.h),
             Row(children: [_buildBalanceRow(imagePath: 'lib/assets/depix.png', label: 'Liquid Depix', balance: depixBalance), Expanded(child: Container())]),
-            SizedBox(height: 12.h),
-            InkWell(
-              onTap: () => setState(() => _isCashbackExpanded = !_isCashbackExpanded),
-              borderRadius: BorderRadius.circular(8.r),
-              child: AnimatedCrossFade(
-                duration: const Duration(milliseconds: 300),
-                firstChild: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                  child: Text(
-                    'See cashback to receive'.i18n,
-                    style: TextStyle(color: Colors.grey, fontSize: 16.sp, fontWeight: FontWeight.w500),
-                  ),
-                ),
-                secondChild: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 4.h),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Cashback to receive'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500)),
-                          Icon(Icons.expand_less, color: Colors.grey, size: 28.sp),
-                        ],
-                      ),
+            if (unpaidCashback.isNotEmpty) ...[
+              SizedBox(height: 12.h),
+              InkWell(
+                onTap: () => setState(() => _isCashbackExpanded = !_isCashbackExpanded),
+                borderRadius: BorderRadius.circular(8.r),
+                child: AnimatedCrossFade(
+                  duration: const Duration(milliseconds: 300),
+                  firstChild: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    child: Text(
+                      'See cashback to receive'.i18n,
+                      style: TextStyle(color: Colors.grey, fontSize: 16.sp, fontWeight: FontWeight.w500),
                     ),
-                    SizedBox(height: 8.h),
-                    Text(cashbackToReceive, style: TextStyle(fontSize: 20.sp, color: Colors.white, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 8.h),
-                    _buildCashbackList(ref),
-                  ],
+                  ),
+                  secondChild: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 4.h),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Cashback to receive'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500)),
+                            Icon(Icons.expand_less, color: Colors.grey, size: 28.sp),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      _buildCashbackDetails(unpaidCashback),
+                    ],
+                  ),
+                  crossFadeState: _isCashbackExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
                 ),
-                crossFadeState: _isCashbackExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
               ),
-            ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCashbackList(WidgetRef ref) {
-    // NOTE: Replace with your actual cashback data provider.
-    final dummyCashbacks = [
-      {'amount': 5000, 'source': 'SideShift Swap'},
-      {'amount': 2500, 'source': 'Boltz Swap'},
-      {'amount': 10000, 'source': 'Eulen Transfer'},
-    ];
-    final denomination = ref.watch(settingsProvider).btcFormat;
-
-    if (dummyCashbacks.isEmpty) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 8.h),
-        child: Text(
-          "No pending cashback".i18n,
-          style: TextStyle(fontSize: 16.sp, color: Colors.white70),
-        ),
-      );
-    }
-
+  Widget _buildCashbackDetails(Map<String, double> cashbackData) {
     return Column(
-      children: dummyCashbacks.map((cashback) {
+      children: cashbackData.entries.map((entry) {
+        final currencyCode = entry.key;
+        final amount = entry.value;
+        final formattedAmount = "${amount.toStringAsFixed(8)} $currencyCode";
+
         return Padding(
           padding: EdgeInsets.symmetric(vertical: 6.h),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                cashback['source'] as String,
+                'Cashback'.i18n,
                 style: TextStyle(fontSize: 16.sp, color: Colors.white70),
               ),
               Text(
-                btcInDenominationFormatted(cashback['amount'] as int, denomination),
+                formattedAmount,
                 style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.w600),
               ),
             ],
@@ -256,7 +233,6 @@ class _ActionCards extends ConsumerWidget {
   const _ActionCards();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final paymentId = ref.watch(userProvider).paymentId;
     return Column(
       children: [
         Row(
@@ -264,14 +240,15 @@ class _ActionCards extends ConsumerWidget {
             Expanded(
               child: Card(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                color: Colors.green,
+                color: Colors.green.withOpacity(0.8),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
-                  onTap: () => _handleOnPress(ref, context, paymentId, true),
+                  // REFACTORED: The onTap now simply navigates. All logic is moved.
+                  onTap: () => context.push('/home/explore/deposit_type'),
                   child: Container(
                     height: 80.h,
                     alignment: Alignment.center,
-                    child: Text('Buy'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold)),
+                    child: Text('Buy'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),
@@ -280,14 +257,14 @@ class _ActionCards extends ConsumerWidget {
             Expanded(
               child: Card(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                color: Colors.red,
+                color: Colors.red.withOpacity(0.8),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
-                  onTap: () => showMessageSnackBar(message: "Coming soon".i18n, context: context, error: true),
+                  onTap: () =>  context.push('/home/explore/sell_type'),
                   child: Container(
                     height: 80.h,
                     alignment: Alignment.center,
-                    child: Text('Sell'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold)),
+                    child: Text('Sell'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),
@@ -304,7 +281,17 @@ class _ActionCards extends ConsumerWidget {
             child: Container(
               height: 80.h,
               alignment: Alignment.center,
-              child: Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                  SizedBox(width: 12.w),
+                  Icon(Icons.shopping_cart,
+                    color: Colors.white,
+                    size: 28.sp,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -377,7 +364,15 @@ class _BitcoinPriceChart extends ConsumerWidget {
       },
       loading: () => SizedBox(
         height: 200.h,
-        child: Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 40.sp)),
+        child: Shimmer.fromColors(
+          baseColor: const Color(0xFF333333),
+          highlightColor: const Color(0xFF444444),
+          child: Card(
+            color: const Color(0xFF333333).withOpacity(0.4),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            elevation: 2,
+          ),
+        ),
       ),
       error: (e, s) => SizedBox(
         height: 200.h,
@@ -489,33 +484,5 @@ class _PriceSparklineChart extends StatelessWidget {
     if (minY < 0) minY = 0;
 
     return (minY: minY, maxY: maxY);
-  }
-}
-
-// Global Helper Functions
-Future<void> _handleOnPress(WidgetRef ref, BuildContext context, String paymentId, bool buy) async {
-  final userProviderState = ref.watch(userProvider);
-  ref.read(isLoadingProvider.notifier).state = true;
-  try {
-    if (paymentId.isEmpty) {
-      await ref.watch(createUserProvider.future);
-      if (context.mounted) await FirebaseService.requestNotificationPermissions();
-    } else {
-      if (userProviderState.recoveryCode?.isNotEmpty ?? false) {
-        await ref.read(migrateUserToJwtProvider.future);
-      }
-      if ((userProviderState.affiliateCode?.isNotEmpty ?? false) && !(userProviderState.hasUploadedAffiliateCode ?? false)) {
-        await ref.read(addAffiliateCodeProvider(userProviderState.affiliateCode!).future);
-      }
-    }
-    if (context.mounted) {
-      context.push(buy ? '/home/explore/deposit_type' : '/home/explore/sell_type');
-    }
-  } catch (e) {
-    if (context.mounted) {
-      showMessageSnackBar(message: e.toString(), context: context, error: true);
-    }
-  } finally {
-    ref.read(isLoadingProvider.notifier).state = false;
   }
 }

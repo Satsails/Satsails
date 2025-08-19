@@ -488,7 +488,6 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                   },
                                 ),
                               ),
-                              _buildSendToDifferentNetworkButton(context, ref),
                             ],
                           ),
                           SizedBox(height: 16.h),
@@ -705,33 +704,6 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                 ],
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSendToDifferentNetworkButton(BuildContext context, WidgetRef ref) {
-    return Container(
-      alignment: Alignment.centerRight,
-      child: TextButton(
-        onPressed: () {
-          ref.read(sendTxProvider.notifier).resetToDefault();
-          ref.read(sendBlocksProvider.notifier).state = 1;
-          ref.read(navigationProvider.notifier).state = 2;
-          ref.read(swapSectionProvider.notifier).state = SwapSection.external;
-          context.replace('/home');
-        },
-        style: TextButton.styleFrom(
-          foregroundColor: Colors.grey.shade400, // Splash color
-        ),
-        child: Text(
-          'Send to another network?'.i18n,
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 14.sp,
-            decoration: TextDecoration.underline,
-            decorationColor: Colors.white70,
           ),
         ),
       ),

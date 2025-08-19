@@ -51,7 +51,6 @@ class CustomKeypad extends StatelessWidget {
   }
 }
 
-
 class KeypadButton extends StatelessWidget {
   final String? text;
   final IconData? icon;
@@ -68,28 +67,42 @@ class KeypadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(24.r),
-      child: Center(
-        child: text != null
-            ? Text(
-          text!,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 32.sp,
-            fontWeight: FontWeight.w400,
+    // FIX: Reverted to a square shape with a visible border by using a Container.
+    // The InkWell's splash effect is now constrained by a RoundedRectangleBorder.
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      // The Material and InkWell are placed inside the container.
+      child: Material(
+        color: Colors.transparent,
+        // The shape of the Material widget is set to match the container's border radius.
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+        child: InkWell(
+          onTap: onPressed,
+          // This ensures the ripple effect is also contained within the rounded corners.
+          customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+          child: Center(
+            child: text != null
+                ? Text(
+              text!,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 32.sp,
+                fontWeight: FontWeight.w400,
+              ),
+            )
+                : Icon(
+              icon,
+              color: iconColor ?? Colors.white70,
+              size: 32.w,
+            ),
           ),
-        )
-            : Icon(
-          icon,
-          color: iconColor ?? Colors.white70,
-          size: 32.w,
         ),
       ),
     );
-  }}
-
+  }
+}
 
 class PinProgressIndicator extends StatelessWidget {
   final int currentLength;
@@ -103,23 +116,42 @@ class PinProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // FIX: Redesigned with AnimatedSwitcher for a "cooler" pop-and-fade effect
+    // and an outlined style for empty digits.
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(totalDigits, (index) {
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: EdgeInsets.symmetric(horizontal: 10.w),
-          width: 18.w,
-          height: 18.w,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: index < currentLength
-                ? Colors.white
-                : Colors.white.withOpacity(0.2),
+        final isFilled = index < currentLength;
+
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(
+                scale: animation,
+                child: child,
+              ),
+            );
+          },
+          child: Container(
+            key: ValueKey<bool>(isFilled), // Key to trigger the animation
+            margin: EdgeInsets.symmetric(horizontal: 10.w),
+            width: 18.w,
+            height: 18.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isFilled ? Colors.white : Colors.transparent,
+              border: isFilled
+                  ? null
+                  : Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 1.5,
+              ),
+            ),
           ),
         );
       }),
     );
   }
 }
-

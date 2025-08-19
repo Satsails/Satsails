@@ -23,7 +23,6 @@ class _StartState extends ConsumerState<Start> with TickerProviderStateMixin {
 
   VideoPlayerController? _videoController;
   bool _isVideoReady = false;
-  // New state to track if the video is currently trying to load.
   bool _isLoadingVideo = true;
 
   @override
@@ -40,7 +39,11 @@ class _StartState extends ConsumerState<Start> with TickerProviderStateMixin {
       curve: Curves.easeIn,
     );
 
-    _initializeVideo();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _initializeVideo();
+      }
+    });
   }
 
   Future<void> _initializeVideo() async {
@@ -52,6 +55,8 @@ class _StartState extends ConsumerState<Start> with TickerProviderStateMixin {
       await _videoController!.initialize().timeout(const Duration(seconds: 7));
       if (!mounted) return;
 
+      await _videoController!.setVolume(0.0);
+
       setState(() {
         _isVideoReady = true;
         _isLoadingVideo = false; // Video loaded successfully, hide spinner
@@ -59,7 +64,7 @@ class _StartState extends ConsumerState<Start> with TickerProviderStateMixin {
         _videoController!.play();
       });
     } catch (e) {
-      // This includes timeouts and other errors like the SSLHandshakeException
+      // This includes timeouts and other errors
       print("Video failed to load, falling back to static background. Error: $e");
       if (!mounted) return;
       setState(() {
@@ -127,17 +132,9 @@ class _StartState extends ConsumerState<Start> with TickerProviderStateMixin {
           // Shows a splash-like loading screen while the video is loading.
           if (_isLoadingVideo)
             Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Logo(
-                    size: 150.sp,
-                    opacity: 0.8,
-                  ),
-                  SizedBox(height: screenHeight * 0.05),
-                  LoadingAnimationWidget.fourRotatingDots(
-                      size: dynamicAnimationSize, color: Colors.white),
-                ],
+              child: Logo(
+                size: 150.sp,
+                opacity: 0.8, animated: true
               ),
             ),
 

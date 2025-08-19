@@ -12,6 +12,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 import 'package:vibration/vibration.dart';
 
+// A consistent style for all transaction bottom sheets
+const _bottomSheetDecoration = BoxDecoration(
+  color: Color(0xFF1E1E1E), // A solid dark color for the sheet
+  borderRadius: BorderRadius.only(
+    topLeft: Radius.circular(24.0),
+    topRight: Radius.circular(24.0),
+  ),
+);
+// UPDATED: Style for the top notification banner to be off-white
+const _notificationBannerDecoration = BoxDecoration(
+  color: Color(0xFF1E1E1E), // Off-white color
+  borderRadius: BorderRadius.all(Radius.circular(24.0)),
+);
+
+// Helper to show the transaction sent bottom sheet
 void showFullscreenTransactionSendModal({
   required BuildContext context,
   required String amount,
@@ -25,31 +40,23 @@ void showFullscreenTransactionSendModal({
 }) {
   showModalBottomSheet(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
+    backgroundColor: Colors.transparent, // Required for custom border radius
     builder: (BuildContext context) {
-      return Container(
-        color: Colors.black,
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top,
-        ),
-        child: SafeArea(
-          child: PaymentTransactionOverlay(
-            amount: amount,
-            fiat: fiat,
-            fiatAmount: fiatAmount,
-            asset: asset,
-            txid: txid,
-            isLiquid: isLiquid,
-            receiveAddress: receiveAddress,
-            confirmationBlocks: confirmationBlocks,
-          ),
-        ),
+      return PaymentTransactionOverlay(
+        amount: amount,
+        fiat: fiat,
+        fiatAmount: fiatAmount,
+        asset: asset,
+        txid: txid,
+        isLiquid: isLiquid,
+        receiveAddress: receiveAddress,
+        confirmationBlocks: confirmationBlocks,
       );
     },
   );
 }
 
+// Helper to show the exchange bottom sheet
 void showFullscreenExchangeModal({
   required BuildContext context,
   required SwapType swapType,
@@ -57,25 +64,17 @@ void showFullscreenExchangeModal({
 }) {
   showModalBottomSheet(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
+    backgroundColor: Colors.transparent, // Required for custom border radius
     builder: (BuildContext context) {
-      return Container(
-        color: Colors.black,
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top,
-        ),
-        child: SafeArea(
-          child: ExchangeTransactionOverlay(
-            swapType: swapType,
-            amount: amount,
-          ),
-        ),
+      return ExchangeTransactionOverlay(
+        swapType: swapType,
+        amount: amount,
       );
     },
   );
 }
 
+// UPDATED: This widget is now an off-white notification banner.
 class ReceiveTransactionOverlay extends ConsumerStatefulWidget {
   const ReceiveTransactionOverlay({
     super.key,
@@ -91,7 +90,8 @@ class ReceiveTransactionOverlay extends ConsumerStatefulWidget {
   final String? asset;
 
   @override
-  ReceiveTransactionOverlayState createState() => ReceiveTransactionOverlayState();
+  ReceiveTransactionOverlayState createState() =>
+      ReceiveTransactionOverlayState();
 }
 
 class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOverlay>
@@ -104,10 +104,12 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-    _scaleAnimation = CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack);
+    _animationController =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _scaleAnimation =
+        CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack);
 
-    Future.delayed(const Duration(milliseconds: 200), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
         setState(() => _isChecked = true);
         _animationController.forward();
@@ -116,7 +118,7 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
         });
       }
     });
-    Future.delayed(const Duration(milliseconds: 400), () {
+    Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) setState(() => _showContent = true);
     });
   }
@@ -129,15 +131,16 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
 
   String getFiatSymbol(String asset) {
     final upper = asset.toUpperCase();
-    if (upper.contains('DEPIX')) return 'R\$'; // Brazilian Real
-    if (upper.contains('EUROX') || upper.contains('EURX')) return '€'; // Euro
-    if (upper.contains('USDT')) return '\$'; // US Dollar
-    return '\$'; // Default fallback
+    if (upper.contains('DEPIX')) return 'R\$';
+    if (upper.contains('EUROX') || upper.contains('EURX')) return '€';
+    if (upper.contains('USDT')) return '\$';
+    return '\$';
   }
 
   @override
   Widget build(BuildContext context) {
     final assetName = widget.asset ?? '';
+    const textColor = Colors.white;
 
     String primaryAmount;
     String? secondaryAmount;
@@ -152,109 +155,81 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
       }
     }
 
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
-      child: Scaffold(
-        backgroundColor: Colors.black.withOpacity(0.75),
-        body: Center(
-          child: GestureDetector(
-            onTap: () {}, // Prevents card from closing on tap
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 20.w),
-              padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
-              decoration: BoxDecoration(
-                  color: const Color(0x00333333).withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(24.r),
-                  border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Dismiss handle
-                  Container(
-                    width: 40.w,
-                    height: 5.h,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(100),
-                    ),
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          decoration: _notificationBannerDecoration,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ScaleTransition(
+                scale: _scaleAnimation,
+                child: MSHCheckbox(
+                  size: 36.sp,
+                  value: _isChecked,
+                  colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
+                    checkedColor: Colors.green.shade600,
                   ),
-                  SizedBox(height: 20.h),
-                  // Animated Checkmark
-                  ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: MSHCheckbox(
-                      size: 90.sp,
-                      value: _isChecked,
-                      colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
-                        checkedColor: Colors.green,
-                        uncheckedColor: Colors.transparent,
-                      ),
-                      style: MSHCheckboxStyle.stroke,
-                      onChanged: (_) {},
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
-                  // Animated content that fades in
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeIn,
-                    opacity: _showContent ? 1.0 : 0.0,
-                    child: Column(
-                      children: [
-                        // Main Amount Display
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                  style: MSHCheckboxStyle.stroke,
+                  onChanged: (_) {},
+                ),
+              ),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeIn,
+                  opacity: _showContent ? 1.0 : 0.0,
+                  child: Row(
+                    children: [
+                      if (assetName.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.only(right: 12.w),
+                          child: getAssetImage(assetName,
+                              width: 36.sp, height: 36.sp),
+                        ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (assetName.isNotEmpty)
-                              Padding(
-                                padding: EdgeInsets.only(right: 16.w),
-                                child: getAssetImage(assetName, width: 40.sp, height: 40.sp),
+                            Text(
+                              primaryAmount,
+                              style: TextStyle(
+                                fontSize: 20.sp,
+                                fontWeight: FontWeight.bold,
+                                color: textColor,
+                                decoration: TextDecoration.none,
+                                fontFamily: 'Roboto', // Flutter's default Material font
                               ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  primaryAmount,
-                                  style: TextStyle(
-                                    fontSize: 38.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                                if (secondaryAmount != null)
-                                  Padding(
-                                    padding: EdgeInsets.only(top: 2.h),
-                                    child: Text(
-                                      secondaryAmount,
-                                      style: TextStyle(
-                                        fontSize: 18.sp,
-                                        color: Colors.white.withOpacity(0.7),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                              ],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: 2.h),
+                            Text(
+                              secondaryAmount ??
+                                  'Payment successfully received'.i18n,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: textColor.withOpacity(0.7),
+                                fontWeight: FontWeight.w500,
+                                decoration: TextDecoration.none, // No underline
+                                fontFamily: 'Roboto', // Flutter's default Material font
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
-                        SizedBox(height: 24.h),
-                        // Confirmation Text
-                        Text(
-                          'Payment successfully received'.i18n,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -349,103 +324,92 @@ class _PaymentTransactionOverlayState
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
-      child: Scaffold(
-        backgroundColor: Colors.black.withOpacity(0.75),
-        body: Center(
-          child: GestureDetector(
-            onTap: () {},
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 20.w),
-              padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
-              decoration: BoxDecoration(
-                  color: const Color(0x00333333).withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(24.r),
-                  border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 40.w,
-                    height: 5.h,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: MSHCheckbox(
-                      size: 90.sp,
-                      value: _checked,
-                      colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
-                          checkedColor: Colors.green),
-                      style: MSHCheckboxStyle.stroke,
-                      onChanged: (_) {},
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  Text('Transaction Sent'.i18n,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22.sp,
-                          fontWeight: FontWeight.bold)),
-                  SizedBox(height: 24.h),
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeIn,
-                    opacity: _showContent ? 1.0 : 0.0,
-                    child: Column(
+    return Container(
+      decoration: _bottomSheetDecoration,
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40.w,
+                height: 5.h,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              ScaleTransition(
+                scale: _scaleAnimation,
+                child: MSHCheckbox(
+                  size: 90.sp,
+                  value: _checked,
+                  colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
+                      checkedColor: Colors.green),
+                  style: MSHCheckboxStyle.stroke,
+                  onChanged: (_) {},
+                ),
+              ),
+              SizedBox(height: 16.h),
+              Text('Transaction Sent'.i18n,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.bold)),
+              SizedBox(height: 24.h),
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeIn,
+                opacity: _showContent ? 1.0 : 0.0,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(right: 12.w),
-                              child: getAssetImage(widget.asset, width: 32.sp, height: 32.sp),
-                            ),
-                            Text(
-                              _getDisplayAmount(),
-                              style: TextStyle(
-                                fontSize: 32.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.h),
-                          child: Divider(color: Colors.white.withOpacity(0.15)),
+                          padding: EdgeInsets.only(right: 12.w),
+                          child: getAssetImage(widget.asset,
+                              width: 32.sp, height: 32.sp),
                         ),
-                        _buildDetailRow(
-                          label: 'Confirmation'.i18n,
-                          value: _getConfirmationText(),
-                        ),
-                        _buildDetailRow(
-                          label: 'Recipient'.i18n,
-                          value: shortenString(widget.receiveAddress),
-                          canCopy: true,
-                          copyValue: widget.receiveAddress,
-                        ),
-                        if (widget.txid != null && widget.txid!.isNotEmpty)
-                          _buildDetailRow(
-                            label: 'Transaction ID'.i18n,
-                            value: shortenString(widget.txid!),
-                            canCopy: true,
-                            copyValue: widget.txid!,
+                        Text(
+                          _getDisplayAmount(),
+                          style: TextStyle(
+                            fontSize: 32.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
+                        ),
                       ],
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      child: Divider(color: Colors.white.withOpacity(0.15)),
+                    ),
+                    _buildDetailRow(
+                      label: 'Confirmation'.i18n,
+                      value: _getConfirmationText(),
+                    ),
+                    _buildDetailRow(
+                      label: 'Recipient'.i18n,
+                      value: shortenString(widget.receiveAddress),
+                      canCopy: true,
+                      copyValue: widget.receiveAddress,
+                    ),
+                    if (widget.txid != null && widget.txid!.isNotEmpty)
+                      _buildDetailRow(
+                        label: 'Transaction ID'.i18n,
+                        value: shortenString(widget.txid!),
+                        canCopy: true,
+                        copyValue: widget.txid!,
+                      ),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -462,19 +426,27 @@ class _PaymentTransactionOverlayState
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15.sp)),
+          Text(label,
+              style: TextStyle(
+                  color: Colors.white.withOpacity(0.6), fontSize: 15.sp)),
           Row(
             children: [
-              Text(value, style: TextStyle(color: Colors.white, fontSize: 15.sp, fontWeight: FontWeight.w500)),
+              Text(value,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w500)),
               if (canCopy)
                 GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: copyValue ?? value));
-                    showMessageSnackBar(context: context, message: 'Copied'.i18n, error: false);
+                    showMessageSnackBar(
+                        context: context, message: 'Copied'.i18n, error: false);
                   },
                   child: Padding(
                     padding: EdgeInsets.only(left: 8.w),
-                    child: Icon(Icons.copy, size: 16.sp, color: Colors.white.withOpacity(0.6)),
+                    child: Icon(Icons.copy,
+                        size: 16.sp, color: Colors.white.withOpacity(0.6)),
                   ),
                 ),
             ],
@@ -496,10 +468,12 @@ class ExchangeTransactionOverlay extends ConsumerStatefulWidget {
   });
 
   @override
-  _ExchangeTransactionOverlayState createState() => _ExchangeTransactionOverlayState();
+  _ExchangeTransactionOverlayState createState() =>
+      _ExchangeTransactionOverlayState();
 }
 
-class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransactionOverlay>
+class _ExchangeTransactionOverlayState
+    extends ConsumerState<ExchangeTransactionOverlay>
     with TickerProviderStateMixin {
   bool _checked = false;
   bool _showContent = false;
@@ -509,8 +483,8 @@ class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransaction
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 500));
+    _animationController =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
     _scaleAnimation =
         CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack);
 
@@ -544,81 +518,74 @@ class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransaction
     String formattedAmount;
     if (_isBitcoinLikeAsset(fromAsset)) {
       final denomination = ref.read(settingsProvider).btcFormat;
-      formattedAmount = btcInDenominationFormatted(widget.amount, denomination, true);
+      formattedAmount =
+          btcInDenominationFormatted(widget.amount, denomination, true);
     } else {
       formattedAmount = fiatInDenominationFormatted(widget.amount);
     }
 
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
-      child: Scaffold(
-        backgroundColor: Colors.black.withOpacity(0.75),
-        body: Center(
-          child: GestureDetector(
-            onTap: () {},
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 20.w),
-              padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
-              decoration: BoxDecoration(
-                  color: const Color(0x00333333).withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(24.r),
-                  border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5)),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                      width: 40.w,
-                      height: 5.h,
-                      decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(100))),
-                  SizedBox(height: 20.h),
-                  ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: MSHCheckbox(
-                        size: 90.sp,
-                        value: _checked,
-                        colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
-                            checkedColor: Colors.green),
-                        style: MSHCheckboxStyle.stroke,
-                        onChanged: (_) {}),
-                  ),
-                  SizedBox(height: 16.h),
-                  Text('Swap Initiated'.i18n,
-                      style: TextStyle(
-                          color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 24.h),
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeIn,
-                    opacity: _showContent ? 1.0 : 0.0,
-                    child: Column(
+    return Container(
+      decoration: _bottomSheetDecoration,
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                  width: 40.w,
+                  height: 5.h,
+                  decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(100))),
+              SizedBox(height: 20.h),
+              ScaleTransition(
+                scale: _scaleAnimation,
+                child: MSHCheckbox(
+                    size: 90.sp,
+                    value: _checked,
+                    colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
+                        checkedColor: Colors.green),
+                    style: MSHCheckboxStyle.stroke,
+                    onChanged: (_) {}),
+              ),
+              SizedBox(height: 16.h),
+              Text('Swap Initiated'.i18n,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.bold)),
+              SizedBox(height: 24.h),
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeIn,
+                opacity: _showContent ? 1.0 : 0.0,
+                child: Column(
+                  children: [
+                    Text(formattedAmount,
+                        style: TextStyle(
+                            fontSize: 28.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white.withOpacity(0.9))),
+                    SizedBox(height: 20.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(formattedAmount,
-                            style: TextStyle(
-                                fontSize: 28.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white.withOpacity(0.9))),
-                        SizedBox(height: 20.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            _buildAssetColumn(fromAsset, 'From'.i18n),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 12.w),
-                              child: Icon(Icons.arrow_forward,
-                                  color: Colors.white.withOpacity(0.6), size: 24.sp),
-                            ),
-                            _buildAssetColumn(toAsset, 'To'.i18n),
-                          ],
+                        _buildAssetColumn(fromAsset, 'From'.i18n),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12.w),
+                          child: Icon(Icons.arrow_forward,
+                              color: Colors.white.withOpacity(0.6),
+                              size: 24.sp),
                         ),
+                        _buildAssetColumn(toAsset, 'To'.i18n),
                       ],
                     ),
-                  )
-                ],
-              ),
-            ),
+                  ],
+                ),
+              )
+            ],
           ),
         ),
       ),
@@ -630,32 +597,55 @@ class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransaction
       children: [
         getAssetImage(assetName, width: 40.sp, height: 40.sp),
         SizedBox(height: 8.h),
-        Text(label, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14.sp)),
+        Text(label,
+            style: TextStyle(
+                color: Colors.white.withOpacity(0.6), fontSize: 14.sp)),
         SizedBox(height: 2.h),
-        Text(assetName, style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold)),
+        Text(assetName,
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold)),
       ],
     );
   }
 
   String _getSwapTitle(SwapType swapType) {
     switch (swapType) {
-      case SwapType.sideswapBtcToLbtc: return 'Bitcoin to Liquid Bitcoin';
-      case SwapType.sideswapLbtcToBtc: return 'Liquid Bitcoin to Bitcoin';
-      case SwapType.coinosLnToBTC: return 'Lightning to Bitcoin';
-      case SwapType.coinosLnToLBTC: return 'Lightning to Liquid Bitcoin';
-      case SwapType.coinosBtcToLn: return 'Bitcoin to Lightning';
-      case SwapType.coinosLbtcToLn: return 'Liquid Bitcoin to Lightning';
-      case SwapType.sideswapUsdtToLbtc: return 'USDT to Liquid Bitcoin';
-      case SwapType.sideswapEuroxToLbtc: return 'EUROX to Liquid Bitcoin';
-      case SwapType.sideswapDepixToLbtc: return 'DEPIX to Liquid Bitcoin';
-      case SwapType.sideswapLbtcToUsdt: return 'Liquid Bitcoin to USDT';
-      case SwapType.sideswapLbtcToEurox: return 'Liquid Bitcoin to EUROX';
-      case SwapType.sideswapLbtcToDepix: return 'Liquid Bitcoin to DEPIX';
-      case SwapType.sideswapDepixToUsdt: return 'DEPIX to USDT';
-      case SwapType.sideswapUsdtToEurox: return 'USDT to EUROX';
-      case SwapType.sideswapUsdtToDepix: return 'USDT to DEPIX';
-      case SwapType.sideswapEuroxToUsdt: return 'EUROX to USDT';
-      default: return 'Exchange';
+      case SwapType.sideswapBtcToLbtc:
+        return 'Bitcoin to Liquid Bitcoin';
+      case SwapType.sideswapLbtcToBtc:
+        return 'Liquid Bitcoin to Bitcoin';
+      case SwapType.coinosLnToBTC:
+        return 'Lightning to Bitcoin';
+      case SwapType.coinosLnToLBTC:
+        return 'Lightning to Liquid Bitcoin';
+      case SwapType.coinosBtcToLn:
+        return 'Bitcoin to Lightning';
+      case SwapType.coinosLbtcToLn:
+        return 'Liquid Bitcoin to Lightning';
+      case SwapType.sideswapUsdtToLbtc:
+        return 'USDT to Liquid Bitcoin';
+      case SwapType.sideswapEuroxToLbtc:
+        return 'EUROX to Liquid Bitcoin';
+      case SwapType.sideswapDepixToLbtc:
+        return 'DEPIX to Liquid Bitcoin';
+      case SwapType.sideswapLbtcToUsdt:
+        return 'Liquid Bitcoin to USDT';
+      case SwapType.sideswapLbtcToEurox:
+        return 'Liquid Bitcoin to EUROX';
+      case SwapType.sideswapLbtcToDepix:
+        return 'Liquid Bitcoin to DEPIX';
+      case SwapType.sideswapDepixToUsdt:
+        return 'DEPIX to USDT';
+      case SwapType.sideswapUsdtToEurox:
+        return 'USDT to EUROX';
+      case SwapType.sideswapUsdtToDepix:
+        return 'USDT to DEPIX';
+      case SwapType.sideswapEuroxToUsdt:
+        return 'EUROX to USDT';
+      default:
+        return 'Exchange';
     }
   }
 
@@ -668,6 +658,8 @@ class _ExchangeTransactionOverlayState extends ConsumerState<ExchangeTransaction
   }
 
   bool _isBitcoinLikeAsset(String asset) {
-    return asset == 'Liquid Bitcoin' || asset == 'Lightning' || asset == 'Bitcoin';
+    return asset == 'Liquid Bitcoin' ||
+        asset == 'Lightning' ||
+        asset == 'Bitcoin';
   }
 }

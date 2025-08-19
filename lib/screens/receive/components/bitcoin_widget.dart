@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
-import 'package:Satsails/screens/shared/copy_text.dart';
+import 'package:Satsails/screens/shared/address_display_widget.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/translations/translations.dart';
 
@@ -65,8 +65,9 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
           child: CustomButton(
             onPressed: _onCreateAddress,
             text: 'Create Address'.i18n,
-            primaryColor: Colors.green,
-            secondaryColor: Colors.green,
+            primaryColor: Colors.green.withOpacity(0.8),
+            secondaryColor: Colors.green.withOpacity(0.6),
+            textColor: Colors.white,
           ),
         ),
       ],
@@ -81,7 +82,7 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
           SizedBox(height: 16.h), // Added spacing between QR code and address
           Padding(
             padding: EdgeInsets.all(16.h), // Increased from 8.12.h
-            child: buildAddressText(bitcoinAddress, context, ref),
+            child: AddressDisplayWidget(address: bitcoinAddress, isEditable: false, onEditPressed: null),
           ),
         ],
       ),
@@ -96,7 +97,7 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
           SizedBox(height: 16.h), // Added spacing between QR code and address
           Padding(
             padding: EdgeInsets.all(16.h), // Increased from 8.12.h
-            child: buildAddressText(bitcoinAddressWithAmountAsyncValue, context, ref),
+            child: AddressDisplayWidget(address: bitcoinAddressWithAmountAsyncValue, isEditable: false, onEditPressed: null),
           ),
         ],
       ),

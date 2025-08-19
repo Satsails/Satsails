@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
 import 'package:Satsails/helpers/string_extension.dart';
@@ -6,6 +8,7 @@ import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transaction_search_provider.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -14,6 +17,7 @@ import 'package:Satsails/translations/translations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class BitcoinTransactionDetailsScreen extends ConsumerWidget {
   final BitcoinTransaction transaction;
@@ -318,17 +322,22 @@ class _BumpFeeModalSheetState extends ConsumerState<BumpFeeModalSheet> {
       try {
         await ref.read(
           bumpBitcoinTransactionProvider(
-              (txid: widget.transaction.btcDetails.txid, newFeeRate: newFeeRate)
-          ).future,
+              (txid: widget.transaction.btcDetails.txid, newFeeRate: newFeeRate))
+              .future,
         );
         if (mounted) {
-          showMessageSnackBar(message: "Fee bumped successfully!".i18n, error: false, context: context);
+          showMessageSnackBar(
+              message: "Fee bumped successfully!".i18n,
+              error: false,
+              context: context);
+          // Pop twice to close the modal and the details screen
           context.pop();
           context.pop();
         }
       } catch (e) {
         if (mounted) {
-          showMessageSnackBar(message: e.toString().i18n, error: true, context: context);
+          showMessageSnackBar(
+              message: e.toString().i18n, error: true, context: context);
         }
       } finally {
         if (mounted) setState(() => _isLoading = false);
@@ -340,76 +349,105 @@ class _BumpFeeModalSheetState extends ConsumerState<BumpFeeModalSheet> {
   Widget build(BuildContext context) {
     return SafeArea(
       bottom: true,
-      child: Padding(
-        padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 16.w,
-            right: 16.w,
-            top: 20.h),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Bump Transaction Fee".i18n,
-                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              SizedBox(height: 20.h),
-              KeyboardDismissOnTap(
-                child: TextFormField(
-                  controller: _feeRateController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: "New Fee Rate (sats/vB)".i18n,
-                    labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14.r),
-                      borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF212121), // Solid dark grey color
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 24.w,
+              right: 24.w,
+              top: 20.h,
+            ),
+            child: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Icon(
+                      Icons.rocket_launch_outlined,
+                      size: 40.sp,
+                      color: Colors.white.withOpacity(0.7),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14.r),
-                      borderSide: const BorderSide(color: Colors.orange),
+                    SizedBox(height: 12.h),
+                    Text(
+                      "Bump Transaction Fee".i18n,
+                      style: TextStyle(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return "Please enter a fee rate.".i18n;
-                    if (double.tryParse(value) == null) return "Please enter a valid number.".i18n;
-                    return null;
-                  },
-                ),
-              ),
-              SizedBox(height: 20.h),
-              GestureDetector(
-                onTap: _isLoading ? null : _submitBumpFee,
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 14.h),
-                  decoration: BoxDecoration(
-                    color: _isLoading ? Colors.grey.shade700 : Colors.orange,
-                    borderRadius: BorderRadius.circular(14.r),
-                  ),
-                  child: Center(
-                    child: _isLoading
-                        ? SizedBox(
-                      height: 24.sp,
-                      width: 24.sp,
-                      child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                    SizedBox(height: 8.h),
+                    Text(
+                      "Increase the fee to speed up your transaction.".i18n,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                    SizedBox(height: 24.h),
+                    KeyboardDismissOnTap(
+                      child: TextFormField(
+                        controller: _feeRateController,
+                        keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.black.withOpacity(0.2),
+                          labelText: "New Fee Rate (sats/vB)".i18n,
+                          labelStyle: TextStyle(color: Colors.grey[400]),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            borderSide: BorderSide(
+                                color: Colors.white.withOpacity(0.2)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            borderSide:
+                            const BorderSide(color: Colors.orange),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter a fee rate.".i18n;
+                          }
+                          if (double.tryParse(value) == null) {
+                            return "Please enter a valid number.".i18n;
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 24.h),
+                    _isLoading
+                        ? Center(
+                      child: LoadingAnimationWidget.fourRotatingDots(
+                          size: 40.h, color: Colors.white),
                     )
-                        : Text(
-                      "Confirm & Bump Fee".i18n,
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
+                        : CustomButton(
+                      text: "Confirm & Bump Fee".i18n,
+                      onPressed: _submitBumpFee,
+                      primaryColor: Colors.white.withOpacity(0.2),
+                      secondaryColor: Colors.white.withOpacity(0.15),
+                      textColor: Colors.white,
                     ),
-                  ),
+                    SizedBox(height: 16.h),
+                  ],
                 ),
               ),
-              SizedBox(height: 16.h),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+

@@ -167,7 +167,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
   bool isInvoice = false;
   late String currency;
   late double currencyRate;
-  int _previousAmount = 0;
   bool _isDraining = false;
 
   // State for variable amount invoices
@@ -181,11 +180,17 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
       return;
     }
     final converted = calculateAmountInSelectedCurrency(satsAmount, selectedCurrency, ref.read(currencyNotifierProvider));
-    controller.text = selectedCurrency == 'BTC'
+    final newText = selectedCurrency == 'BTC'
         ? converted
         : selectedCurrency == 'Sats'
         ? satsAmount.toString()
         : double.parse(converted).toStringAsFixed(2);
+
+    // Set text and move cursor to the end
+    controller.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: newText.length),
+    );
   }
 
   @override
@@ -196,11 +201,9 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
     currency = settings.currency;
     currencyRate = ref.read(selectedCurrencyProvider(currency));
     final sendTxState = ref.read(sendTxProvider);
-    _previousAmount = sendTxState.amount;
     updateControllerText(sendTxState.amount);
     addressController.text = sendTxState.address;
 
-    // FIX: Delay the initial check to prevent modifying a provider during build.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && addressController.text.isNotEmpty) {
         _checkIfInvoice(addressController.text);
@@ -209,7 +212,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
   }
 
   Future<void> _checkIfInvoice(String value) async {
-    // Local variables to hold the new state before applying it
     int? newMinSats;
     int? newMaxSats;
     bool newIsFixedInvoice = false;
@@ -236,15 +238,17 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
           newMaxSats = (parsedInput.data.maxSendable ~/ BigInt.from(1000)).toInt();
         }
       } catch (e) {
-        // Ignore parsing errors, state will be reset
+        // Ignore parsing errors
       }
     }
 
-    // Now, safely update the provider and state
     ref.read(sendTxProvider.notifier).updateAmount(newAmount);
+    // START: FIX #3 - Directly update controller text on invoice scan
     if (newIsFixedInvoice) {
+      updateControllerText(newAmount);
       ref.read(sendTxProvider.notifier).updatePaymentType(PaymentType.Lightning);
     }
+    // END: FIX #3
 
     if (mounted) {
       setState(() {
@@ -265,15 +269,11 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
 
   @override
   Widget build(BuildContext context) {
-    final sendTxState = ref.watch(sendTxProvider);
-    if (sendTxState.amount != _previousAmount) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          updateControllerText(sendTxState.amount);
-          _previousAmount = sendTxState.amount;
-        }
-      });
-    }
+    // START: FIX #1 - Remove the problematic feedback loop from the build method.
+    // The ref.watch is still needed to rebuild on other state changes, but it no longer updates the controller.
+    ref.watch(sendTxProvider);
+    // END: FIX #1
+
     final btcBalanceInFormat = ref.read(liquidBalanceInFormatProvider(btcFormat));
     final valueInBtc = ref.watch(liquidBalanceInFormatProvider('BTC')) == '0.00000000' ? 0 : double.parse(ref.watch(liquidBalanceInFormatProvider('BTC')));
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
@@ -325,7 +325,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                             decoration: BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
                             child: Column(
                               children: [
-                                Text('Balance'.i18n, style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                                Text('Lightning Balance'.i18n, style: TextStyle(color: Colors.white, fontSize: 16.sp)),
                                 Text('$btcBalanceInFormat $btcFormat', style: TextStyle(color: Colors.white, fontSize: 32.sp, fontWeight: FontWeight.bold)),
                                 Text('$balanceInSelectedCurrency $currency', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
                               ],
@@ -420,7 +420,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                           child: DropdownButton<String>(
                                             dropdownColor: const Color(0xFF212121),
                                             value: ref.watch(inputCurrencyProvider),
-                                            items: ['BTC', 'USD', 'EUR', 'BRL','CHF','GBP', 'Sats']
+                                            items: ['BTC', 'USD', 'EUR', 'BRL', 'CHF', 'GBP', 'Sats']
                                                 .map((currency) => DropdownMenuItem(
                                               value: currency,
                                               child: Padding(
@@ -455,7 +455,11 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                               final parsedInput = await ref.read(parseInputProvider(input).future);
 
                                               if (parsedInput is breez.InputType_LnUrlPay) {
-                                                ref.read(sendTxProvider.notifier).updateAmount(ref.read(balanceNotifierProvider).liquidBtcBalance);
+                                                final balance = ref.read(balanceNotifierProvider).liquidBtcBalance;
+                                                ref.read(sendTxProvider.notifier).updateAmount(balance);
+                                                // START: FIX #2 - Directly update controller on Max tap
+                                                updateControllerText(balance);
+                                                // END: FIX #2
                                                 setState(() {
                                                   _isDraining = true;
                                                 });
@@ -477,7 +481,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                   ),
                                 ),
                               ),
-                              // Widget to display min/max amounts
                               _buildAmountLimitsInfo(),
                             ],
                           ),
@@ -525,7 +528,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                         final sendTxState = ref.read(sendTxProvider);
                         final amount = sendTxState.amount;
 
-                        // Validation for variable amounts
                         if (_minAmountSats != null && amount < _minAmountSats!) {
                           throw "Amount is below minimum";
                         }
@@ -540,7 +542,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                         isDraining: _isDraining,
                         );
 
-                        // First, prepare the payment to get the fee
                         final prepResponse = await ref.read(prepareLightningPaymentProvider(paymentArgs).future);
 
                         final bool confirmed = await showConfirmationModal(
@@ -553,7 +554,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                         );
 
                         if (confirmed) {
-                          // Now, execute the payment using the abstracted provider
                           await ref.read(sendLightningPaymentProvider(paymentArgs).future);
 
                           showFullscreenTransactionSendModal(
@@ -600,7 +600,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
       if (selectedCurrency == 'Sats' || selectedCurrency == 'BTC') {
         return calculateAmountInSelectedCurrency(sats, selectedCurrency, ref.read(currencyNotifierProvider));
       }
-      // Special handling for fiat
       final converted = double.parse(calculateAmountInSelectedCurrency(sats, selectedCurrency, ref.read(currencyNotifierProvider)));
       if (converted < 0.01) {
         return '0.01';

@@ -204,7 +204,7 @@ class EulenTransfer extends HiveObject {
       transactionType: data['type']?.toString() ?? 'BUY',
       provider: 'Eulen',
       price: double.tryParse(data['price']?.toString() ?? '') ?? 0.0,
-      cashback: double.tryParse(data['cashback_to_pay_user_in_bitcoin']?.toString() ?? '') ?? 0.0, // Default to 0.0
+      cashback: double.tryParse(data['cashback_to_pay_user']?.toString() ?? '') ?? 0.0, // Default to 0.0
       cashbackPayed: data['cashback_payed'] ?? false, // Default to false
     );
   }
@@ -277,7 +277,7 @@ class EulenTransfer extends HiveObject {
 
 class EulenService {
   /// Creates a new Eulen transaction (purchase or sale).
-  static Future<Result<EulenTransfer>> createTransaction(String auth, int amount, String liquidAddress, {String transactionType = 'BUY'}) async {
+  static Future<Result<EulenTransfer>> createTransaction(String auth, double amount, String liquidAddress, {String transactionType = 'BUY'}) async {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final response = await http.post(
@@ -342,6 +342,32 @@ class EulenService {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
       final uri = Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers/amount_transfered_by_day');
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+          // 'X-Firebase-AppCheck': appCheckToken ?? '',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Result(data: jsonDecode(response.body));
+      } else {
+        return Result(error: 'An error has occurred. Please try again later');
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please try again later');
+    }
+  }
+
+  static Future<Result<bool>> getTransactionPaymentState(String transactionId, String auth) async {
+    try {
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      final uri = Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers/check_purchase_state')
+          .replace(queryParameters: {'transfer[txid]': transactionId,
+      });
 
       final response = await http.get(
         uri,

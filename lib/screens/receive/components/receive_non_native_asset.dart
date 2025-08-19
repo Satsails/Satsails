@@ -3,7 +3,7 @@ import 'package:Satsails/providers/sideshift_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:Satsails/screens/shared/copy_text.dart';
+import 'package:Satsails/screens/shared/address_display_widget.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -39,7 +39,7 @@ class ReceiveNonNativeAsset extends ConsumerWidget {
                   children: [
                     Center(child: buildQrCode(shift.depositAddress, context)),
                     SizedBox(height: 16.h),
-                    Center(child: buildAddressText(shift.depositAddress, context, ref)),
+                    Center(child: AddressDisplayWidget(address: shift.depositAddress, isEditable: false, onEditPressed: null),),
                     if (shift.depositMemo != null) ...[
                       SizedBox(height: 8.h),
                       Center(
@@ -260,7 +260,44 @@ class _RateDisplay extends ConsumerWidget {
       },
       loading: () => Padding(
         padding: EdgeInsets.symmetric(vertical: 8.h),
-        child: Center(child: LoadingAnimationWidget.fourRotatingDots(size: 20.w, color: Colors.white)),
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[800]!,
+          highlightColor: Colors.grey[700]!,
+          child: Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: Colors.grey[900],
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Fake title shimmer
+                Container(
+                  width: 120.w,
+                  height: 16.h,
+                  color: Colors.white,
+                ),
+                SizedBox(height: 12.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 60.w,
+                      height: 14.h,
+                      color: Colors.white,
+                    ),
+                    Container(
+                      width: 160.w,
+                      height: 14.h,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       error: (err, stack) => const SizedBox.shrink(),
     );

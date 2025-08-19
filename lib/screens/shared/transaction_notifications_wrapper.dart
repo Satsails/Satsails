@@ -44,9 +44,9 @@ class _TransactionNotificationsListenerState
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           if (balanceChange.asset == "Bitcoin" || balanceChange.asset == "Liquid Bitcoin" || balanceChange.asset == "Lightning") {
-            _showFullScreenNotification(balanceChange, false, null, balanceChange.asset);
+            _showTopTransactionNotification(balanceChange, false, null, balanceChange.asset);
           } else {
-            _showFullScreenNotification(balanceChange, true, fiatInDenominationFormatted(balanceChange.amount), balanceChange.asset);
+            _showTopTransactionNotification(balanceChange, true, fiatInDenominationFormatted(balanceChange.amount), balanceChange.asset);
           }
           ref.read(balanceChangeProvider.notifier).state = null;
           _previousBalanceChange = null;
@@ -59,22 +59,20 @@ class _TransactionNotificationsListenerState
     return widget.child;
   }
 
-  void _showFullScreenNotification(BalanceChange balanceChange, bool fiat, String? fiatAmount, String? asset) {
-    showOverlay(
-          (context, t) {
-        return Material(
-          color: Colors.black,
-          child: Center(
-            child: ReceiveTransactionOverlay(
-              amount: btcInDenominationFormatted(balanceChange.amount, ref.read(settingsProvider).btcFormat),
-              fiat: fiat,
-              fiatAmount: fiatAmount,
-              asset: asset,
-            ),
-          ),
+  // UPDATED: This function now shows a top notification banner instead of a fullscreen overlay.
+  void _showTopTransactionNotification(BalanceChange balanceChange, bool fiat, String? fiatAmount, String? asset) {
+    showOverlayNotification(
+          (context) {
+        // The overlay is now the compact ReceiveTransactionOverlay widget.
+        return ReceiveTransactionOverlay(
+          amount: btcInDenominationFormatted(balanceChange.amount, ref.read(settingsProvider).btcFormat),
+          fiat: fiat,
+          fiatAmount: fiatAmount,
+          asset: asset,
         );
       },
       duration: const Duration(seconds: 5),
+      position: NotificationPosition.top,
     );
   }
 }

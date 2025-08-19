@@ -34,13 +34,13 @@ android {
     ndkVersion = "27.0.12077973"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
         coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = JavaVersion.VERSION_1_8
     }
 
     sourceSets {
@@ -68,34 +68,9 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
-            minifyEnabled true
-            shrinkResources true
-
-            packagingOptions {
-                doNotStrip "**/*.so"
-            }
-        }
-    }
-    // This block ensures native libraries are aligned for better performance, fixing the Play Store warning.
-    applicationVariants.all { variant ->
-        variant.outputs.all { output -> // Explicitly name the parameter to fix property error
-            // Only run the zipalign process for release builds.
-            if (variant.buildType.name == "release") {
-                output.outputFileName = output.outputFileName.replace('.apk', '-unaligned.apk')
-
-                variant.assembleProvider.get().doLast {
-                    def unalignedApk = output.outputFile
-                    def alignedApk = new File(unalignedApk.parentFile, unalignedApk.name.replace('-unaligned', ''))
-                    exec {
-                        executable = new File(android.sdkDirectory, 'build-tools').listFiles().last().toString() + '/zipalign'
-                        args '-f', '-p', '4', unalignedApk, alignedApk
-                    }
-                    exec {
-                        executable = 'rm'
-                        args unalignedApk
-                    }
-                }
-            }
+            minifyEnabled = true
+            shrinkResources = true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -105,10 +80,10 @@ flutter {
 }
 
 dependencies {
-    implementation 'com.google.firebase:firebase-messaging:20.2.3'
+    implementation 'com.google.firebase:firebase-messaging:23.1.2'
     implementation 'androidx.window:window:1.0.0'
     implementation 'androidx.window:window-java:1.0.0'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 }
 
 apply plugin: 'com.google.gms.google-services'

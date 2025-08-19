@@ -42,8 +42,7 @@ final availablePaymentMethodsProvider = Provider<List<DepositMethod>>((ref) {
 final availableDepositTypesProvider = Provider<List<DepositType>>((ref) {
   final currency = ref.watch(selectedCurrencyProvider);
   if (currency == CurrencyDeposit.BRL) {
-    // return [DepositType.Bitcoin, DepositType.Depix];
-    return [DepositType.Depix];
+    return [DepositType.Bitcoin, DepositType.Depix];
   } else {
     return DepositType.values.where((type) => type != DepositType.Depix).toList();
   }
@@ -74,10 +73,10 @@ final Map<DepositProvider, ProviderDetails> providerDetails = {
   DepositProvider.Nox: ProviderDetails(
     advantages: [
       "Near unlimited purchase amounts".i18n,
-      "Near unlimited purchase amounts".i18n,
+      "Direct bitcoin purchases".i18n,
     ],
     disadvantages: [
-      "You have to KYC with the provider".i18n,
+      "You have to KYC with the provider for big amounts".i18n,
       "Purchases reported to the Brazilian federal revenue agency under the payer's name".i18n,
     ],
   ),
@@ -122,8 +121,7 @@ final Map<DepositProvider, KYCAassessment> kycAssessment = {
   ),
   DepositProvider.Nox: KYCAassessment(
     details: [
-      "You are required to report manually your puchases if not USDT if your jurisdiction requires it".i18n,
-      "Purchases reported to the Brazilian federal revenue agency under the payer's name as USDT".i18n,
+      "Purchases reported to the Brazilian federal revenue agency under the payer's name".i18n,
       "*Always comply with the laws of your jurisdiction.".i18n
     ],
     rating: 4.0,

@@ -1,4 +1,5 @@
 import 'package:Satsails/helpers/deposit_type_helper.dart';
+import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -116,28 +117,24 @@ class DepositTypeScreen extends ConsumerWidget {
                               selectedProvider == DepositProvider.Nox;
                           final buttonText = isButtonEnabled ? 'Buy'.i18n : 'Coming soon'.i18n;
 
-                          return ElevatedButton(
+                          return CustomButton(
+                            text: buttonText,
                             onPressed: isButtonEnabled
                                 ? () {
-                              final route = selectedProvider == DepositProvider.Eulen
+                              final route =
+                              selectedProvider == DepositProvider.Eulen
                                   ? 'DepositPixEulen'
                                   : 'DepositPixNox';
                               context.pushNamed(route);
                             }
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isButtonEnabled ? Colors.green : Colors.red,
-                              disabledBackgroundColor:
-                              isButtonEnabled ? Colors.green : Colors.red,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              padding: EdgeInsets.symmetric(vertical: 16.h),
-                            ),
-                            child: Text(
-                              buttonText,
-                              style: TextStyle(color: Colors.black, fontSize: 16.sp),
-                            ),
+                                : () {}, // Provide an empty function for disabled state
+                            primaryColor: isButtonEnabled
+                                ? Colors.green.shade700
+                                : Colors.red.withOpacity(0.8),
+                            secondaryColor: isButtonEnabled
+                                ? Colors.green.shade700
+                                : Colors.red.withOpacity(0.6),
+                            textColor: Colors.white,
                           );
                         },
                       ),
@@ -232,157 +229,146 @@ class ProviderDetails extends ConsumerWidget {
       height: 1.4,
     );
 
-    return Card(
-      color: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.r),
-      ),
-      elevation: 8,
-      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16.r),
-        child: ExpansionTile(
-          title: Text(
-            'Provider: ${formatEnumName(provider.name)}'.i18n,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
+    return SafeArea(
+      bottom: true,
+      child: Card(
+        color: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        elevation: 8,
+        margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16.r),
+          child: ExpansionTile(
+            title: Text(
+              'Provider: ${formatEnumName(provider.name)}'.i18n,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          iconColor: Colors.white,
-          collapsedIconColor: Colors.white,
-          backgroundColor: const Color(0xFF333333).withOpacity(0.4),
-          collapsedBackgroundColor: const Color(0xFF333333).withOpacity(0.4),
-          children: [
-            Padding(
-              padding: EdgeInsets.all(20.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (provider == DepositProvider.Nox) ...[
-                    Container(
-                      padding: EdgeInsets.all(12.h),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Text(
-                        "Purchases are not paid directly to your wallet but to a smart contract provided by SideShift. The provider, NOX, reports all purchases in USDC. The smart contract does not automatically report transactions. Ensure compliance with your local laws.".i18n,
-                        style: TextStyle(color: Colors.white, fontSize: 14.sp),
+            iconColor: Colors.white,
+            collapsedIconColor: Colors.white,
+            backgroundColor: const Color(0xFF333333).withOpacity(0.4),
+            collapsedBackgroundColor: const Color(0xFF333333).withOpacity(0.4),
+            children: [
+              Padding(
+                padding: EdgeInsets.all(20.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'KYC Assessment'.i18n,
+                      style: sectionTitleStyle,
+                    ),
+                    SizedBox(height: 12.h),
+                    Row(
+                      children: [
+                        for (int i = 1; i <= 5; i++)
+                          Icon(
+                            _getStarIcon(i, kyc.rating),
+                            color: Colors.amber,
+                            size: 20.sp,
+                          ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          '${kyc.rating}/5',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                    ...kyc.details.map(
+                          (detail) => Padding(
+                        padding: EdgeInsets.only(bottom: 8.h),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.fiber_manual_record, color: Colors.white, size: 12.sp),
+                            SizedBox(width: 8.w),
+                            Expanded(
+                              child: Text(
+                                detail.i18n,
+                                style: listItemStyle,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     SizedBox(height: 20.h),
+                    Divider(
+                      color: Colors.grey.shade700,
+                      thickness: 0.5,
+                      indent: 12.w,
+                      endIndent: 12.w,
+                    ),
+                    SizedBox(height: 20.h),
+                    Text(
+                      'Advantages'.i18n,
+                      style: sectionTitleStyle,
+                    ),
+                    SizedBox(height: 12.h),
+                    ...providerDetail.advantages.map(
+                          (advantage) => Padding(
+                        padding: EdgeInsets.only(bottom: 8.h),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.check_circle, color: Colors.greenAccent, size: 16.sp),
+                            SizedBox(width: 8.w),
+                            Expanded(
+                              child: Text(
+                                advantage.i18n,
+                                style: listItemStyle,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20.h),
+                    Divider(
+                      color: Colors.grey.shade700,
+                      thickness: 0.5,
+                      indent: 12.w,
+                      endIndent: 12.w,
+                    ),
+                    SizedBox(height: 20.h),
+                    Text(
+                      'Disadvantages'.i18n,
+                      style: sectionTitleStyle,
+                    ),
+                    SizedBox(height: 12.h),
+                    ...providerDetail.disadvantages.map(
+                          (disadvantage) => Padding(
+                        padding: EdgeInsets.only(bottom: 8.h),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.remove_circle, color: Colors.orangeAccent, size: 16.sp),
+                            SizedBox(width: 8.w),
+                            Expanded(
+                              child: Text(
+                                disadvantage.i18n,
+                                style: listItemStyle,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
-                  Text(
-                    'KYC Assessment'.i18n,
-                    style: sectionTitleStyle,
-                  ),
-                  SizedBox(height: 12.h),
-                  Row(
-                    children: [
-                      for (int i = 1; i <= 5; i++)
-                        Icon(
-                          _getStarIcon(i, kyc.rating),
-                          color: Colors.amber,
-                          size: 20.sp,
-                        ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        '${kyc.rating}/5',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8.h),
-                  ...kyc.details.map(
-                        (detail) => Padding(
-                      padding: EdgeInsets.only(bottom: 8.h),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.fiber_manual_record, color: Colors.white, size: 12.sp),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: Text(
-                              detail.i18n,
-                              style: listItemStyle,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Divider(
-                    color: Colors.grey.shade700,
-                    thickness: 0.5,
-                    indent: 12.w,
-                    endIndent: 12.w,
-                  ),
-                  SizedBox(height: 20.h),
-                  Text(
-                    'Advantages'.i18n,
-                    style: sectionTitleStyle,
-                  ),
-                  SizedBox(height: 12.h),
-                  ...providerDetail.advantages.map(
-                        (advantage) => Padding(
-                      padding: EdgeInsets.only(bottom: 8.h),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.check_circle, color: Colors.greenAccent, size: 16.sp),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: Text(
-                              advantage.i18n,
-                              style: listItemStyle,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Divider(
-                    color: Colors.grey.shade700,
-                    thickness: 0.5,
-                    indent: 12.w,
-                    endIndent: 12.w,
-                  ),
-                  SizedBox(height: 20.h),
-                  Text(
-                    'Disadvantages'.i18n,
-                    style: sectionTitleStyle,
-                  ),
-                  SizedBox(height: 12.h),
-                  ...providerDetail.disadvantages.map(
-                        (disadvantage) => Padding(
-                      padding: EdgeInsets.only(bottom: 8.h),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.remove_circle, color: Colors.orangeAccent, size: 16.sp),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: Text(
-                              disadvantage.i18n,
-                              style: listItemStyle,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

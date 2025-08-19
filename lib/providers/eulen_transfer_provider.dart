@@ -42,8 +42,8 @@ final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) asyn
   }
 });
 
-final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<EulenTransfer, int>((ref, amount) async {
-  final auth = ref.read(userProvider).jwt;
+final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<EulenTransfer, double>((ref, amount) async {
+  final auth = ref.watch(userProvider).jwt;
   final liquidAddress = ref.read(addressProvider).liquidAddress;
   final result = await EulenService.createTransaction(auth, amount, liquidAddress);
   if (result.isSuccess && result.data != null) {
@@ -51,5 +51,19 @@ final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<Eul
     return result.data!;
   } else {
     throw result.error!;
+  }
+});
+
+final getEulenPixPaymentStateProvider = FutureProvider.autoDispose.family<bool, String>((ref, transactionId) async {
+  final auth = ref.read(userProvider).jwt;
+  final paymentState = await EulenService.getTransactionPaymentState(transactionId, auth);
+
+  if (paymentState.isSuccess && paymentState.data != null) {
+    if (paymentState.data!) {
+      await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+    }
+    return paymentState.data!;
+  } else {
+    throw paymentState.error!;
   }
 });

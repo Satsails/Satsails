@@ -1,11 +1,76 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/models/datetime_range_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
+import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/models/datetime_range_model.dart';
-import 'package:lwk/lwk.dart' as lwk;
+
+final assetAllocationProvider = FutureProvider<Map<String, double>>((ref) async {
+  final balance = ref.watch(balanceNotifierProvider);
+  final rates = ref.watch(currencyNotifierProvider);
+  final selectedCurrency = ref.watch(settingsProvider).currency;
+
+  // This function can remain async if other rates are fetched async in the future
+  double getBtcRate() {
+    switch (selectedCurrency) {
+      case 'EUR': return rates.btcToEur;
+      case 'BRL': return rates.btcToBrl;
+      case 'GBP': return rates.btcToGbp;
+      case 'CHF': return rates.btcToChf;
+      case 'USD':
+      default:
+        return rates.btcToUsd;
+    }
+  }
+
+  double convertToSelectedCurrency(double amount, String fromCurrency) {
+    if (fromCurrency == selectedCurrency) return amount;
+
+    double amountInUsd;
+    switch (fromCurrency) {
+      case 'EUR': amountInUsd = amount * rates.eurToUsd; break;
+      case 'BRL': amountInUsd = amount * rates.brlToUsd; break;
+      case 'GBP': amountInUsd = amount * rates.gbpToUsd; break;
+      case 'CHF': amountInUsd = amount * rates.chfToUsd; break;
+      default: amountInUsd = amount;
+    }
+
+    switch (selectedCurrency) {
+      case 'EUR': return amountInUsd * rates.usdToEur;
+      case 'BRL': return amountInUsd * rates.usdToBrl;
+      case 'GBP': return amountInUsd * rates.usdToGbp;
+      case 'CHF': return amountInUsd * rates.usdToChf;
+      default: return amountInUsd;
+    }
+  }
+
+  final btcPrice = getBtcRate();
+  final Map<String, double> allocation = {};
+
+  final btcValue = (balance.onChainBtcBalance / 1e8) * btcPrice;
+  if (btcValue > 0.01) allocation['BTC'] = btcValue;
+
+  final lbtcValue = (balance.liquidBtcBalance / 1e8) * btcPrice;
+  if (lbtcValue > 0.01) allocation['L-BTC'] = lbtcValue;
+
+  final depixBalance = balance.liquidDepixBalance / 1e8;
+  if (depixBalance > 0.01) {
+    allocation['Depix'] = convertToSelectedCurrency(depixBalance, 'BRL');
+  }
+  final usdtBalance = balance.liquidUsdtBalance / 1e8;
+  if (usdtBalance > 0.01) {
+    allocation['USDT'] = convertToSelectedCurrency(usdtBalance, 'USD');
+  }
+  final eurxBalance = balance.liquidEuroxBalance / 1e8;
+  if (eurxBalance > 0.01) {
+    allocation['EURx'] = convertToSelectedCurrency(eurxBalance, 'EUR');
+  }
+
+  return allocation;
+});
 
 DateTimeSelect getCurrentMonthDateRange() {
   final DateTime now = DateTime.now();
@@ -26,7 +91,6 @@ final selectedDaysDateArrayProvider = StateProvider.autoDispose<List<DateTime>>(
   final DateTime currentDay = DateTime.now().toLocal();
   final DateTime end = DateTime.fromMillisecondsSinceEpoch(dateTimeSelect.end * 1000).toLocal();
 
-  // Use current day as end if it's after the provided end
   final effectiveEnd = currentDay.isAfter(end) ? currentDay : end;
 
   final List<DateTime> selectedDays = [];
@@ -36,18 +100,12 @@ final selectedDaysDateArrayProvider = StateProvider.autoDispose<List<DateTime>>(
   return selectedDays;
 });
 
-
 DateTime normalizeDate(DateTime date) {
   return DateTime(date.year, date.month, date.day);
 }
 
 final bitcoinBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
-  final transactionsAsync = ref.watch(transactionNotifierProvider);
-  if (!transactionsAsync.hasValue) {
-    return {};
-  }
-
-  final transactionData = transactionsAsync.value!;
+  final transactionData = ref.watch(transactionNotifierProvider);
   final transactions = transactionData.bitcoinTransactions;
   final Map<DateTime, num> balancePerDay = {};
 
@@ -69,9 +127,7 @@ final bitcoinBalanceOverPeriod = StateProvider.autoDispose<Map<DateTime, num>>((
       continue;
     }
 
-    final DateTime date = transaction.btcDetails.confirmationTime  == null || transaction.btcDetails.confirmationTime!.timestamp == 0
-        ? normalizeDate(DateTime.now())
-        : normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000));
+    final DateTime date = normalizeDate(DateTime.fromMillisecondsSinceEpoch(transaction.btcDetails.confirmationTime!.timestamp.toInt() * 1000));
     var netAmount = transaction.btcDetails.received - transaction.btcDetails.sent;
 
     cumulativeBalance += netAmount.toInt();
@@ -89,48 +145,53 @@ final bitcoinBalanceOverPeriodByDayProvider = StateProvider.autoDispose<Map<Date
   num lastKnownBalance = 0;
 
   if (balanceOverPeriod.isEmpty) {
+    for (DateTime day in selectedDays) {
+      balancePerDay[normalizeDate(day)] = 0;
+    }
     return balancePerDay;
   }
 
-  // Get the first day in the balance period and set it to 0 balance one day before
-  DateTime firstDay = balanceOverPeriod.keys.first.subtract(const Duration(days: 1));
-  balancePerDay[normalizeDate(firstDay)] = 0;
+  DateTime firstDay = balanceOverPeriod.keys.first;
 
-  // Iterate through the balance over period to fill in the days
   for (var entry in balanceOverPeriod.entries) {
     DateTime balanceDate = entry.key;
     num balanceValue = entry.value;
 
-    // Fill the days between the last known balance date and this balance date with the last known balance
     while (firstDay.isBefore(balanceDate)) {
       balancePerDay[normalizeDate(firstDay)] = lastKnownBalance;
       firstDay = firstDay.add(const Duration(days: 1));
     }
 
-    // Update the last known balance with the current balance value
     lastKnownBalance = balanceValue;
     balancePerDay[normalizeDate(balanceDate)] = lastKnownBalance;
   }
 
-  // Continue filling until the current date with the last known balance
   DateTime today = normalizeDate(DateTime.now());
   while (firstDay.isBefore(today) || firstDay.isAtSameMomentAs(today)) {
     balancePerDay[normalizeDate(firstDay)] = lastKnownBalance;
     firstDay = firstDay.add(const Duration(days: 1));
   }
 
-  // Filter the result to only include selected days
   final Map<DateTime, num> selectedBalancePerDay = {};
+  num lastBalanceForSelectedRange = 0;
+
+  if (selectedDays.isNotEmpty) {
+    final dayBeforeStart = normalizeDate(selectedDays.first.subtract(const Duration(days: 1)));
+    lastBalanceForSelectedRange = balancePerDay[dayBeforeStart] ?? 0;
+  }
+
   for (DateTime day in selectedDays) {
     final normalizedDay = normalizeDate(day);
     if (balancePerDay.containsKey(normalizedDay)) {
       selectedBalancePerDay[normalizedDay] = balancePerDay[normalizedDay]!;
+      lastBalanceForSelectedRange = balancePerDay[normalizedDay]!;
+    } else {
+      selectedBalancePerDay[normalizedDay] = lastBalanceForSelectedRange;
     }
   }
 
   return selectedBalancePerDay;
 });
-
 
 final bitcoinBalanceInFormatByDayProvider = StateProvider.autoDispose<Map<DateTime, num>>((ref) {
   final balanceByDay = ref.watch(bitcoinBalanceOverPeriodByDayProvider);
@@ -146,24 +207,14 @@ final bitcoinBalanceInFormatByDayProvider = StateProvider.autoDispose<Map<DateTi
 });
 
 final liquidBalanceOverPeriod = StateProvider.autoDispose.family<Map<DateTime, num>, String>((ref, asset) {
-  final transactionsAsync = ref.watch(transactionNotifierProvider);
-  if (!transactionsAsync.hasValue) {
-    return {};
-  }
-
-  final transactions = transactionsAsync.value!.liquidTransactions;
+  final transactions = ref.watch(transactionNotifierProvider).liquidTransactions;
   final balancePerDay = <DateTime, num>{};
 
-  transactions.sort((a, b) {
-    if (a.timestamp == null && b.timestamp == null) return 0;
-    if (a.timestamp == null) return -1;
-    if (b.timestamp == null) return 1;
-    return a.timestamp.compareTo(b.timestamp);
-  });
+  transactions.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
   num cumulativeBalance = 0;
   for (final transaction in transactions) {
-    if (transaction.timestamp == null || transaction.timestamp.millisecondsSinceEpoch == 0) {
+    if (transaction.timestamp.millisecondsSinceEpoch == 0) {
       continue;
     }
 
@@ -191,42 +242,48 @@ final liquidBalanceOverPeriodByDayProvider = StateProvider.autoDispose.family<Ma
   num lastKnownBalance = 0;
 
   if (balanceOverPeriod.isEmpty) {
+    for (DateTime day in selectedDays) {
+      balancePerDay[normalizeDate(day)] = 0;
+    }
     return balancePerDay;
   }
 
-  // Get the first day in the balance period and set it to 0 balance one day before
-  DateTime firstDay = balanceOverPeriod.keys.first.subtract(const Duration(days: 1));
-  balancePerDay[normalizeDate(firstDay)] = 0;
+  DateTime firstDay = balanceOverPeriod.keys.first;
 
-  // Iterate through the balance over period to fill in the days
   for (var entry in balanceOverPeriod.entries) {
     DateTime balanceDate = entry.key;
     num balanceValue = entry.value;
 
-    // Fill the days between the last known balance date and this balance date with the last known balance
     while (firstDay.isBefore(balanceDate)) {
       balancePerDay[normalizeDate(firstDay)] = lastKnownBalance;
       firstDay = firstDay.add(const Duration(days: 1));
     }
 
-    // Update the last known balance with the current balance value
     lastKnownBalance = balanceValue;
     balancePerDay[normalizeDate(balanceDate)] = lastKnownBalance;
   }
 
-  // Continue filling until the current date with the last known balance
   DateTime today = normalizeDate(DateTime.now());
   while (firstDay.isBefore(today) || firstDay.isAtSameMomentAs(today)) {
     balancePerDay[normalizeDate(firstDay)] = lastKnownBalance;
     firstDay = firstDay.add(const Duration(days: 1));
   }
 
-  // Filter the result to only include selected days
   final Map<DateTime, num> selectedBalancePerDay = {};
+  num lastBalanceForSelectedRange = 0;
+
+  if (selectedDays.isNotEmpty) {
+    final dayBeforeStart = normalizeDate(selectedDays.first.subtract(const Duration(days: 1)));
+    lastBalanceForSelectedRange = balancePerDay[dayBeforeStart] ?? 0;
+  }
+
   for (DateTime day in selectedDays) {
     final normalizedDay = normalizeDate(day);
     if (balancePerDay.containsKey(normalizedDay)) {
       selectedBalancePerDay[normalizedDay] = balancePerDay[normalizedDay]!;
+      lastBalanceForSelectedRange = balancePerDay[normalizedDay]!;
+    } else {
+      selectedBalancePerDay[normalizedDay] = lastBalanceForSelectedRange;
     }
   }
 
@@ -244,5 +301,5 @@ final liquidBalancePerDayInFormatProvider = StateProvider.autoDispose.family<Map
     balanceInFormatByDay[day] = btcInDenominationNum(balanceByDay[day]!, btcFormat, isBtc);
   }
 
-  return balanceInFormatByDay;
+  return Map.fromEntries(balanceInFormatByDay.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)));
 });

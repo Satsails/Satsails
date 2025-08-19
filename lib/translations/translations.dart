@@ -2818,8 +2818,8 @@ extension Localization on String {
         'pt': 'Expirado',
       } +
       {
-        'en': 'Backup completed',
-        'pt': 'Backup completo',
+        'en': 'Backup Completed',
+        'pt': 'Backup Completo',
       } +
       {
         'en': 'Amount is too small',
@@ -3780,11 +3780,95 @@ extension Localization on String {
       } +
       {
         'en': 'Last attempt. If incorrect, the wallet will be deleted.',
-        'pt': 'Ultima tentativa. Se incorreto, a carteira será excluída.'
+        'pt': 'Última tentativa. Se incorreto, a carteira será excluída.'
       } +
       {
         'en': 'All information will be permanently deleted. This action is irreversible.',
         'pt': 'Toda a informação será permanentemente excluída. Esta ação é irreversível.'
+      } +
+      {
+        'en': 'Transactions Hidden',
+        'pt': 'Transações Ocultas'
+      } +
+      {
+        'en': 'Tap to show',
+        'pt': 'Toque para mostrar'
+      } +
+      {
+        'en': 'Your recent transactions will appear here.',
+        'pt': 'As suas transações recentes aparecerão aqui.'
+      } +
+      {
+        'en': 'Your Secret Phrase',
+        'pt': 'A sua Frase Secreta'
+      } +
+      {
+        'en': 'Verify Backup',
+        'pt': 'Verificar Backup'
+      } +
+      {
+        'en': 'Seed words copied to clipboard',
+        'pt': 'Palavras-semente copiadas para a área de transferência.'
+      } +
+      {
+        'en': 'Enter your PIN to view seed words',
+        'pt': 'Insira o seu PIN para ver as palavras secretas',
+      } +
+      {
+        'en': 'Slow',
+        'pt': 'Lento',
+      } +
+      {
+        'en': 'Fast',
+        'pt': 'Rápido',
+      } +
+      {
+        'en': 'Edit',
+        'pt': 'Editar',
+      } +
+      {
+        'en': 'You Sent',
+        'pt': 'Você Enviou',
+      } +
+      {
+        'en': 'You Received',
+        'pt': 'Você Recebeu',
+      } +
+      {
+        'en': 'Cashback',
+        'pt': 'Cashback',
+      } +
+      {
+        'en': 'Cashback Amount',
+        'pt': 'Valor do Cashback',
+      } +
+      {
+        'en': 'Cashback Status',
+        'pt': 'Estado do Cashback',
+      } +
+      {
+        'en': 'Transaction ID copied',
+        'pt': 'ID da Transação copiado',
+      } +
+      {
+        'en': 'Affiliate code inserted',
+        'pt': 'Codigo de Afiliado inserido',
+      } +
+      {
+        'en': 'Warning: Sending from any other network might result in loss of funds.',
+        'pt': 'Aviso: Enviar de qualquer outra rede pode resultar na perda de fundos.',
+      } +
+      {
+        'en': 'Enable Notifications',
+        'pt': 'Activar notificações',
+      } +
+      {
+        'en': 'Enable Notifications',
+        'pt': 'Activar notificações',
+      } +
+      {
+        'en': 'Get a permanent Lightning Address and receive payments anytime.',
+        'pt': 'Obtenha um Endereço Lightning permanente e receba pagamentos a qualquer momento.'
       };
   String get i18n => localize(this, _t);
 

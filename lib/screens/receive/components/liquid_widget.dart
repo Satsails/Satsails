@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
-import 'package:Satsails/screens/shared/copy_text.dart';
+import 'package:Satsails/screens/shared/address_display_widget.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/screens/exchange/exchange.dart'; // For SwapSection enum
@@ -60,11 +60,10 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
           child: Column(
             children: [
               buildQrCode(addressToShow, context),
-              _buildReceiveFromDifferentNetworkButton(context, ref),
-              SizedBox(height: 5.h),
+              SizedBox(height: 16.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: buildAddressText(addressToShow, context, ref),
+                child: AddressDisplayWidget(address: addressToShow, isEditable: false, onEditPressed: null),
               ),
             ],
           ),
@@ -79,38 +78,12 @@ class _LiquidWidgetState extends ConsumerState<LiquidWidget> {
           child: CustomButton(
             onPressed: _onCreateAddress,
             text: 'Create Address'.i18n,
-            primaryColor: Colors.green,
-            secondaryColor: Colors.green,
+            primaryColor: Colors.green.withOpacity(0.8),
+            secondaryColor: Colors.green.withOpacity(0.6),
+            textColor: Colors.white,
           ),
         ),
       ],
-    );
-  }
-
-  /// Builds a subtle button to navigate to the Exchange screen for receiving from another network.
-  Widget _buildReceiveFromDifferentNetworkButton(BuildContext context, WidgetRef ref) {
-    return Container(
-      alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: TextButton(
-        onPressed: () {
-          context.pop();
-          ref.read(navigationProvider.notifier).state = 2;
-          ref.read(swapSectionProvider.notifier).state = SwapSection.external;
-        },
-        style: TextButton.styleFrom(
-          foregroundColor: Colors.grey.shade400,
-        ),
-        child: Text(
-          'Receive from a different network'.i18n,
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 14.sp,
-            decoration: TextDecoration.underline,
-            decorationColor: Colors.white70,
-          ),
-        ),
-      ),
     );
   }
 }

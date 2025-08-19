@@ -6,16 +6,15 @@ import 'package:Satsails/screens/creation/set_pin.dart'; // Contains pinProvider
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/custom_keypad.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
+import 'package:Satsails/screens/shared/shimmer_home_screen.dart';
+import 'package:Satsails/services/background_sync_service.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-
-// Define the loading provider for this screen
 final confirmPinLoadingProvider = StateProvider<bool>((ref) => false);
 
 class ConfirmPin extends ConsumerStatefulWidget {
@@ -48,7 +47,6 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
       });
   }
 
-  // Asynchronous method to handle setting the PIN (only called when PINs match)
   Future<void> _handleSetPin(String originalPin) async {
     ref.read(confirmPinLoadingProvider.notifier).state = true;
     try {
@@ -59,11 +57,15 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
         await authModel.setMnemonic(await authModel.generateMnemonic());
       }
       ref.read(pinProvider.notifier).state = '';
+
       if (mounted) {
         ref.invalidate(bitcoinConfigProvider);
         ref.invalidate(liquidConfigProvider);
-        ref.read(addressProvider);
-        context.go('/home');
+        ref.read(addressProvider); // Pre-load address data
+
+        if (mounted) {
+          context.go('/home');
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -102,6 +104,11 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
     final originalPin = ref.watch(pinProvider);
     final isLoading = ref.watch(confirmPinLoadingProvider);
 
+    // Conditionally show the shimmer screen or the PIN entry UI
+    if (isLoading) {
+      return const ShimmerHomeScreen();
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -113,86 +120,72 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
         ),
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32.w),
-                // Removed the fixed-height SizedBox wrapper
-                child: Column(
-                  children: [
-                    SizedBox(height: 20.h),
-                    Text(
-                      'Confirm Your PIN'.i18n,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 50.h), // Replaced Spacer
-                    AnimatedBuilder(
-                      animation: _animation,
-                      builder: (context, child) {
-                        return Transform.translate(
-                          offset: Offset(_animation.value, 0),
-                          child: child,
-                        );
-                      },
-                      child:
-                      PinProgressIndicator(currentLength: confirmPin.length),
-                    ),
-                    SizedBox(height: 50.h), // Replaced Spacer(flex: 2)
-                    CustomKeypad(
-                      onDigitPressed: (digit) {
-                        if (confirmPin.length < 6) {
-                          HapticFeedback.lightImpact();
-                          setState(() => confirmPin += digit);
-                        }
-                      },
-                      onBackspacePressed: () {
-                        if (confirmPin.isNotEmpty) {
-                          HapticFeedback.lightImpact();
-                          setState(() => confirmPin =
-                              confirmPin.substring(0, confirmPin.length - 1));
-                        }
-                      },
-                    ),
-                    SizedBox(height: 30.h), // Replaced Spacer
-                    AnimatedOpacity(
-                      opacity: confirmPin.length == 6 ? 1.0 : 0.5,
-                      duration: const Duration(milliseconds: 300),
-                      child: CustomButton(
-                        text: 'Set PIN'.i18n,
-                        onPressed: confirmPin.length == 6
-                            ? () {
-                          if (confirmPin == originalPin) {
-                            _handleSetPin(originalPin);
-                          } else {
-                            _handlePinMismatch();
-                          }
-                        }
-                            : () {},
-                        primaryColor: Colors.green,
-                        secondaryColor: Colors.green,
-                      ),
-                    ),
-                    SizedBox(height: 40.h),
-                  ],
-                ),
-              ),
-            ),
-            if (isLoading)
-              Container(
-                color: Colors.black54,
-                child: Center(
-                  child: LoadingAnimationWidget.fourRotatingDots(
-                    color: Colors.orange,
-                    size: 50.w,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32.w),
+            child: Column(
+              children: [
+                SizedBox(height: 20.h),
+                Text(
+                  'Confirm Your PIN'.i18n,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 28.sp,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-          ],
+                SizedBox(height: 50.h),
+                AnimatedBuilder(
+                  animation: _animation,
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(_animation.value, 0),
+                      child: child,
+                    );
+                  },
+                  child:
+                  PinProgressIndicator(currentLength: confirmPin.length),
+                ),
+                SizedBox(height: 50.h),
+                CustomKeypad(
+                  onDigitPressed: (digit) {
+                    if (confirmPin.length < 6) {
+                      HapticFeedback.lightImpact();
+                      setState(() => confirmPin += digit);
+                    }
+                  },
+                  onBackspacePressed: () {
+                    if (confirmPin.isNotEmpty) {
+                      HapticFeedback.lightImpact();
+                      setState(() => confirmPin =
+                          confirmPin.substring(0, confirmPin.length - 1));
+                    }
+                  },
+                ),
+                SizedBox(height: 30.h),
+                AnimatedOpacity(
+                  opacity: confirmPin.length == 6 ? 1.0 : 0.5,
+                  duration: const Duration(milliseconds: 300),
+                  child: CustomButton(
+                    text: 'Set PIN'.i18n,
+                    onPressed: confirmPin.length == 6
+                        ? () {
+                      if (confirmPin == originalPin) {
+                        _handleSetPin(originalPin);
+                      } else {
+                        _handlePinMismatch();
+                      }
+                    }
+                        : () {},
+                    primaryColor: Colors.white.withOpacity(0.2),
+                    secondaryColor: Colors.white.withOpacity(0.15),
+                    textColor: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 40.h),
+              ],
+            ),
+          ),
         ),
       ),
     );

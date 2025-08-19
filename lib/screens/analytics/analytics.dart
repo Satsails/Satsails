@@ -1,23 +1,24 @@
 import 'package:Satsails/helpers/asset_mapper.dart';
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/helpers/fiat_format_converter.dart';
+import 'package:Satsails/models/datetime_range_model.dart';
+import 'package:Satsails/providers/analytics_provider.dart';
+import 'package:Satsails/providers/balance_provider.dart';
+import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
+import 'package:Satsails/screens/analytics/components/bitcoin_price_chart.dart';
 import 'package:Satsails/screens/analytics/components/chart.dart';
+import 'package:Satsails/screens/analytics/components/pie_chart.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'dart:math';
 import 'package:shimmer/shimmer.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:Satsails/providers/balance_provider.dart';
-import 'package:Satsails/providers/coingecko_provider.dart';
-import 'package:Satsails/models/datetime_range_model.dart';
-import 'package:Satsails/providers/analytics_provider.dart';
-import 'package:Satsails/helpers/fiat_format_converter.dart';
-import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 
-
+enum ChartType { balance, valuation, allocation, price }
 enum AnalyticsSection { internal, market }
 
 class Analytics extends ConsumerStatefulWidget {
@@ -29,9 +30,9 @@ class Analytics extends ConsumerStatefulWidget {
 
 class _AnalyticsState extends ConsumerState<Analytics> {
   AnalyticsSection _selectedSection = AnalyticsSection.internal;
-  int viewMode = 0;
+  ChartType _selectedChartType = ChartType.balance;
   String _selectedRange = '1M';
-  String? _selectedAsset;
+  String _selectedAsset = 'Bitcoin';
 
   final List<String> _assetOptions = ['Bitcoin', 'Liquid Bitcoin', 'Depix', 'USDT', 'EURx'];
   final Map<String, String> _assetImages = {
@@ -42,26 +43,22 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     'EURx': 'lib/assets/eurx.png',
   };
   final Map<String, String> _assetIdMap = {
+    'Bitcoin': 'btc',
     'Liquid Bitcoin': AssetMapper.reverseMapTicker(AssetId.LBTC),
     'Depix': AssetMapper.reverseMapTicker(AssetId.BRL),
     'USDT': AssetMapper.reverseMapTicker(AssetId.USD),
     'EURx': AssetMapper.reverseMapTicker(AssetId.EUR),
   };
-  final Map<String, int> _assetPrecisionMap = {
-    AssetMapper.reverseMapTicker(AssetId.LBTC): 8,
-    AssetMapper.reverseMapTicker(AssetId.BRL): 2,
-    AssetMapper.reverseMapTicker(AssetId.USD): 2,
-    AssetMapper.reverseMapTicker(AssetId.EUR): 2,
-  };
 
   @override
   void initState() {
     super.initState();
-    _selectedAsset = 'Bitcoin';
-    WidgetsBinding.instance.addPostFrameCallback((_) => _updateDateRange(_selectedRange));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateDateRangeProvider(_selectedRange);
+    });
   }
 
-  void _updateDateRange(String range) {
+  void _updateDateRangeProvider(String range) {
     final now = DateTime.now().dateOnly();
     DateTime start;
     switch (range) {
@@ -70,7 +67,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
       case '3M': start = now.subtract(const Duration(days: 89)); break;
       case '1Y': start = now.subtract(const Duration(days: 364)); break;
       case 'ALL':
-        final ts = ref.read(transactionNotifierProvider).value?.earliestTimestamp;
+        final ts = ref.read(transactionNotifierProvider).earliestTimestamp;
         start = ts?.dateOnly() ?? now.subtract(const Duration(days: 364 * 5));
         break;
       default: start = now.subtract(const Duration(days: 29));
@@ -78,32 +75,33 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     ref.read(dateTimeSelectProvider.notifier).state = DateTimeSelect(start: start, end: now);
   }
 
-  void _showAssetMenu(BuildContext context, GlobalKey key) async {
-    final renderBox = key.currentContext!.findRenderObject() as RenderBox;
-    final position = renderBox.localToGlobal(Offset.zero);
-    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-
-    final selected = await showMenu<String>(
+  void _showAssetSelection() {
+    showModalBottomSheet(
       context: context,
-      position: RelativeRect.fromLTRB(position.dx, position.dy + renderBox.size.height, overlay.size.width - position.dx - renderBox.size.width, overlay.size.height - position.dy),
-      items: _assetOptions.map((option) => PopupMenuItem<String>(
-        value: option,
-        child: Row(children: [
-          Image.asset(_assetImages[option]!, width: 32.sp, height: 32.sp),
-          SizedBox(width: 12.w),
-          Text(option, style: TextStyle(color: option == _selectedAsset ? Colors.orangeAccent : Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w500)),
-        ]),
-      )).toList(),
-      color: const Color(0xFF2C2C2E),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+      backgroundColor: const Color(0xFF1A1A1A),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
+      builder: (context) {
+        return ListView(
+          children: _assetOptions.map((option) {
+            final isSelected = _selectedAsset == option;
+            return ListTile(
+              leading: Image.asset(_assetImages[option]!, width: 32.sp, height: 32.sp),
+              title: Text(option, style: TextStyle(color: isSelected ? Colors.orangeAccent : Colors.white, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+              onTap: () {
+                final bool newIsBitcoin = ['Bitcoin', 'Liquid Bitcoin'].contains(option);
+                setState(() {
+                  _selectedAsset = option;
+                  if (!newIsBitcoin && (_selectedChartType == ChartType.valuation || _selectedChartType == ChartType.price)) {
+                    _selectedChartType = ChartType.balance;
+                  }
+                });
+                Navigator.pop(context);
+              },
+            );
+          }).toList(),
+        );
+      },
     );
-
-    if (selected != null) {
-      setState(() {
-        _selectedAsset = selected;
-        viewMode = 0;
-      });
-    }
   }
 
   @override
@@ -134,8 +132,8 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                       return FadeTransition(opacity: animation, child: child);
                     },
                     child: _selectedSection == AnalyticsSection.internal
-                        ? _buildInternalAnalyticsView(key: const ValueKey('internal'))
-                        : const _MarketDataView(key: ValueKey('market')),
+                        ? _buildInternalAnalyticsView(key: ValueKey(_selectedAsset))
+                        : _MarketDataView(key: const ValueKey('market')),
                   ),
                 ),
               ],
@@ -174,7 +172,6 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     );
   }
 
-  // --- WIDGET BUILDERS for Internal Analytics ---
   Widget _buildInternalAnalyticsView({Key? key}) {
     final settings = ref.watch(settingsProvider);
     final selectedCurrency = settings.currency;
@@ -183,34 +180,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     final isBitcoinAsset = ['Bitcoin', 'Liquid Bitcoin'].contains(_selectedAsset);
     final cardColor = const Color(0xFF333333).withOpacity(0.4);
 
-    final balanceByDay = switch (_selectedAsset) {
-      'Bitcoin' => ref.read(bitcoinBalanceInFormatByDayProvider),
-      'Liquid Bitcoin' || 'Depix' || 'USDT' || 'EURx' => ref.read(liquidBalancePerDayInFormatProvider(_assetIdMap[_selectedAsset!]!)),
-      _ => <DateTime, num>{},
-    };
-
-    final marketDataAsync = ref.read(bitcoinMarketDataProvider);
-
-    final (dollarBalanceByDay, priceByDay) = marketDataAsync.when(
-      data: (marketData) {
-        final dailyPrices = { for (var dp in marketData) dp.date.toLocal().dateOnly(): dp.price ?? 0 };
-        final dailyDollarBalance = <DateTime, num>{};
-        num lastKnownBalance = 0, lastKnownPrice = 0;
-        for (var day in selectedDays) {
-          final normalizedDay = day.dateOnly();
-          if (balanceByDay.containsKey(normalizedDay)) {
-            lastKnownBalance = balanceByDay[normalizedDay]! / (isBitcoinAsset && btcFormat == 'sats' ? 1e8 : (isBitcoinAsset ? 1 : pow(10, _assetPrecisionMap[_assetIdMap[_selectedAsset!]!] ?? 8)));
-          }
-          if (dailyPrices.containsKey(normalizedDay)) { lastKnownPrice = dailyPrices[normalizedDay]!; }
-          dailyDollarBalance[normalizedDay] = lastKnownBalance * (isBitcoinAsset ? lastKnownPrice : 1);
-        }
-        return (dailyDollarBalance, dailyPrices);
-      },
-      loading: () => (<DateTime, num>{}, <DateTime, num>{}),
-      error: (_, __) => (<DateTime, num>{}, <DateTime, num>{}),
-    );
-
-    final balance = ref.read(balanceNotifierProvider);
+    final balance = ref.watch(balanceNotifierProvider);
     final currentBalanceFormatted = switch (_selectedAsset) {
       'Bitcoin' => btcInDenominationFormatted(balance.onChainBtcBalance, btcFormat),
       'Liquid Bitcoin' => btcInDenominationFormatted(balance.liquidBtcBalance, btcFormat),
@@ -220,6 +190,9 @@ class _AnalyticsState extends ConsumerState<Analytics> {
       _ => '',
     };
     final balanceWithUnit = isBitcoinAsset ? '$currentBalanceFormatted ${btcFormat.toUpperCase()}' : currentBalanceFormatted;
+
+    final marketDataAsync = ref.watch(filteredBitcoinMarketDataProvider);
+    final allocation = ref.watch(assetAllocationProvider);
 
     return Column(
       key: key,
@@ -231,13 +204,82 @@ class _AnalyticsState extends ConsumerState<Analytics> {
             cardColor: cardColor,
             isBitcoinAsset: isBitcoinAsset,
             chartView: marketDataAsync.when(
-              data: (_) => Chart(
-                selectedDays: selectedDays, mainData: (viewMode == 0 ? balanceByDay : dollarBalanceByDay), bitcoinBalanceByDayformatted: balanceByDay,
-                dollarBalanceByDay: dollarBalanceByDay, priceByDay: priceByDay, selectedCurrency: selectedCurrency,
-                isShowingMainData: true, isCurrency: viewMode == 1, btcFormat: btcFormat, isBitcoinAsset: isBitcoinAsset,
-              ),
               loading: () => _buildChartShimmer(),
-              error: (e, s) => Center(child: Text('Error Loading Chart'.i18n, style: const TextStyle(color: Colors.redAccent))),
+              error: (e, s) => Center(child: Text("Error loading chart data".i18n)),
+              data: (marketData) {
+                final dailyPrices = { for (var dp in marketData) dp.date.toLocal().dateOnly(): dp.price ?? 0 };
+                final balanceByDay = _selectedAsset == 'Bitcoin'
+                    ? ref.watch(bitcoinBalanceInFormatByDayProvider)
+                    : ref.watch(liquidBalancePerDayInFormatProvider(_assetIdMap[_selectedAsset]!));
+
+                final dailyDollarBalance = <DateTime, num>{};
+
+                num lastKnownBalance = 0;
+                num lastKnownPrice = 0;
+
+                if (selectedDays.isNotEmpty) {
+                  final startDate = selectedDays.first.dateOnly();
+                  final sortedBalanceKeys = balanceByDay.keys.toList()..sort();
+
+                  // Find the balance on the day before the chart's range begins
+                  for (final day in sortedBalanceKeys) {
+                    if (day.isBefore(startDate)) {
+                      lastKnownBalance = balanceByDay[day]!;
+                    } else {
+                      break;
+                    }
+                  }
+
+                  // Find the price on the day before the chart's range begins
+                  final sortedPriceKeys = dailyPrices.keys.toList()..sort();
+                  for (final day in sortedPriceKeys) {
+                    if (day.isBefore(startDate)) {
+                      lastKnownPrice = dailyPrices[day]!;
+                    } else {
+                      break;
+                    }
+                  }
+                }
+
+                for (var day in selectedDays) {
+                  final normalizedDay = day.dateOnly();
+                  if (balanceByDay.containsKey(normalizedDay)) {
+                    lastKnownBalance = balanceByDay[normalizedDay]! / (isBitcoinAsset && btcFormat == 'sats' ? 1e8 : 1);
+                  }
+                  if (dailyPrices.containsKey(normalizedDay)) {
+                    lastKnownPrice = dailyPrices[normalizedDay]!;
+                  }
+                  dailyDollarBalance[normalizedDay] = lastKnownBalance * (isBitcoinAsset ? lastKnownPrice : 1);
+                }
+
+                return switch (_selectedChartType) {
+                  ChartType.allocation => allocation.when(
+                    data: (data) => AssetAllocationChart(allocationData: <String, ({double fiatValue, int originalBalance})>{
+                      'BTC': (fiatValue: data['BTC'] ?? 0.0, originalBalance: balance.onChainBtcBalance),
+                      'L-BTC': (fiatValue: data['L-BTC'] ?? 0.0, originalBalance: balance.liquidBtcBalance),
+                      'Depix': (fiatValue: data['Depix'] ?? 0.0, originalBalance: balance.liquidDepixBalance),
+                      'USDT': (fiatValue: data['USDT'] ?? 0.0, originalBalance: balance.liquidUsdtBalance),
+                      'EURx': (fiatValue: data['EURx'] ?? 0.0, originalBalance: balance.liquidEuroxBalance),
+                    }),
+                    loading: () => _buildChartShimmer(),
+                    error: (e,s) => Center(child: Text("Error".i18n)),
+                  ),
+                  ChartType.price => BitcoinPriceChart(selectedAsset: _assetIdMap[_selectedAsset]!,),
+                  _ => Chart(
+                    selectedDays: selectedDays,
+                    mainData: _selectedChartType == ChartType.balance ? balanceByDay : dailyDollarBalance,
+                    bitcoinBalanceByDayformatted: balanceByDay,
+                    dollarBalanceByDay: dailyDollarBalance,
+                    priceByDay: dailyPrices,
+                    selectedCurrency: selectedCurrency,
+                    isShowingMainData: true,
+                    isCurrency: _selectedChartType == ChartType.valuation,
+                    btcFormat: btcFormat,
+                    isBitcoinAsset: isBitcoinAsset,
+                    selectedAsset: _selectedAsset,
+                  ),
+                };
+              },
             ),
           ),
         ),
@@ -249,31 +291,26 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     return Shimmer.fromColors(
       baseColor: Colors.grey[850]!,
       highlightColor: Colors.grey[700]!,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(12.r),
-          ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(16.r),
         ),
       ),
     );
   }
 
   Widget _buildHeaderCard(String balanceWithUnit, Color cardColor) {
-    final cardKey = GlobalKey();
     return GestureDetector(
-      key: cardKey,
-      onTap: () { HapticFeedback.lightImpact(); _showAssetMenu(context, cardKey); },
+      onTap: () { HapticFeedback.lightImpact(); _showAssetSelection(); },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
         decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(16.r)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Image.asset(_assetImages[_selectedAsset!]!, width: 24.sp, height: 24.sp),
+            Image.asset(_assetImages[_selectedAsset]!, width: 24.sp, height: 24.sp),
             SizedBox(width: 8.w),
-            Text(_selectedAsset!, style: TextStyle(fontSize: 16.sp, color: Colors.white70, fontWeight: FontWeight.w500)),
+            Text(_selectedAsset, style: TextStyle(fontSize: 16.sp, color: Colors.white70, fontWeight: FontWeight.w500)),
             SizedBox(width: 4.w),
             const Icon(Icons.keyboard_arrow_down, color: Colors.white54, size: 20),
           ]),
@@ -286,16 +323,30 @@ class _AnalyticsState extends ConsumerState<Analytics> {
 
   Widget _buildChartContainer({required Widget chartView, required bool isBitcoinAsset, required Color cardColor}) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 16.h),
+      padding: EdgeInsets.fromLTRB(8.w, 16.h, 8.w, 8.h),
       decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(16.r)),
       child: Column(children: [
-        if (isBitcoinAsset) Padding(padding: EdgeInsets.symmetric(horizontal: 16.w), child: _ViewModeSelector(selectedIndex: viewMode, onSelected: (index) => setState(() => viewMode = index))),
-        if (isBitcoinAsset) SizedBox(height: 16.h),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.w),
+          child: _ChartTypeSelector(
+            isBitcoinAsset: isBitcoinAsset,
+            selectedType: _selectedChartType,
+            onSelected: (type) {
+              setState(() => _selectedChartType = type);
+            },
+          ),
+        ),
+        SizedBox(height: 16.h),
         Expanded(child: chartView),
         SizedBox(height: 16.h),
-        const Divider(color: Colors.grey, thickness: 0.2),
-        SizedBox(height: 16.h),
-        Padding(padding: EdgeInsets.symmetric(horizontal: 16.w), child: _DateRangeSelector(selectedRange: _selectedRange, onSelected: (range) { setState(() => _selectedRange = range); _updateDateRange(range); })),
+        if (_selectedChartType != ChartType.allocation)
+          _DateRangeSelector(
+            selectedRange: _selectedRange,
+            onSelected: (range) {
+              setState(() => _selectedRange = range);
+              _updateDateRangeProvider(range);
+            },
+          ),
       ]),
     );
   }
@@ -360,14 +411,15 @@ class _MarketDataViewState extends ConsumerState<_MarketDataView> {
   void _showChartSelection() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF333333),
+      backgroundColor: const Color(0xFF2C2C2E),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
       builder: (context) {
         return ListView(
           children: _links.entries.map((entry) {
             final isSelected = _currentTitle == entry.key;
             return ListTile(
-              leading: Icon(_getIconForTitle(entry.key), color: isSelected ? Colors.orange : Colors.white),
-              title: Text(entry.key.i18n, style: TextStyle(color: isSelected ? Colors.orange : Colors.white, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+              leading: Icon(_getIconForTitle(entry.key), color: isSelected ? Colors.orangeAccent : Colors.white),
+              title: Text(entry.key.i18n, style: TextStyle(color: isSelected ? Colors.orangeAccent : Colors.white, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
               onTap: () {
                 setState(() {
                   _currentTitle = entry.key;
@@ -398,7 +450,7 @@ class _MarketDataViewState extends ConsumerState<_MarketDataView> {
           onTap: _showChartSelection,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            decoration: BoxDecoration(color: const Color(0xFF333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
+            decoration: BoxDecoration(color: const Color(0xFF1C1C1E), borderRadius: BorderRadius.circular(12.r)),
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text(_currentTitle.i18n, style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w500)),
               const Icon(Icons.keyboard_arrow_down, color: Colors.white70),
@@ -423,48 +475,109 @@ class _MarketDataViewState extends ConsumerState<_MarketDataView> {
   }
 }
 
+// FIX: Replaced DropdownButton with a segmented control for a modern UI.
+class _ChartTypeSelector extends ConsumerWidget {
+  final bool isBitcoinAsset;
+  final ChartType selectedType;
+  final Function(ChartType) onSelected;
 
-class _ViewModeSelector extends ConsumerWidget {
-  final int selectedIndex; final Function(int) onSelected;
-  const _ViewModeSelector({required this.selectedIndex, required this.onSelected});
+  const _ChartTypeSelector({
+    required this.isBitcoinAsset,
+    required this.selectedType,
+    required this.onSelected,
+  });
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currency = ref.watch(settingsProvider).currency;
+    final Map<ChartType, String> options = {
+      ChartType.balance: 'Balance'.i18n,
+      if (isBitcoinAsset) ChartType.valuation: 'Valuation'.i18n,
+      if (isBitcoinAsset) ChartType.price: 'Price'.i18n,
+      ChartType.allocation: 'Allocation'.i18n,
+    };
+
     return Container(
-      decoration: BoxDecoration(color: Colors.grey.shade900, borderRadius: BorderRadius.circular(12.r)),
-      child: Row(children: [
-        _buildSegment(context, 0, 'Balance', selectedIndex == 0),
-        _buildSegment(context, 1, '$currency Valuation', selectedIndex == 1),
-      ]),
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(color: Colors.black.withOpacity(0.25), borderRadius: BorderRadius.circular(10.r)),
+      child: Row(
+        children: options.entries.map((entry) {
+          final isSelected = selectedType == entry.key;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => onSelected(entry.key),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.grey.withOpacity(0.2) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Center(
+                  child: Text(
+                    entry.value,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? Colors.white : Colors.grey.shade400,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
-  Widget _buildSegment(BuildContext context, int index, String text, bool isSelected) => Expanded(
-    child: GestureDetector(
-      onTap: () => onSelected(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(vertical: 10.h),
-        decoration: BoxDecoration(color: isSelected ? Colors.grey.shade700 : Colors.transparent, borderRadius: BorderRadius.circular(12.r)),
-        child: Center(child: Text(text.i18n, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14.sp))),
-      ),
-    ),
-  );
 }
 
+// FIX: Updated to a segmented control to match the new ChartTypeSelector style.
 class _DateRangeSelector extends StatelessWidget {
-  final String selectedRange; final Function(String) onSelected;
+  final String selectedRange;
+  final Function(String) onSelected;
   static const ranges = ['7D', '1M', '3M', '1Y', 'ALL'];
   const _DateRangeSelector({required this.selectedRange, required this.onSelected});
+
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: ranges.map((range) => GestureDetector(
-      onTap: () => onSelected(range),
-      child: AnimatedDefaultTextStyle(
-        duration: const Duration(milliseconds: 200),
-        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: selectedRange == range ? Colors.orangeAccent : Colors.grey.shade500),
-        child: Text(range.i18n),
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 8.w),
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.25),
+        borderRadius: BorderRadius.circular(10.r),
       ),
-    )).toList(),
-  );
+      child: Row(
+        children: ranges.map((range) {
+          final isSelected = selectedRange == range;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                onSelected(range);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.grey.withOpacity(0.2) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Center(
+                  child: Text(
+                    range.i18n,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? Colors.white : Colors.grey.shade400,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
 }

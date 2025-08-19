@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/models/breez/init.dart';
 import 'package:Satsails/models/breez/sdk_instance.dart';
@@ -8,9 +7,8 @@ import 'package:Satsails/notifications/breez/notification.dart';
 import 'package:Satsails/providers/breez_config_provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Add this import
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -52,7 +50,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   }
 }
 
-/// Retrieves SDK connection details from secure storage for background processing.
 Future<ConnectRequest> getConnectRequestFromStorage() async {
   final mnemonic = await AuthModel().getMnemonic();
 
@@ -68,12 +65,10 @@ class FirebaseService {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  /// Initializes all Firebase and notification services. Call once at app startup.
+  // The container is no longer needed here
   static Future<void> initialize() async {
-    final container = ProviderContainer();
     await NotificationHelper.initialize();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    await listenForForegroundPushNotifications(container);
     await getAndRefreshFCMToken();
   }
 
@@ -105,7 +100,7 @@ class FirebaseService {
       if (token != null && token.isNotEmpty) {
         await sendTokenToBackend(jwt, token);
         await storeFCMToken(token);
-        await subscribeToTopics();
+        // await subscribeToTopics();
       }
     } catch (e) {
       debugPrint("Error storing token on backend: $e");
@@ -161,45 +156,44 @@ class FirebaseService {
 
   static Future<void> subscribeToTopics() async {
     try {
-      await _firebaseMessaging.subscribeToTopic('priceUpdates');
-      await _firebaseMessaging.subscribeToTopic('campaigns');
+      await _firebaseMessaging.subscribeToTopic('prices');
+      await _firebaseMessaging.subscribeToTopic('errors');
     } catch (e) {
       debugPrint('Error subscribing to topics: $e');
     }
   }
 
-  static Future<void> listenForForegroundPushNotifications(ProviderContainer container) async {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      try {
-        debugPrint('Got a message whilst in the foreground!');
+  static Future<void> handleForegroundMessage(WidgetRef ref, RemoteMessage message) async {
+    try {
+      debugPrint('Got a message whilst in the foreground!');
 
-        final type = message.data[NotificationType.type];
-        if (type != NotificationType.swapUpdated) {
-          final job = getJobFromMessage(message);
-          if (job != null) {
-            debugPrint("Handling job in foreground: ${job.runtimeType}");
+      final type = message.data[NotificationType.type];
+      if (type != NotificationType.swapUpdated) {
+        final job = getJobFromMessage(message);
+        if (job != null) {
+          debugPrint("Handling job in foreground: ${job.runtimeType}");
 
-            final breezSDK = await container.read(breezSDKProvider.future);
-            final sdkInstance = breezSDK.instance;
+          // Use the provided 'ref' to read the provider safely
+          final breezSDK = await ref.read(breezSDKProvider.future);
+          final sdkInstance = breezSDK.instance;
 
-            if (sdkInstance != null) {
-              await job.start(sdkInstance);
-              debugPrint("Foreground job finished successfully.");
-            } else {
-              debugPrint("Foreground job failed: SDK instance was null.");
-            }
+          if (sdkInstance != null) {
+            await job.start(sdkInstance);
+            debugPrint("Foreground job finished successfully.");
+          } else {
+            debugPrint("Foreground job failed: SDK instance was null.");
           }
         }
-
-        if (message.notification != null) {
-          await NotificationHelper.showNotification(
-            title: message.notification!.title ?? 'New Message',
-            body: message.notification!.body,
-          );
-        }
-      } catch (e) {
-        debugPrint("Error handling foreground message: $e");
       }
-    });
+
+      if (message.notification != null) {
+        await NotificationHelper.showNotification(
+          title: message.notification!.title ?? 'New Message',
+          body: message.notification!.body,
+        );
+      }
+    } catch (e) {
+      debugPrint("Error handling foreground message: $e");
+    }
   }
 }

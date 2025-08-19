@@ -1,22 +1,26 @@
+import 'dart:ui';
 import 'package:Satsails/models/breez/lnurl_model.dart';
 import 'package:Satsails/models/breez/lnurl_webhook_manager.dart';
 import 'package:Satsails/notifications/firebase.dart';
 import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/providers/breez_provider.dart';
+import 'package:Satsails/screens/shared/address_display_widget.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
-import 'package:Satsails/screens/shared/copy_text.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shimmer/shimmer.dart';
+
+// Assuming EditUsernameModalSheet is in the same file or imported.
 
 class ReceiveLightningWidget extends ConsumerStatefulWidget {
   const ReceiveLightningWidget({super.key});
@@ -57,7 +61,8 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
     setState(() => _isInvoiceLoading = true);
 
     try {
-      final prepareResponse = await ref.read(prepareReceiveProvider(BigInt.from(amountSat)).future);
+      final prepareResponse = await ref
+          .read(prepareReceiveProvider(BigInt.from(amountSat)).future);
       ref.read(prepareReceiveResponseProvider.notifier).state = prepareResponse;
 
       final response = await ref.read(receivePaymentProvider(null).future);
@@ -74,7 +79,7 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
         _paymentResponse = null;
       });
     } finally {
-      if(mounted) {
+      if (mounted) {
         setState(() => _isInvoiceLoading = false);
       }
     }
@@ -84,11 +89,9 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.grey[900],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-      ),
-      builder: (context) => EditUsernameModalSheet(currentUsername: currentUsername),
+      backgroundColor: Colors.transparent, // Make modal background transparent
+      builder: (context) =>
+          EditUsernameModalSheet(currentUsername: currentUsername),
     );
   }
 
@@ -103,20 +106,29 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
         _isInvoiceLoading || _isCheckingPermissions
             ? _buildShimmerEffect()
             : (_paymentResponse != null
-            ? _buildQrDisplay(_paymentResponse!.destination, isInvoice: true)
+            ? _buildQrDisplay(_paymentResponse!.destination,
+            isInvoice: true)
             : setupLnAddressAsync.when(
           data: (result) {
             final address = result.lightningAddress;
             if (address != null) {
               return _buildQrDisplay(address, isInvoice: false);
             }
-            return _buildErrorDisplay('Failed to get a Lightning Address.'.i18n);
+            return _buildErrorDisplay(
+                'Failed to get a Lightning Address.'.i18n);
           },
           error: (error, stackTrace) {
             if (error is NotificationPermissionException) {
-              return _buildNotificationPrompt();
+              return _buildNotificationPrompt(
+                context,
+                ref,
+                    (isLoading) {
+                  setState(() => _isCheckingPermissions = isLoading);
+                },
+              );
             }
-            return _buildErrorDisplay('Error: %s'.i18n.fill([error.toString()]));
+            return _buildErrorDisplay(
+                'Error: %s'.i18n.fill([error.toString()]));
           },
           loading: () => _buildShimmerEffect(),
         )),
@@ -129,8 +141,9 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
           child: CustomButton(
             onPressed: _createInvoice,
             text: 'Generate One-Time Invoice'.i18n,
-            primaryColor: Colors.green,
-            secondaryColor: Colors.green,
+            primaryColor: Colors.green.withOpacity(0.8),
+            secondaryColor: Colors.green.withOpacity(0.6),
+            textColor: Colors.white,
           ),
         ),
       ],
@@ -139,8 +152,25 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
 
   Widget _buildShimmerEffect() {
     return Shimmer.fromColors(
-        baseColor: Colors.grey[800]!, highlightColor: Colors.grey[700]!, child: Center(child: Column(children: [Container(width: 250.w, height: 250.w, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r))), SizedBox(height: 16.h), Padding(padding: EdgeInsets.symmetric(horizontal: 12.w), child: Container(height: 24.h, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4.r))))]))
-    );
+        baseColor: Colors.grey[800]!,
+        highlightColor: Colors.grey[700]!,
+        child: Center(
+            child: Column(children: [
+              Container(
+                  width: 250.w,
+                  height: 250.w,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8.r))),
+              SizedBox(height: 16.h),
+              Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w),
+                  child: Container(
+                      height: 24.h,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4.r))))
+            ])));
   }
 
   Widget _buildQrDisplay(String content, {required bool isInvoice}) {
@@ -148,36 +178,113 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
       child: Column(
         children: [
           buildQrCode(content, context),
-          if (!isInvoice)
-            TextButton(
-              onPressed: () {
+          SizedBox(height: 16.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: AddressDisplayWidget(
+              address: content,
+              isEditable: !isInvoice,
+              isLnurl: !isInvoice,
+              onEditPressed: isInvoice
+                  ? null
+                  : () {
                 final username = content.split('@').first;
                 _showEditUsernameModal(username);
               },
-              child: Text(
-                'Change address'.i18n,
-                style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 14.sp,
-                ),
-              ),
             ),
-          SizedBox(height: 2.sp),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.w),
-            child: buildAddressText(content, context, ref),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNotificationPrompt() {
-    return Center(child: Padding(padding: EdgeInsets.symmetric(horizontal: 24.w), child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.notifications_off_outlined, size: 48.sp, color: Colors.grey), SizedBox(height: 16.h), Text('Enable notifications to get a permanent Lightning Address.'.i18n, textAlign: TextAlign.center, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)), SizedBox(height: 8.h), Text('You can still generate one-time invoices to receive payments while the app is open.'.i18n, textAlign: TextAlign.center, style: TextStyle(fontSize: 14.sp, color: Colors.grey[600])), SizedBox(height: 16.h), TextButton(onPressed: () async { setState(() => _isCheckingPermissions = true); try { await FirebaseService.requestNotificationPermissions(); final bool granted = await FirebaseService.checkNotificationPermissionStatus(); if (!granted && mounted) { await AppSettings.openAppSettings(type: AppSettingsType.notification); } ref.invalidate(setupLnAddressProvider); } finally { if (mounted) { setState(() => _isCheckingPermissions = false); } } }, style: TextButton.styleFrom(foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black), child: Text('Allow Notifications'.i18n))])));
+  Widget _buildNotificationPrompt(
+      BuildContext context,
+      WidgetRef ref,
+      Function(bool) setIsLoading,
+      ) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24.w),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24.r),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(24.r),
+                border: Border.all(color: Colors.white.withOpacity(0.2)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.notifications_active_outlined,
+                    size: 48.sp,
+                    color: Colors.white.withOpacity(0.7),
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    'Enable Notifications'.i18n,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Get a permanent Lightning Address and receive payments anytime.'
+                        .i18n,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      color: Colors.white70,
+                    ),
+                  ),
+                  SizedBox(height: 24.h),
+                  CustomButton(
+                    text: 'Allow Notifications'.i18n,
+                    onPressed: () async {
+                      setIsLoading(true);
+                      try {
+                        await FirebaseService.requestNotificationPermissions();
+                        final bool granted = await FirebaseService
+                            .checkNotificationPermissionStatus();
+                        if (!granted && context.mounted) {
+                          await AppSettings.openAppSettings(
+                              type: AppSettingsType.notification);
+                        }
+                        ref.invalidate(setupLnAddressProvider);
+                      } finally {
+                        if (context.mounted) {
+                          setIsLoading(false);
+                        }
+                      }
+                    },
+                    primaryColor: Colors.white.withOpacity(0.2),
+                    secondaryColor: Colors.white.withOpacity(0.15),
+                    textColor: Colors.white,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildErrorDisplay(String message) {
-    return Center(child: Padding(padding: EdgeInsets.symmetric(horizontal: 24.w), child: Text(message, textAlign: TextAlign.center, style: TextStyle(color: Colors.red, fontSize: 16.sp))));
+    return Center(
+        child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: Text(message,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.red, fontSize: 16.sp))));
   }
 }
 
@@ -186,14 +293,16 @@ class EditUsernameModalSheet extends ConsumerStatefulWidget {
   const EditUsernameModalSheet({super.key, required this.currentUsername});
 
   @override
-  ConsumerState<EditUsernameModalSheet> createState() => _EditUsernameModalSheetState();
+  ConsumerState<EditUsernameModalSheet> createState() =>
+      _EditUsernameModalSheetState();
 }
 
-class _EditUsernameModalSheetState extends ConsumerState<EditUsernameModalSheet> {
+class _EditUsernameModalSheetState
+    extends ConsumerState<EditUsernameModalSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _usernameController;
   bool _isLoading = false;
-  String? _errorMessage; // Holds the error message to display in the modal
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -215,7 +324,7 @@ class _EditUsernameModalSheetState extends ConsumerState<EditUsernameModalSheet>
 
     setState(() {
       _isLoading = true;
-      _errorMessage = null; // Clear previous errors on a new attempt
+      _errorMessage = null;
     });
 
     final newUsername = _usernameController.text;
@@ -232,7 +341,6 @@ class _EditUsernameModalSheetState extends ConsumerState<EditUsernameModalSheet>
       }
     } catch (e) {
       if (mounted) {
-        // Instead of showing a snackbar, set the error message state
         setState(() {
           if (e is UsernameConflictException) {
             _errorMessage = "Username already exists".i18n;
@@ -253,86 +361,106 @@ class _EditUsernameModalSheetState extends ConsumerState<EditUsernameModalSheet>
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16.w,
-          right: 16.w,
-          top: 20.h,
+      bottom: true,
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF212121), // Solid dark grey color
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
         ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                "Edit Lightning Address".i18n,
-                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.white),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 24.h),
-              TextFormField(
-                controller: _usernameController,
-                keyboardType: TextInputType.text,
-                autofocus: true,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: "Username".i18n,
-                  labelStyle: TextStyle(color: Colors.grey[400]),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide(color: Colors.grey.shade700),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                    borderSide: const BorderSide(color: Colors.orange),
-                  ),
-                  suffixText: '@ln.satsails.com',
-                  suffixStyle: TextStyle(color: Colors.grey[500]),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter a username.".i18n;
-                  }
-                  if (RegExp(r'[^a-z0-9._-]').hasMatch(value)) {
-                    return 'Only lowercase letters, numbers, and "._-" are allowed.'.i18n;
-                  }
-                  return null;
-                },
-              ),
-              // Conditionally display the error message widget
-              if (_errorMessage != null)
-                Padding(
-                  padding: EdgeInsets.only(top: 12.h, bottom: 4.h),
-                  child: Text(
-                    _errorMessage!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.redAccent, fontSize: 14.sp),
-                  ),
-                ),
-              SizedBox(height: 20.h),
-              GestureDetector(
-                onTap: _isLoading ? null : _submitEditUsername,
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.zero,
-                  ),
-                  child: Center(
-                    child: _isLoading
-                        ? LoadingAnimationWidget.fourRotatingDots(size: 24.h, color: Colors.white)
-                        : Text(
-                      "Save Changes".i18n,
-                      style: TextStyle(color: Colors.black, fontSize: 16.sp, fontWeight: FontWeight.bold),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 24.w,
+              right: 24.w,
+              top: 20.h,
+            ),
+            child: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Icon(
+                      Icons.edit_note_outlined,
+                      size: 40.sp,
+                      color: Colors.white.withOpacity(0.7),
                     ),
-                  ),
+                    SizedBox(height: 12.h),
+                    Text(
+                      "Edit Lightning Address".i18n,
+                      style: TextStyle(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 24.h),
+                    TextFormField(
+                      controller: _usernameController,
+                      keyboardType: TextInputType.text,
+                      autofocus: true,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.black.withOpacity(0.2),
+                        labelText: "Username".i18n,
+                        labelStyle: TextStyle(color: Colors.grey[400]),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                          borderSide: BorderSide(
+                              color: Colors.white.withOpacity(0.2)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                          borderSide:
+                          const BorderSide(color: Colors.orange),
+                        ),
+                        suffixText: '@ln.satsails.com',
+                        suffixStyle: TextStyle(color: Colors.grey[500]),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please enter a username.".i18n;
+                        }
+                        if (RegExp(r'[^a-z0-9._-]').hasMatch(value)) {
+                          return 'Only lowercase letters, numbers, and "._-" are allowed.'
+                              .i18n;
+                        }
+                        return null;
+                      },
+                    ),
+                    if (_errorMessage != null)
+                      Padding(
+                        padding:
+                        EdgeInsets.only(top: 12.h, bottom: 4.h),
+                        child: Text(
+                          _errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.redAccent, fontSize: 14.sp),
+                        ),
+                      ),
+                    SizedBox(height: 20.h),
+                    _isLoading
+                        ? Center(
+                      child: LoadingAnimationWidget.fourRotatingDots(
+                          size: 40.h, color: Colors.white),
+                    )
+                        : CustomButton(
+                      text: "Save Changes".i18n,
+                      onPressed: _submitEditUsername,
+                      primaryColor: Colors.white.withOpacity(0.2),
+                      secondaryColor:
+                      Colors.white.withOpacity(0.15),
+                      textColor: Colors.white,
+                    ),
+                    SizedBox(height: 16.h),
+                  ],
                 ),
               ),
-              SizedBox(height: 16.h),
-            ],
+            ),
           ),
         ),
       ),
