@@ -1,7 +1,7 @@
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
-import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
+import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/translations.dart';
@@ -11,11 +11,9 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-// Enum to manage the selected input currency type
 enum InputCurrency { brl, btc }
 
 class DepositPixNox extends ConsumerStatefulWidget {
@@ -29,6 +27,9 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
   final TextEditingController _amountController = TextEditingController();
   bool _isLoading = false;
   InputCurrency _selectedCurrency = InputCurrency.brl;
+  String? _url;
+  late WebViewController _webViewController;
+  bool _isWebLoading = false;
 
   @override
   void dispose() {
@@ -37,12 +38,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
   }
 
   Future<void> _handleInput() async {
-    //
-    if (_selectedCurrency == InputCurrency.btc) {
-      showMessageSnackBar(context: context, message: 'BTC input is not yet supported for this method.'.i18n, error: true);
-      return;
-    }
-
     final amount = _amountController.text.replaceAll(',', '.');
 
     if (amount.isEmpty) {
@@ -58,17 +53,23 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
 
     setState(() => _isLoading = true);
 
+    String? amountFiat;
+    String? amountCrypto;
+
+    if (_selectedCurrency == InputCurrency.brl) {
+      amountFiat = amount;
+      amountCrypto = null;
+    } else {
+      amountFiat = null;
+      amountCrypto = amount;
+    }
+
     try {
-      final bitcoinAddress = ref.read(addressProvider).bitcoinAddress;
-      final url = await ref.read(createNoxTransferRequestProvider((amount: amountInDouble.toInt(), address: bitcoinAddress)).future);
+      await ref.read(depositInitializerProvider.future);
+      final url = await ref.read(createNoxTransferRequestProvider((amountCrypto: amountCrypto, amountFiat: amountFiat, type: 'pix')).future);
 
       if (url.isNotEmpty && mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => DepositWebViewPage(url: url),
-          ),
-        );
+        _initializeWebView(url);
       }
     } catch (e) {
       if (mounted) {
@@ -81,6 +82,39 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
     }
   }
 
+  void _initializeWebView(String url) {
+    _webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (String url) {
+            setState(() {
+              _isWebLoading = true;
+            });
+          },
+          onPageFinished: (String url) {
+            setState(() {
+              _isWebLoading = false;
+            });
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(url));
+
+    setState(() {
+      _url = url;
+      _isWebLoading = true;
+    });
+  }
+
+  Widget _buildShimmerEffect() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[900]!,
+      highlightColor: Colors.grey[800]!,
+      child: Container(color: Colors.black),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,17 +122,24 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          'Deposit via Pix'.i18n,
+          _url == null ? 'Deposit via Pix'.i18n : 'Deposit'.i18n,
           style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-          onPressed: () => context.pop(),
+          onPressed: () => _url == null ? context.pop() : setState(() { _url = null; }),
         ),
+        actions: _url != null ? [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: () => _webViewController.reload(),
+          ),
+        ] : null,
       ),
       body: SafeArea(
-        child: KeyboardDismissOnTap(
+        child: _url == null
+            ? KeyboardDismissOnTap(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
             child: Column(
@@ -110,10 +151,23 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                 SizedBox(
                   height: 56.h,
                   child: _isLoading
-                      ? Center(
-                    child: LoadingAnimationWidget.fourRotatingDots(
-                      size: 40.w,
-                      color: Colors.green,
+                      ? Shimmer.fromColors(
+                    baseColor: Colors.green.withOpacity(0.6),
+                    highlightColor: Colors.green.withOpacity(0.9),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(16.r),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Generating Payment'.i18n,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   )
                       : CustomButton(
@@ -127,6 +181,12 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
               ],
             ),
           ),
+        )
+            : Stack(
+          children: [
+            WebViewWidget(controller: _webViewController),
+            if (_isWebLoading) _buildShimmerEffect(),
+          ],
         ),
       ),
     );
@@ -232,82 +292,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           ),
         ),
-      ),
-    );
-  }
-}
-
-// --- The WebView Page remains unchanged ---
-
-class DepositWebViewPage extends StatefulWidget {
-  final String url;
-  const DepositWebViewPage({super.key, required this.url});
-
-  @override
-  _DepositWebViewPageState createState() => _DepositWebViewPageState();
-}
-
-class _DepositWebViewPageState extends State<DepositWebViewPage> {
-  late WebViewController _webViewController;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeWebView();
-  }
-
-  void _initializeWebView() {
-    _webViewController = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageStarted: (url) {
-            setState(() {
-              _isLoading = true;
-            });
-          },
-          onPageFinished: (url) {
-            setState(() {
-              _isLoading = false;
-            });
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse(widget.url));
-  }
-
-  Widget _buildShimmerEffect() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[900]!,
-      highlightColor: Colors.grey[800]!,
-      child: Container(color: Colors.black),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text('Deposit'.i18n, style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: () => _webViewController.reload(),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          WebViewWidget(controller: _webViewController),
-          if (_isLoading) _buildShimmerEffect(),
-        ],
       ),
     );
   }

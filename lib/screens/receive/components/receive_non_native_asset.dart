@@ -260,7 +260,44 @@ class _RateDisplay extends ConsumerWidget {
       },
       loading: () => Padding(
         padding: EdgeInsets.symmetric(vertical: 8.h),
-        child: Center(child: LoadingAnimationWidget.fourRotatingDots(size: 20.w, color: Colors.white)),
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[800]!,
+          highlightColor: Colors.grey[700]!,
+          child: Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: Colors.grey[900],
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Fake title shimmer
+                Container(
+                  width: 120.w,
+                  height: 16.h,
+                  color: Colors.white,
+                ),
+                SizedBox(height: 12.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 60.w,
+                      height: 14.h,
+                      color: Colors.white,
+                    ),
+                    Container(
+                      width: 160.w,
+                      height: 14.h,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       error: (err, stack) => const SizedBox.shrink(),
     );

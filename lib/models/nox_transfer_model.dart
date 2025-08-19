@@ -266,7 +266,7 @@ class NoxTransfer extends HiveObject {
 }
 
 class NoxService {
-  static Future<Result<String>> createTransaction(String auth, String address, int amountToReceive, {String transactionType = 'BUY', String fromCurrency = 'BRL', String toCurrency = 'BTC'}) async {
+  static Future<Result<String>> createTransaction(String auth, String address, String? amountCrypto, String? amountFiat, String transactionType) async {
     try {
       final response = await http.post(
         Uri.parse('${dotenv.env['BACKEND']!}/nox_transfers'),
@@ -274,9 +274,9 @@ class NoxService {
           'transfer': {
             'address': address,
             'type': transactionType,
-            'value_set_to_receive': amountToReceive,
-            'from_currency': fromCurrency,
-            'to_currency': toCurrency,
+            'amount_crypto': amountCrypto,
+            'type': transactionType,
+            'amount_fiat': amountFiat,
           }
         }),
         headers: {
