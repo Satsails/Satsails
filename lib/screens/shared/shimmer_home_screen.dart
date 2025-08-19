@@ -10,7 +10,7 @@ class ShimmerHomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        bottom: false,
+        bottom: true,
         child: Shimmer.fromColors(
           baseColor: const Color(0xFF212121),
           highlightColor: const Color(0xFF333333),

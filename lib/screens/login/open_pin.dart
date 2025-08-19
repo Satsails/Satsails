@@ -1,3 +1,5 @@
+// lib/screens/open_pin.dart
+
 import 'package:Satsails/models/auth_model.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/auth_provider.dart';
@@ -18,6 +20,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
+
+// ... (Your other classes and providers remain the same)
 
 class OpenPin extends ConsumerStatefulWidget {
   const OpenPin({super.key});
@@ -57,6 +61,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
   }
 
   void _checkPin(BuildContext context, WidgetRef ref) async {
+    // ... (This function remains the same)
     try {
       final authModel = AuthModel();
       final storedPin = await authModel.getPin();
@@ -78,6 +83,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
   }
 
   void _handleIncorrectPin() {
+    // ... (This function remains the same)
     _animationController.forward(from: 0.0);
     HapticFeedback.heavyImpact();
     setState(() {
@@ -91,6 +97,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
   }
 
   void _checkBiometrics(BuildContext context, WidgetRef ref) async {
+    // ... (This function remains the same)
     try {
       bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
       if (canCheckBiometrics) {
@@ -112,6 +119,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
   }
 
   void _unlockApp(BuildContext context, WidgetRef ref) {
+    // ... (This function remains the same)
     _attempts = 0;
 
     ref.read(appLockedProvider.notifier).state = false;
@@ -124,6 +132,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
   }
 
   Future<void> _forgotPin(BuildContext context, WidgetRef ref) async {
+    // ... (This function remains the same)
     BackgroundSyncService().stop();
     final authModel = ref.read(authModelProvider);
     await authModel.deleteAuthentication();
@@ -135,6 +144,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
 
   Future<void> _showForgotPinConfirmation(
       BuildContext context, WidgetRef ref) async {
+    // ... (This function remains the same)
     showCustomAlertDialog(
       context: context,
       title: 'Delete Account?'.i18n,
@@ -186,88 +196,104 @@ class _OpenPinState extends ConsumerState<OpenPin>
       child: Scaffold(
         backgroundColor: Colors.black,
         body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.w),
-            child: Column(
-              children: [
-                SizedBox(height: 60.h),
-                Text(
-                  'Welcome Back'.i18n,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
+          // FIX: Wrapped the content in a SingleChildScrollView to prevent overflow.
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32.w),
+              // FIX: We need a Column with a defined height, so we use SizedBox for spacing.
+              // To ensure it feels centered on taller screens, we wrap it in a ConstrainedBox
+              // that has a minimum height of the screen's viewport.
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height -
+                      MediaQuery.of(context).padding.top -
+                      MediaQuery.of(context).padding.bottom,
                 ),
-                SizedBox(height: 16.h),
-                Text(
-                  'Enter your PIN to unlock'.i18n,
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16.sp,
-                  ),
-                ),
-                const Spacer(),
-                if (_attempts > 0)
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 16.h),
-                    child: Text(
-                      attemptsMessage,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center, // Helps center the content vertically
+                  children: [
+                    SizedBox(height: 60.h),
+                    Text(
+                      'Welcome Back'.i18n,
                       style: TextStyle(
-                        color: Colors.redAccent,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                        fontSize: 28.sp,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                AnimatedBuilder(
-                  animation: _animation,
-                  builder: (context, child) {
-                    return Transform.translate(
-                      offset: Offset(_animation.value, 0),
-                      child: child,
-                    );
-                  },
-                  child: PinProgressIndicator(
-                    currentLength: pin.length,
-                  ),
-                ),
-                const Spacer(flex: 2),
-                CustomKeypad(
-                  onDigitPressed: (digit) {
-                    if (pin.length < 6) {
-                      HapticFeedback.lightImpact();
-                      setState(() => pin += digit);
-                      if (pin.length == 6) {
-                        _checkPin(context, ref);
-                      }
-                    }
-                  },
-                  onBackspacePressed: () {
-                    if (pin.isNotEmpty) {
-                      HapticFeedback.lightImpact();
-                      setState(
-                              () => pin = pin.substring(0, pin.length - 1));
-                    }
-                  },
-                  onBiometricPressed: biometricsEnabled
-                      ? () => _checkBiometrics(context, ref)
-                      : null,
-                ),
-                SizedBox(height: 20.h),
-                TextButton(
-                  onPressed: () => _showForgotPinConfirmation(context, ref),
-                  child: Text(
-                    'Forgot PIN?'.i18n,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      color: Colors.white54,
-                      fontWeight: FontWeight.w500,
+                    SizedBox(height: 16.h),
+                    Text(
+                      'Enter your PIN to unlock'.i18n,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16.sp,
+                      ),
                     ),
-                  ),
+                    // FIX: Replaced Spacer with SizedBox for predictable spacing.
+                    SizedBox(height: 50.h),
+                    if (_attempts > 0)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 16.h),
+                        child: Text(
+                          attemptsMessage,
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    AnimatedBuilder(
+                      animation: _animation,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(_animation.value, 0),
+                          child: child,
+                        );
+                      },
+                      child: PinProgressIndicator(
+                        currentLength: pin.length,
+                      ),
+                    ),
+                    // FIX: Replaced Spacer(flex: 2) with a larger SizedBox.
+                    SizedBox(height: 80.h),
+                    CustomKeypad(
+                      onDigitPressed: (digit) {
+                        if (pin.length < 6) {
+                          HapticFeedback.lightImpact();
+                          setState(() => pin += digit);
+                          if (pin.length == 6) {
+                            _checkPin(context, ref);
+                          }
+                        }
+                      },
+                      onBackspacePressed: () {
+                        if (pin.isNotEmpty) {
+                          HapticFeedback.lightImpact();
+                          setState(
+                                  () => pin = pin.substring(0, pin.length - 1));
+                        }
+                      },
+                      onBiometricPressed: biometricsEnabled
+                          ? () => _checkBiometrics(context, ref)
+                          : null,
+                    ),
+                    SizedBox(height: 20.h),
+                    TextButton(
+                      onPressed: () => _showForgotPinConfirmation(context, ref),
+                      child: Text(
+                        'Forgot PIN?'.i18n,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          color: Colors.white54,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 40.h),
+                  ],
                 ),
-                SizedBox(height: 40.h),
-              ],
+              ),
             ),
           ),
         ),

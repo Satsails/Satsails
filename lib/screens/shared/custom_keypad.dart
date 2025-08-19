@@ -51,7 +51,6 @@ class CustomKeypad extends StatelessWidget {
   }
 }
 
-
 class KeypadButton extends StatelessWidget {
   final String? text;
   final IconData? icon;
@@ -68,28 +67,34 @@ class KeypadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(24.r),
-      child: Center(
-        child: text != null
-            ? Text(
-          text!,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 32.sp,
-            fontWeight: FontWeight.w400,
+    // FIX: Set Material color to transparent to remove the visible border.
+    // The CircleBorder still constrains the InkWell's ripple for a clean, circular tap effect.
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onPressed,
+        customBorder: const CircleBorder(),
+        child: Center(
+          child: text != null
+              ? Text(
+            text!,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 32.sp,
+              fontWeight: FontWeight.w400,
+            ),
+          )
+              : Icon(
+            icon,
+            color: iconColor ?? Colors.white70,
+            size: 32.w,
           ),
-        )
-            : Icon(
-          icon,
-          color: iconColor ?? Colors.white70,
-          size: 32.w,
         ),
       ),
     );
-  }}
-
+  }
+}
 
 class PinProgressIndicator extends StatelessWidget {
   final int currentLength;
@@ -103,23 +108,42 @@ class PinProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // FIX: Redesigned with AnimatedSwitcher for a "cooler" pop-and-fade effect
+    // and an outlined style for empty digits.
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(totalDigits, (index) {
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: EdgeInsets.symmetric(horizontal: 10.w),
-          width: 18.w,
-          height: 18.w,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: index < currentLength
-                ? Colors.white
-                : Colors.white.withOpacity(0.2),
+        final isFilled = index < currentLength;
+
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(
+                scale: animation,
+                child: child,
+              ),
+            );
+          },
+          child: Container(
+            key: ValueKey<bool>(isFilled), // Key to trigger the animation
+            margin: EdgeInsets.symmetric(horizontal: 10.w),
+            width: 18.w,
+            height: 18.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isFilled ? Colors.white : Colors.transparent,
+              border: isFilled
+                  ? null
+                  : Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 1.5,
+              ),
+            ),
           ),
         );
       }),
     );
   }
 }
-
