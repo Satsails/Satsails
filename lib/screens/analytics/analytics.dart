@@ -178,7 +178,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
     final btcFormat = settings.btcFormat;
     final selectedDays = ref.watch(selectedDaysDateArrayProvider);
     final isBitcoinAsset = ['Bitcoin', 'Liquid Bitcoin'].contains(_selectedAsset);
-    final cardColor = const Color(0xFF1C1C1E);
+    final cardColor = const Color(0xFF333333).withOpacity(0.4);
 
     final balance = ref.watch(balanceNotifierProvider);
     final currentBalanceFormatted = switch (_selectedAsset) {

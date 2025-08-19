@@ -41,9 +41,13 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
   Future<void> _fetchAmountPurchasedToday() async {
     try {
       final result = await ref.read(getAmountPurchasedProvider.future);
-      setState(() => amountPurchasedToday = result);
+      if (mounted) {
+        setState(() => amountPurchasedToday = result);
+      }
     } catch (e) {
-      setState(() => amountPurchasedToday = '0');
+      if (mounted) {
+        setState(() => amountPurchasedToday = '0');
+      }
     }
   }
 
@@ -54,7 +58,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
   }
 
   Future<void> _generateQRCode() async {
-    final amount = _amountController.text;
+    final amount = _amountController.text.replaceAll(',', '.');
 
     if (amount.isEmpty) {
       showMessageSnackBar(context: context, message: 'Amount cannot be empty'.i18n, error: true, top: true);
@@ -82,47 +86,279 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
         createEulenTransferRequestProvider(amountInDouble).future,
       );
 
-      // Get the cashback amount, defaulting to 0 if null.
       final cashbackAmount = purchase.cashback ?? 0;
-      // Calculate the total fee in BRL.
       final totalFeeInBrl = purchase.originalAmount - purchase.receivedAmount;
-      // Isolate the variable fee by subtracting the fixed fee.
       final variableFeeInBrl = totalFeeInBrl - 0.99;
-      // The final Satsails fee is the variable fee minus the cashback.
       final satsailsFeeAfterCashback = variableFeeInBrl - cashbackAmount;
-      // Calculate the new fee percentage based on the fee after cashback.
       final newFeePercentage = (satsailsFeeAfterCashback / purchase.originalAmount) * 100;
 
-
-      setState(() {
-        _pixQRCode = purchase.pixKey;
-        _isLoading = false;
-        _amountToReceive = purchase.receivedAmount;
-        // Ensure the fee percentage is not negative.
-        feePercentage = newFeePercentage > 0 ? newFeePercentage : 0;
-        cashBack = cashbackAmount;
-      });
+      if (mounted) {
+        setState(() {
+          _pixQRCode = purchase.pixKey;
+          _isLoading = false;
+          _amountToReceive = purchase.receivedAmount;
+          feePercentage = newFeePercentage > 0 ? newFeePercentage : 0;
+          cashBack = cashbackAmount;
+        });
+      }
     } catch (e) {
-      setState(() => _isLoading = false);
-      showMessageSnackBar(context: context, message: e.toString().i18n, error: true, top: true);
+      if (mounted) {
+        setState(() => _isLoading = false);
+        showMessageSnackBar(context: context, message: e.toString().i18n, error: true, top: true);
+      }
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          'Deposit via Pix'.i18n,
+          style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: SafeArea(
+        child: KeyboardDismissOnTap(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: _isLoading
+                  ? _buildShimmerEffect()
+                  : _pixQRCode.isEmpty
+                  ? _buildAmountInputView()
+                  : _buildQRCodeView(),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds the initial view for the user to input the deposit amount.
+  Widget _buildAmountInputView() {
+    return Column(
+      key: const ValueKey('amountInput'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(height: 24.h),
+        _buildAmountEntryCard(),
+        SizedBox(height: 24.h),
+        CustomButton(
+          onPressed: _generateQRCode,
+          primaryColor: Colors.green.withOpacity(0.8),
+          secondaryColor: Colors.green.withOpacity(0.6),
+          textColor: Colors.white,
+          text: 'Generate Payment'.i18n,
+        ),
+        SizedBox(height: 24.h),
+        _buildInfoCard(),
+        SizedBox(height: 24.h),
+        _buildBackButton(),
+      ],
+    );
+  }
+
+  /// Builds the view displaying the generated QR code and payment details.
+  Widget _buildQRCodeView() {
+    final originalAmount = _amountController.text;
+
+    return Column(
+      key: const ValueKey('qrCodeDisplay'),
+      children: [
+        SizedBox(height: 16.h),
+        Center(child: buildQrCode(_pixQRCode, context)),
+        SizedBox(height: 24.h),
+        AddressDisplayWidget(address: _pixQRCode, isEditable: false, onEditPressed: null),
+        SizedBox(height: 24.h),
+        _buildPaymentDetailsCard(originalAmount),
+        SizedBox(height: 24.h),
+        _buildBackButton(),
+      ],
+    );
+  }
+
+  /// The main card for entering the BRL amount, inspired by BalanceCard.
+  Widget _buildAmountEntryCard() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFF333333).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Amount to deposit in BRL'.i18n,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'R\$',
+                style: TextStyle(
+                  fontSize: 32.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white.withOpacity(0.5),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: TextField(
+                  controller: _amountController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
+                  style: TextStyle(
+                    fontSize: 40.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: '0,00',
+                    hintStyle: TextStyle(
+                      color: Colors.white.withOpacity(0.3),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// The card displaying transfer limits and daily purchase info.
+  Widget _buildInfoCard() {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF333333).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Column(
+        children: [
+          _buildInfoRow(
+            icon: Icons.info_outline,
+            text: 'Transfer limit: R\$ 5000 per CPF/CNPJ'.i18n,
+          ),
+          SizedBox(height: 12.h),
+          _buildInfoRow(
+            icon: Icons.attach_money,
+            text: 'Amount Purchased Today:'.i18n + ' R\$ $amountPurchasedToday',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({required IconData icon, required String text}) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.white.withOpacity(0.7), size: 20.sp),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// The card displaying the final amount and fee breakdown after QR generation.
+  Widget _buildPaymentDetailsCard(String originalAmount) {
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF333333).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'You will receive'.i18n,
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: Colors.white.withOpacity(0.7),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            '$_amountToReceive Depix',
+            style: TextStyle(fontSize: 28.sp, color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            'from your R\$ $originalAmount Pix transfer',
+            style: TextStyle(
+              fontSize: 15.sp,
+              color: Colors.white.withOpacity(0.5),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.h),
+            child: Divider(color: Colors.white.withOpacity(0.1)),
+          ),
+          _buildDetailRow('Fixed fee'.i18n, '0.99 BRL'),
+          SizedBox(height: 12.h),
+          _buildDetailRow('Satsails fee'.i18n, '${feePercentage.toStringAsFixed(2)} %'),
+          SizedBox(height: 12.h),
+          _buildDetailRow('Cashback'.i18n, 'R\$ ${cashBack.toStringAsFixed(2)}', valueColor: const Color(0xFF27AE60)),
+        ],
+      ),
+    );
   }
 
   Widget _buildDetailRow(String label, String value, {Color? valueColor}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(fontSize: 16.sp, color: Colors.grey[400], fontWeight: FontWeight.w500)),
-        Text(value, style: TextStyle(fontSize: 16.sp, color: valueColor ?? Colors.white, fontWeight: FontWeight.bold)),
+        Text(label, style: TextStyle(fontSize: 15.sp, color: Colors.grey[400], fontWeight: FontWeight.w500)),
+        Text(value, style: TextStyle(fontSize: 15.sp, color: valueColor ?? Colors.white, fontWeight: FontWeight.bold)),
       ],
     );
   }
 
-  Widget _buildShimmerEffect() {
-    final baseColor = Colors.grey[850]!;
-    final highlightColor = Colors.grey[700]!;
+  /// A simple text button to navigate back to the home screen.
+  Widget _buildBackButton() {
+    return Center(
+      child: TextButton(
+        onPressed: () => context.go('/home'),
+        child: Text(
+          'Back to Home'.i18n,
+          style: TextStyle(fontSize: 16.sp, color: Colors.white.withOpacity(0.8)),
+        ),
+      ),
+    );
+  }
 
-    Widget shimmerBox({double? width, required double height, double radius = 8.0}) {
+  /// The shimmer effect shown while the QR code is being generated.
+  Widget _buildShimmerEffect() {
+    final baseColor = Colors.grey[900]!;
+    final highlightColor = Colors.grey[800]!;
+
+    Widget shimmerBox({double? width, required double height, double radius = 16.0}) {
       return Container(
         width: width,
         height: height,
@@ -138,193 +374,13 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen> {
       highlightColor: highlightColor,
       child: Column(
         children: [
-          SizedBox(height: 24.h),
-          shimmerBox(width: 250.w, height: 250.w, radius: 16),
           SizedBox(height: 16.h),
-          shimmerBox(height: 48.h, radius: 12),
+          shimmerBox(width: 250.w, height: 250.w),
           SizedBox(height: 24.h),
-          Card(
-            color: Colors.black,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-            child: Padding(
-              padding: EdgeInsets.all(16.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  shimmerBox(width: 200.w, height: 24.h), // Title
-                  SizedBox(height: 12.h),
-                  shimmerBox(height: 60.h, radius: 12), // Amount display
-                  SizedBox(height: 16.h),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [shimmerBox(width: 80.w, height: 16.h), shimmerBox(width: 60.w, height: 16.h)]),
-                  SizedBox(height: 12.h),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [shimmerBox(width: 100.w, height: 16.h), shimmerBox(width: 80.w, height: 16.h)]),
-                  SizedBox(height: 12.h),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [shimmerBox(width: 150.w, height: 16.h), shimmerBox(width: 50.w, height: 16.h)]),
-                ],
-              ),
-            ),
-          ),
+          shimmerBox(height: 56.h, radius: 12),
+          SizedBox(height: 24.h),
+          shimmerBox(height: 220.h, radius: 20),
         ],
-      ),
-    );
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: true,
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        appBar: AppBar(
-          centerTitle: false,
-          title: Text(
-            'Pix',
-            style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Colors.black,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-            onPressed: () => context.pop(),
-          ),
-        ),
-        body: KeyboardDismissOnTap(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (_isLoading)
-                    _buildShimmerEffect()
-                  else if (_pixQRCode.isEmpty) ...[
-                    Text(
-                      'Amount'.i18n,
-                      style: TextStyle(color: Colors.grey, fontSize: 14.sp),
-                    ),
-                    SizedBox(height: 8.h),
-                    TextField(
-                      controller: _amountController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 20.sp, color: Colors.white),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: const Color(0xFF212121),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    CustomButton(
-                      onPressed: _generateQRCode,
-                      primaryColor: Colors.green.withOpacity(0.8),
-                      secondaryColor: Colors.green.withOpacity(0.6),
-                      textColor: Colors.white,
-                      text: 'Generate Payment'.i18n,
-                    ),
-                    SizedBox(height: 24.h),
-                    Card(
-                      color: const Color(0x00333333).withOpacity(0.4),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                      child: Padding(
-                        padding: EdgeInsets.all(16.h),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.info, color: Colors.white, size: 20.sp),
-                                SizedBox(width: 8.w),
-                                Expanded(
-                                  child: Text(
-                                    'Transfer limit: R\$ 5000 per CPF/CNPJ'.i18n,
-                                    style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12.h),
-                            Row(
-                              children: [
-                                Icon(Icons.attach_money, color: Colors.white, size: 20.sp),
-                                SizedBox(width: 8.w),
-                                Expanded(
-                                  child: Text(
-                                    'Amount Purchased Today:'.i18n  + ' R\$ $amountPurchasedToday'.i18n,
-                                    style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ] else ...[
-                    SizedBox(height: 24.h),
-                    Center(
-                      child: buildQrCode(_pixQRCode, context),
-                    ),
-                    SizedBox(height: 16.h),
-                    AddressDisplayWidget(address: _pixQRCode, isEditable: false, onEditPressed: null),
-                    SizedBox(height: 24.h),
-                    Card(
-                      color: const Color(0x00333333).withOpacity(0.4),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                      child: Padding(
-                        padding: EdgeInsets.all(16.h),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Amount to Receive'.i18n,
-                              style: TextStyle(fontSize: 20.sp, color: Colors.white, fontWeight: FontWeight.w700),
-                            ),
-                            SizedBox(height: 12.h),
-                            Container(
-                              width: double.infinity,
-                              alignment: Alignment.center,
-                              padding: EdgeInsets.symmetric(vertical: 16.h),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF212121),
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              child: Text(
-                                '$_amountToReceive Depix',
-                                style: TextStyle(fontSize: 22.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            SizedBox(height: 16.h),
-                            _buildDetailRow('Fixed fee'.i18n, '0.99 BRL'),
-                            SizedBox(height: 12.h),
-                            _buildDetailRow('Satsails fee'.i18n, '${feePercentage.toStringAsFixed(2)} %'),
-                            SizedBox(height: 12.h),
-                            _buildDetailRow('Cashback'.i18n, cashBack.toString()),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                  SizedBox(height: 24.h),
-                  Center(
-                    child: TextButton(
-                      onPressed: () => context.go('/home'),
-                      child: Text(
-                        'Back to Home'.i18n,
-                        style: TextStyle(fontSize: 16.sp, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

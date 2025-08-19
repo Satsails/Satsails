@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
-import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/translations/translations.dart';
 import 'package:Satsails/helpers/swap_helpers.dart';
 
@@ -89,12 +88,10 @@ class _ExchangeState extends ConsumerState<Exchange> {
 
   List<Widget> _buildInternalSwapWidgets() {
     return [
-      buildBalanceCardWithMaxButton(ref, controller),
+      buildBalanceCardWithSlider(ref, controller, context),
       SizedBox(height: 16.h),
       buildExchangeCard(context, ref, controller),
       SizedBox(height: 24.h),
-      buildAdvancedOptionsCard(ref),
-      feeSelection(ref),
       slideToSend(ref, context),
     ];
   }

@@ -76,6 +76,8 @@ dependencies:
   forex_currency_conversion: ^0.9.1
   currency_formatter: ^2.3.0
   fl_chart: ^1.0.0
+  auto_size_text: ^3.0.0
+  auto_size_text_field: ^2.2.4
 
   # Local Notifications
   flutter_local_notifications: ^19.4.0
