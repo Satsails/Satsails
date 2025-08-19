@@ -66,7 +66,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
 
     try {
       await ref.read(depositInitializerProvider.future);
-      final url = await ref.read(createNoxTransferRequestProvider((amountCrypto: amountCrypto, amountFiat: amountFiat, type: 'onramp_instant')).future);
+      final url = await ref.read(createNoxTransferRequestProvider((amountCrypto: amountCrypto, amountFiat: amountFiat, type: 'offramp_instant')).future);
 
       if (url.isNotEmpty && mounted) {
         _initializeWebView(url);
