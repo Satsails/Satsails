@@ -1,5 +1,3 @@
-// lib/screens/analytics/components/chart.dart
-
 import 'dart:math';
 import 'package:Satsails/translations/translations.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -24,6 +22,8 @@ class Chart extends StatefulWidget {
   final bool isCurrency;
   final String btcFormat;
   final bool isBitcoinAsset;
+  // FIX: Added to identify the asset and display its correct ticker in the tooltip.
+  final String selectedAsset;
 
   const Chart({
     super.key,
@@ -37,6 +37,7 @@ class Chart extends StatefulWidget {
     required this.isCurrency,
     required this.btcFormat,
     required this.isBitcoinAsset,
+    required this.selectedAsset, // FIX: Added to constructor.
   });
 
   @override
@@ -126,10 +127,20 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     final spots = _createSpots(widget.mainData, sortedDays);
     final animatedSpots = spots.sublist(0, (spots.length * animationValue).ceil());
 
+    // FIX: Adjust curve smoothness based on the number of days for a better look.
+    final double smoothness;
+    if (sortedDays.length > 90) {
+      smoothness = 0.25; // Less curve for long, dense ranges.
+    } else if (sortedDays.length > 30) {
+      smoothness = 0.4;  // Medium curve.
+    } else {
+      smoothness = 0.6;  // More curve for short, sparse ranges.
+    }
+
     return LineChartBarData(
       spots: animatedSpots,
       isCurved: true,
-      curveSmoothness: 0.6,
+      curveSmoothness: smoothness,
       preventCurveOverShooting: true,
       color: Colors.white,
       barWidth: 4,
@@ -180,7 +191,7 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
             } else if (widget.isBitcoinAsset && widget.btcFormat == 'sats') {
               text = NumberFormat.compact().format(value);
             } else if (widget.isBitcoinAsset && widget.btcFormat == 'BTC') {
-              text = NumberFormat('0.##').format(value);
+              text = NumberFormat('0.########').format(value);
             }
             else {
               text = NumberFormat.compact().format(value);
@@ -192,7 +203,6 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
     );
   }
 
-  // FIX: Added percentage change to the valuation tooltip.
   LineTouchData _buildLineTouchData(BuildContext context, List<DateTime> sortedDays) {
     return LineTouchData(
       handleBuiltInTouches: true,
@@ -265,7 +275,8 @@ class _ChartState extends State<Chart> with TickerProviderStateMixin {
                   : NumberFormat('0.########').format(value);
             } else {
               // For non-bitcoin assets like Depix, USDT, etc.
-              unit = widget.selectedCurrency;
+              // FIX: Use the actual asset's name for the unit instead of the settings currency.
+              unit = widget.selectedAsset.split(' ').last; // e.g., "Liquid Bitcoin" -> "Bitcoin"
               formattedValue = NumberFormat.currency(symbol: '', decimalDigits: 2).format(value);
             }
 

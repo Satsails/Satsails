@@ -1,5 +1,7 @@
 // lib/screens/analytics/components/pie_chart.dart
 
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +53,7 @@ class _AssetAllocationChartState extends ConsumerState<AssetAllocationChart> {
           PieChartData(
             pieTouchData: PieTouchData(
               touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                if (!mounted) { // ADD THIS CHECK
+                if (!mounted) {
                   return;
                 }
                 setState(() {
@@ -85,14 +87,26 @@ class _AssetAllocationChartState extends ConsumerState<AssetAllocationChart> {
 
     String title;
     String value;
+    String? subtitle;
 
     final entries = widget.allocationData.entries.toList();
 
     if (touchedIndex != -1 && touchedIndex < entries.length) {
       final entry = entries[touchedIndex];
       final assetName = entry.key;
+      final assetData = entry.value;
+
       title = _displayNameMap[assetName] ?? assetName;
-      value = currencyFormatter.format(entry.value.fiatValue);
+      value = currencyFormatter.format(assetData.fiatValue);
+
+      // FIX: Add subtitle with the balance in the asset's native unit.
+      final isBitcoinAsset = ['BTC', 'L-BTC'].contains(assetName);
+      if (isBitcoinAsset) {
+        subtitle = '${btcInDenominationFormatted(assetData.originalBalance, settings.btcFormat)} ${settings.btcFormat.toUpperCase()}';
+      } else {
+        subtitle = '${fiatInDenominationFormatted(assetData.originalBalance)} $assetName';
+      }
+
     } else {
       title = "Total Value".i18n;
       value = currencyFormatter.format(totalValue);
@@ -102,7 +116,7 @@ class _AssetAllocationChartState extends ConsumerState<AssetAllocationChart> {
       duration: const Duration(milliseconds: 200),
       transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
       child: Container(
-        key: ValueKey(title),
+        key: ValueKey('$title-$subtitle'), // Use a composite key to ensure animation triggers correctly
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -126,11 +140,22 @@ class _AssetAllocationChartState extends ConsumerState<AssetAllocationChart> {
                 ),
               ),
             ),
+            if (subtitle != null) ...[
+              SizedBox(height: 6.h),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontSize: 12.sp,
+                ),
+              ),
+            ]
           ],
         ),
       ),
     );
   }
+
 
   /// Generates the data for each section of the pie chart.
   List<PieChartSectionData> showingSections(double totalValue) {

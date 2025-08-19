@@ -1,7 +1,6 @@
 // lib/screens/analytics/components/bitcoin_price_chart.dart
 
 import 'dart:math';
-import 'dart:math' as math; // Added for the helper function
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
@@ -171,7 +170,12 @@ class _BitcoinPriceChartState extends ConsumerState<BitcoinPriceChart> with Tick
       dotData: FlDotData(
         show: true,
         getDotPainter: (spot, percent, barData, index) {
-          final date = sortedDays[spot.x.toInt()];
+          final int spotIndex = spot.x.toInt();
+          if (spotIndex < 0 || spotIndex >= sortedDays.length) {
+            return FlDotCirclePainter(radius: 0, color: Colors.transparent, strokeWidth: 0);
+          }
+
+          final date = sortedDays[spotIndex];
           final netAmount = netAmountByDay[date] ?? 0;
           final color = netAmount >= 0 ? Colors.greenAccent : Colors.redAccent;
           return FlDotCirclePainter(

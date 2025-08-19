@@ -31,8 +31,7 @@ class MainScreen extends ConsumerWidget {
 
     // Start or stop syncing based on current index
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (currentIndex == 1 || currentIndex == 2) {
-        // Stop syncing when on Analytics or Exchange
+      if (currentIndex == 1) {
         backgroundSyncService.stop();
       } else {
         backgroundSyncService.start(ref);

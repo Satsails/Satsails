@@ -276,6 +276,7 @@ class _AnalyticsState extends ConsumerState<Analytics> {
                     isCurrency: _selectedChartType == ChartType.valuation,
                     btcFormat: btcFormat,
                     isBitcoinAsset: isBitcoinAsset,
+                    selectedAsset: _selectedAsset,
                   ),
                 };
               },
