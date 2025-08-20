@@ -87,16 +87,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageStarted: (String url) {
-            setState(() {
-              _isWebLoading = true;
-            });
-          },
-          onPageFinished: (String url) {
-            setState(() {
-              _isWebLoading = false;
-            });
-          },
+          onPageStarted: (String url) => setState(() => _isWebLoading = true),
+          onPageFinished: (String url) => setState(() => _isWebLoading = false),
         ),
       )
       ..loadRequest(Uri.parse(url));
@@ -107,11 +99,15 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
     });
   }
 
-  Widget _buildShimmerEffect() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[900]!,
-      highlightColor: Colors.grey[800]!,
-      child: Container(color: Colors.black),
+  /// **MODIFIED:** This is now a simple, centered loading indicator on a white background.
+  Widget _buildLoadingIndicator() {
+    return Container(
+      color: Colors.white,
+      child: const Center(
+        child: CircularProgressIndicator(
+          color: Colors.black,
+        ),
+      ),
     );
   }
 
@@ -119,37 +115,43 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
+      appBar: _url == null
+          ? AppBar(
         centerTitle: true,
         title: Text(
-          _url == null ? 'Deposit via Pix'.i18n : 'Deposit'.i18n,
+          'Deposit via Pix'.i18n,
           style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-          onPressed: () => _url == null ? context.pop() : setState(() { _url = null; }),
+          onPressed: () {
+            if (_url != null) {
+              setState(() {
+                _url = null;
+              });
+            } else {
+              context.pop();
+            }
+          },
         ),
-        actions: _url != null ? [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: () => _webViewController.reload(),
-          ),
-        ] : null,
-      ),
+      )
+          : null, // When there's a URL, don't show an AppBar.
       body: SafeArea(
+        top: true,
+        bottom: true,
         child: _url == null
             ? KeyboardDismissOnTap(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SizedBox(height: 24.h),
                 _buildAmountEntryCard(),
-                SizedBox(height: 24.h),
+                const Spacer(), // Pushes the button to the bottom.
                 SizedBox(
                   height: 56.h,
+                  width: double.infinity,
                   child: _isLoading
                       ? Shimmer.fromColors(
                     baseColor: Colors.green.withOpacity(0.6),
@@ -163,10 +165,9 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                       child: Text(
                         'Generating Payment'.i18n,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            color: Colors.white,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   )
@@ -184,15 +185,24 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         )
             : Stack(
           children: [
-            WebViewWidget(controller: _webViewController),
-            if (_isWebLoading) _buildShimmerEffect(),
+            Column(
+              children: [
+                SizedBox(height: 12.h), // Adds space at the top
+                Expanded(
+                  child: ClipRect(
+                    child: WebViewWidget(controller: _webViewController),
+                  ),
+                ),
+              ],
+            ),
+            // **MODIFIED:** Uses the new centered loading indicator.
+            if (_isWebLoading) _buildLoadingIndicator(),
           ],
         ),
       ),
     );
   }
 
-  /// The main card for entering the amount, including the currency toggle.
   Widget _buildAmountEntryCard() {
     final isBrl = _selectedCurrency == InputCurrency.brl;
 
@@ -213,10 +223,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
               Text(
                 isBrl ? 'R\$' : 'BTC',
                 style: TextStyle(
-                  fontSize: 32.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white.withOpacity(0.5),
-                ),
+                    fontSize: 32.sp, fontWeight: FontWeight.bold, color: Colors.white.withOpacity(0.5)),
               ),
               SizedBox(width: 10.w),
               Expanded(
@@ -227,17 +234,11 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                     CommaTextInputFormatter(),
                     DecimalTextInputFormatter(decimalRange: isBrl ? 2 : 8)
                   ],
-                  style: TextStyle(
-                    fontSize: 40.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(fontSize: 40.sp, fontWeight: FontWeight.bold, color: Colors.white),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: isBrl ? '0,00' : '0,00000000',
-                    hintStyle: TextStyle(
-                      color: Colors.white.withOpacity(0.3),
-                    ),
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
                   ),
                 ),
               ),
@@ -248,7 +249,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
     );
   }
 
-  /// A segmented control to switch between BRL and BTC input.
   Widget _buildCurrencyToggle() {
     return Center(
       child: Container(

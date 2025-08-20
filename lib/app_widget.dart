@@ -155,6 +155,12 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
                       backgroundColor: Colors.black,
                       elevation: 0,
                     ),
+                    // This sets the cursor and text selection colors globally.
+                    textSelectionTheme: TextSelectionThemeData(
+                      cursorColor: Colors.white,
+                      selectionColor: Colors.white.withOpacity(0.4),
+                      selectionHandleColor: Colors.white,
+                    ),
                   ),
                   debugShowCheckedModeBanner: false,
                   localizationsDelegates: const [

@@ -54,24 +54,22 @@ class Home extends ConsumerWidget {
     );
   }
 
+  // UPDATED WIDGET
   Widget _buildHeaderRow(BuildContext context, WidgetRef ref, bool backupNeeded) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 20.h),
+      padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 10.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           if (backupNeeded)
             _buildBackupButton(context)
           else
-            Padding(
-              padding: EdgeInsets.only(left: 8.0.sp),
-              child: Text(
-                'Transactions'.i18n,
-                style: TextStyle(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+            Text(
+              'Transactions'.i18n,
+              style: TextStyle(
+                fontSize: 24.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
           _buildBuyButton(context, ref),

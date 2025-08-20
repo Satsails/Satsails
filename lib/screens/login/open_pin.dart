@@ -61,7 +61,6 @@ class _OpenPinState extends ConsumerState<OpenPin>
   }
 
   void _checkPin(BuildContext context, WidgetRef ref) async {
-    // ... (This function remains the same)
     try {
       final authModel = AuthModel();
       final storedPin = await authModel.getPin();
@@ -83,7 +82,6 @@ class _OpenPinState extends ConsumerState<OpenPin>
   }
 
   void _handleIncorrectPin() {
-    // ... (This function remains the same)
     _animationController.forward(from: 0.0);
     HapticFeedback.heavyImpact();
     setState(() {
@@ -97,7 +95,6 @@ class _OpenPinState extends ConsumerState<OpenPin>
   }
 
   void _checkBiometrics(BuildContext context, WidgetRef ref) async {
-    // ... (This function remains the same)
     try {
       bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
       if (canCheckBiometrics) {
@@ -119,7 +116,6 @@ class _OpenPinState extends ConsumerState<OpenPin>
   }
 
   void _unlockApp(BuildContext context, WidgetRef ref) {
-    // ... (This function remains the same)
     _attempts = 0;
 
     ref.read(appLockedProvider.notifier).state = false;
@@ -127,12 +123,10 @@ class _OpenPinState extends ConsumerState<OpenPin>
     ref.read(sendBlocksProvider.notifier).state = 1;
     ref.read(addressProvider); // Trigger data loading
 
-    // Navigate directly to home
     context.go('/home');
   }
 
   Future<void> _forgotPin(BuildContext context, WidgetRef ref) async {
-    // ... (This function remains the same)
     BackgroundSyncService().stop();
     final authModel = ref.read(authModelProvider);
     await authModel.deleteAuthentication();

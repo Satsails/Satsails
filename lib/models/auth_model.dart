@@ -193,6 +193,8 @@ class AuthModel {
     final appDocDir = await getApplicationDocumentsDirectory();
     final bitcoinDBPath = '${appDocDir.path}/bdk_wallet.sqlite';
     final dbFile = File(bitcoinDBPath);
-    await dbFile.delete();
+    if (await dbFile.exists()) {
+      await dbFile.delete();
+    }
   }
 }
