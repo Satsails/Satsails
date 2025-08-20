@@ -94,12 +94,6 @@ class NoxTransactionDetails extends ConsumerWidget {
             _buildSectionHeader("Fees & Rate".i18n),
             _buildFeeAndRateDetails(ref, transaction),
           ],
-
-          if (transaction.cashback != null && transaction.cashback! > 0) ...[
-            Divider(color: Colors.white.withOpacity(0.1), height: 32.h),
-            _buildSectionHeader("Cashback".i18n),
-            _buildCashbackDetails(transaction),
-          ]
         ],
       ),
     );
@@ -163,27 +157,6 @@ class NoxTransactionDetails extends ConsumerWidget {
       ],
     );
   }
-
-  Widget _buildCashbackDetails(NoxTransfer transaction) {
-    final isPaid = transaction.cashbackPayed ?? false;
-    final cashbackAmount = transaction.cashback ?? 0;
-    final cashbackCurrency = transaction.to_currency ?? '';
-
-    return Column(
-      children: [
-        TransactionDetailRow(
-            label: "Amount".i18n,
-            value: "${cashbackAmount.toStringAsFixed(8)} $cashbackCurrency"
-        ),
-        TransactionDetailRow(
-          label: "Status".i18n,
-          value: isPaid ? "Paid".i18n : "Pending".i18n,
-          valueColor: isPaid ? Colors.green : Colors.orange,
-        ),
-      ],
-    );
-  }
-
 }
 
 class TransactionDetailRow extends StatelessWidget {

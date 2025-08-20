@@ -42,7 +42,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   // Data from transaction
   double _amountToReceive = 0;
   double feePercentage = 0;
-  double cashBack = 0;
   String amountPurchasedToday = '0';
 
   // Animation for success checkmark
@@ -86,7 +85,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     });
   }
 
-  /// **NEW**: Resets the state to return to the initial amount input view.
+  /// Resets the state to return to the initial amount input view.
   void _resetToInputView() {
     _pollingTimer?.cancel();
     setState(() {
@@ -132,11 +131,9 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
       await ref.read(depositInitializerProvider.future);
       final purchase =
       await ref.read(createEulenTransferRequestProvider(amountInDouble).future);
-      final cashbackAmount = purchase.cashback ?? 0;
       final totalFeeInBrl = purchase.originalAmount - purchase.receivedAmount;
       final variableFeeInBrl = totalFeeInBrl - 0.99;
-      final satsailsFeeAfterCashback = variableFeeInBrl - cashbackAmount;
-      final newFeePercentage = (satsailsFeeAfterCashback / purchase.originalAmount) * 100;
+      final newFeePercentage = (variableFeeInBrl / purchase.originalAmount) * 100;
 
       if (mounted) {
         setState(() {
@@ -144,7 +141,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
           _isLoading = false;
           _amountToReceive = purchase.receivedAmount;
           feePercentage = newFeePercentage > 0 ? newFeePercentage : 0;
-          cashBack = cashbackAmount;
           _transactionId = purchase.transactionId;
         });
         _startPolling(_transactionId!);
@@ -231,7 +227,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
             textColor: Colors.white,
             text: 'Generate Payment'.i18n,
           ),
-          // **REMOVED**: The redundant "Back to Home" button is gone.
         ],
       ),
     );
@@ -252,7 +247,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
         SizedBox(height: 24.h),
         _buildPaymentDetailsCard(originalAmount, paymentStatus),
         SizedBox(height: 24.h),
-        // **MODIFIED**: This button now takes the user back to the input screen.
         Center(
           child: TextButton(
             onPressed: _resetToInputView,
@@ -334,9 +328,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
           _buildDetailRow('Fixed fee'.i18n, '0.99 BRL'),
           SizedBox(height: 12.h),
           _buildDetailRow('Satsails fee'.i18n, '${feePercentage.toStringAsFixed(2)} %'),
-          SizedBox(height: 12.h),
-          _buildDetailRow('Cashback'.i18n, 'R\$ ${cashBack.toStringAsFixed(2)}',
-              valueColor: const Color(0xFF27AE60)),
           Padding(
               padding: EdgeInsets.only(top: 16.h),
               child: Divider(color: Colors.white.withOpacity(0.1))),

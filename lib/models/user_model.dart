@@ -181,33 +181,4 @@ class UserService {
       return Result(error: 'An error has occurred. Please try again later');
     }
   }
-
-  static Future<Result<bool>> addCashbackAddressCode(String cashbackAddress, String auth) async {
-    try {
-      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
-
-      final response = await http.post(
-        Uri.parse('${dotenv.env['BACKEND']!}/users/add_cashback_address'),
-        body: jsonEncode({
-          'user': {
-            'liquid_address': cashbackAddress,
-          }
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-          // 'X-Firebase-AppCheck': appCheckToken ?? '',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return Result(data: true);
-      } else {
-        String errorMsg = jsonDecode(response.body)['error'] ?? 'Failed to add affiliate code';
-        return Result(error: errorMsg);
-      }
-    } catch (e) {
-      return Result(error: 'An error has occurred. Please try again later');
-    }
-  }
 }

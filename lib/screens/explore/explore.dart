@@ -29,21 +29,6 @@ class Explore extends ConsumerWidget {
     final isLoading = ref.watch(isLoadingProvider);
     final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final user = ref.read(userProvider);
-      if (user.paymentId.isNotEmpty && !(user.hasUploadedLiquidAddress ?? false)) {
-        ref.read(addCashbackProvider.future).catchError((error) {
-          if (context.mounted) {
-            showMessageSnackBar(
-              message: "Failed to add cashback address: $error".i18n,
-              context: context,
-              error: true,
-            );
-          }
-        });
-      }
-    });
-
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -99,7 +84,6 @@ class Explore extends ConsumerWidget {
   }
 }
 
-// Balance and Cashback Card
 class _BalanceDisplay extends ConsumerStatefulWidget {
   const _BalanceDisplay();
   @override
@@ -107,7 +91,6 @@ class _BalanceDisplay extends ConsumerStatefulWidget {
 }
 
 class _BalanceDisplayState extends ConsumerState<_BalanceDisplay> {
-  bool _isCashbackExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -121,9 +104,6 @@ class _BalanceDisplayState extends ConsumerState<_BalanceDisplay> {
     final euroBalance = isBalanceVisible ? fiatInDenominationFormatted(balanceProvider.liquidEuroxBalance) : '***';
     final onChainBtcBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.onChainBtcBalance, denomination) : '***';
     final liquidBtcBalance = isBalanceVisible ? btcInDenominationFormatted(balanceProvider.liquidBtcBalance, denomination) : '***';
-
-    final transactionState = ref.watch(transactionNotifierProvider);
-    final unpaidCashback = transactionState.unpaidCashbackByCurrency;
 
     return Card(
       color: const Color(0xFF333333).withOpacity(0.4),
@@ -140,70 +120,9 @@ class _BalanceDisplayState extends ConsumerState<_BalanceDisplay> {
             Row(children: [_buildBalanceRow(imagePath: 'lib/assets/eurx.png', label: 'Liquid EURx', balance: euroBalance), _buildBalanceRow(imagePath: 'lib/assets/tether.png', label: 'Liquid USDT', balance: liquidUsdtBalance)]),
             SizedBox(height: 12.h),
             Row(children: [_buildBalanceRow(imagePath: 'lib/assets/depix.png', label: 'Liquid Depix', balance: depixBalance), Expanded(child: Container())]),
-            if (unpaidCashback.isNotEmpty) ...[
-              SizedBox(height: 12.h),
-              InkWell(
-                onTap: () => setState(() => _isCashbackExpanded = !_isCashbackExpanded),
-                borderRadius: BorderRadius.circular(8.r),
-                child: AnimatedCrossFade(
-                  duration: const Duration(milliseconds: 300),
-                  firstChild: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    child: Text(
-                      'See cashback to receive'.i18n,
-                      style: TextStyle(color: Colors.grey, fontSize: 16.sp, fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                  secondChild: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 4.h),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Cashback to receive'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500)),
-                            Icon(Icons.expand_less, color: Colors.grey, size: 28.sp),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      _buildCashbackDetails(unpaidCashback),
-                    ],
-                  ),
-                  crossFadeState: _isCashbackExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                ),
-              ),
-            ],
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildCashbackDetails(Map<String, double> cashbackData) {
-    return Column(
-      children: cashbackData.entries.map((entry) {
-        final currencyCode = entry.key;
-        final amount = entry.value;
-        final formattedAmount = "${amount.toStringAsFixed(8)} $currencyCode";
-
-        return Padding(
-          padding: EdgeInsets.symmetric(vertical: 6.h),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Cashback'.i18n,
-                style: TextStyle(fontSize: 16.sp, color: Colors.white70),
-              ),
-              Text(
-                formattedAmount,
-                style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
     );
   }
 

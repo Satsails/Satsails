@@ -383,7 +383,7 @@ class Settings extends ConsumerWidget {
       subtitle: Text(
         hasAffiliateCode
             ? "${'Affiliate code inserted'.i18n}: $affiliateCode"
-            : 'Insert an affiliate code to get 6.67% cashback on purchases'.i18n,
+            : 'Insert an affiliate code to get up to 0.5% discount of your purchase'.i18n,
         style: TextStyle(color: Colors.grey, fontSize: 14.sp),
       ),
       // If a code is inserted, onTap does nothing. Otherwise, it opens the modal.

@@ -59,19 +59,6 @@ final addAffiliateCodeProvider = FutureProvider.autoDispose.family<void, String>
   }
 });
 
-final addCashbackProvider = FutureProvider.autoDispose<bool>((ref) async {
-  final auth = ref.read(userProvider).jwt;
-  final cashbackAddress = ref.read(addressProvider).liquidAddress;
-  final result = await UserService.addCashbackAddressCode(cashbackAddress, auth);
-
-  if (result.isSuccess && result.data == true) {
-    ref.read(userProvider.notifier).setHasUploadedLiquidAddress(true);
-    return result.data!;
-  } else {
-    throw result.error!;
-  }
-});
-
 final fetchBackendChallangeProvider = FutureProvider.autoDispose<String>((ref) async {
   final result = await BackendAuth.fetchChallenge();
   if (result.isSuccess && result.data != null) {
@@ -96,7 +83,6 @@ final createUserProvider = FutureProvider.autoDispose<void>((ref) async {
     if (affiliateCodeFromLink.isNotEmpty) {
       await ref.read(addAffiliateCodeProvider(affiliateCodeFromLink).future);
     }
-    await ref.read(addCashbackProvider.future);
   } else {
     throw result.error!;
   }
@@ -113,7 +99,6 @@ final migrateUserToJwtProvider = FutureProvider.autoDispose<void>((ref) async {
     ref.read(userProvider.notifier).setJwt(result.data!);
     ref.read(userProvider.notifier).setRecoveryCode('');
     await FirebaseService.storeTokenOnbackend();
-    await ref.read(addCashbackProvider.future);
   } else {
     throw result.error!;
   }

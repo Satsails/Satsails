@@ -61,7 +61,6 @@ final Map<DepositProvider, ProviderDetails> providerDetails = {
       "Near-instant deposits",
       "No documentation required",
       "Minimum purchase: 1 BRL",
-      "Cashback available"
     ],
     disadvantages: [
       "Some limitations on purchases due to free nature of depix compared to other assets",

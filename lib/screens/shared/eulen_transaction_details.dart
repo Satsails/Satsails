@@ -100,12 +100,6 @@ class EulenTransactionDetails extends ConsumerWidget {
             _buildSectionHeader("Fees".i18n),
             _buildFeeDetails(ref, transaction),
           ],
-          // --- Conditionally render Cashback section ---
-          if (transaction.cashback != null && transaction.cashback! > 0) ...[
-            Divider(color: Colors.white.withOpacity(0.1), height: 32.h),
-            _buildSectionHeader("Cashback".i18n),
-            _buildCashbackDetails(transaction),
-          ],
         ],
       ),
     );
@@ -163,15 +157,9 @@ class EulenTransactionDetails extends ConsumerWidget {
     const fixedFee = 0.99;
     final variableFee = totalFee - fixedFee;
 
-    // Get the cashback amount, defaulting to 0 if null.
-    final cashbackAmount = transaction.cashback ?? 0;
-
-    // The final Satsails fee is the variable portion minus the cashback.
-    final satsailsFeeAfterCashback = variableFee - cashbackAmount;
-
     // Calculate the fee percentage based on the adjusted Satsails fee.
     final feePercentage = transaction.originalAmount != 0
-        ? (satsailsFeeAfterCashback / transaction.originalAmount) * 100
+        ? (variableFee / transaction.originalAmount) * 100
         : 0.0;
 
     // Ensure the fee percentage is not negative.
@@ -181,28 +169,6 @@ class EulenTransactionDetails extends ConsumerWidget {
       children: [
         TransactionDetailRow(label: "Fixed fee".i18n, value: "${fixedFee.toStringAsFixed(2)} $feeCurrency"),
         TransactionDetailRow(label: "Satsails fee".i18n, value: "${displayFeePercentage.toStringAsFixed(2)}%"),
-      ],
-    );
-  }
-
-  // --- New Widget to build the Cashback Details ---
-  Widget _buildCashbackDetails(EulenTransfer transaction) {
-    final isPaid = transaction.cashbackPayed ?? false;
-    final cashbackAmount = transaction.cashback ?? 0;
-    // Assume cashback is paid in the destination currency
-    final cashbackCurrency = transaction.to_currency ?? '';
-
-    return Column(
-      children: [
-        TransactionDetailRow(
-            label: "Cashback Amount".i18n,
-            value: "${cashbackAmount.toStringAsFixed(8)} $cashbackCurrency"
-        ),
-        TransactionDetailRow(
-          label: "Cashback Status".i18n,
-          value: isPaid ? "Paid".i18n : "Pending".i18n,
-          valueColor: isPaid ? Colors.green : Colors.orange,
-        ),
       ],
     );
   }

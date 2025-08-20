@@ -251,25 +251,6 @@ class Transaction {
     return sorted;
   }
 
-  Map<String, double> get unpaidCashbackByCurrency {
-    final Map<String, double> cashbackMap = {};
-
-    for (final tx in eulenTransactions) {
-      if (tx.details.cashback != null && tx.details.cashback! > 0 && !(tx.details.cashbackPayed ?? false)) {
-        final currency = tx.details.to_currency?.toUpperCase() ?? 'UNKNOWN';
-        cashbackMap.update(currency, (value) => value + tx.details.cashback!, ifAbsent: () => tx.details.cashback!);
-      }
-    }
-
-    for (final tx in noxTransactions) {
-      if (tx.details.cashback != null && tx.details.cashback! > 0 && !(tx.details.cashbackPayed ?? false)) {
-        final currency = tx.details.to_currency?.toUpperCase() ?? 'UNKNOWN';
-        cashbackMap.update(currency, (value) => value + tx.details.cashback!, ifAbsent: () => tx.details.cashback!);
-      }
-    }
-    return cashbackMap;
-  }
-
   List<BitcoinTransaction> filterBitcoinTransactions(DateTimeSelect range) {
     return bitcoinTransactions.where((tx) {
       return tx.timestamp.isAfter(DateTime.fromMillisecondsSinceEpoch(range.start * 1000)) &&
