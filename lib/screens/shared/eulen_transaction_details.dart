@@ -2,7 +2,7 @@ import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
 import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

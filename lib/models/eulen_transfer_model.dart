@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:Satsails/handlers/response_handlers.dart';
 import 'package:Satsails/helpers/string_extension.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';

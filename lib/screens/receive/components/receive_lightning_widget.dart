@@ -12,11 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
-import 'package:i18n_extension/i18n_extension.dart';
+
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shimmer/shimmer.dart';
 

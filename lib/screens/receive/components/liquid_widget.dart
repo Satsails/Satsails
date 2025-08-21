@@ -8,7 +8,7 @@ import 'package:Satsails/providers/address_receive_provider.dart';
 import 'package:Satsails/screens/receive/components/amount_input.dart';
 import 'package:Satsails/screens/shared/address_display_widget.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/translations/localizations.dart';
 import 'package:Satsails/screens/exchange/exchange.dart'; // For SwapSection enum
 import 'package:Satsails/providers/navigation_provider.dart';
 
