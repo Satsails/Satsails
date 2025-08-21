@@ -16,14 +16,14 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 enum InputCurrency { brl, btc }
 
-class DepositPixNox extends ConsumerStatefulWidget {
-  const DepositPixNox({super.key});
+class SellPixNox extends ConsumerStatefulWidget {
+  const SellPixNox({super.key});
 
   @override
-  _DepositPixNoxState createState() => _DepositPixNoxState();
+  _SellPixNoxState createState() => _SellPixNoxState();
 }
 
-class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
+class _SellPixNoxState extends ConsumerState<SellPixNox> {
   final TextEditingController _amountController = TextEditingController();
   bool _isLoading = false;
   InputCurrency _selectedCurrency = InputCurrency.brl;
@@ -65,6 +65,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
     }
 
     try {
+      // Assuming depositInitializerProvider is a generic initializer
       await ref.read(depositInitializerProvider.future);
       final url = await ref.read(createNoxTransferRequestProvider((amountCrypto: amountCrypto, amountFiat: amountFiat, type: 'offramp_instant')).future);
 
@@ -122,7 +123,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          _url == null ? 'Deposit via Pix'.i18n : 'Deposit'.i18n,
+          _url == null ? 'Sell via Pix'.i18n : 'Sell'.i18n, // Changed title
           style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.black,
@@ -161,7 +162,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        'Generating Payment'.i18n,
+                        'Generating Sale'.i18n, // Changed loading text
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16.sp,
@@ -175,7 +176,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                     primaryColor: Colors.green.withOpacity(0.8),
                     secondaryColor: Colors.green.withOpacity(0.6),
                     textColor: Colors.white,
-                    text: 'Generate Payment'.i18n,
+                    text: 'Generate Sale'.i18n, // Changed button text
                   ),
                 ),
               ],
@@ -192,7 +193,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
     );
   }
 
-  /// The main card for entering the amount, including the currency toggle.
   Widget _buildAmountEntryCard() {
     final isBrl = _selectedCurrency == InputCurrency.brl;
 

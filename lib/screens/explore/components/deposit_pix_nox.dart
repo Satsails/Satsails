@@ -64,7 +64,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         return;
       }
     }
-    // **ADDED**: A similar check for the BTC minimum deposit.
     else if (_selectedCurrency == InputCurrency.btc) {
       final minimumDeposit = double.tryParse(minimumDepositsAsync.valueOrNull?.btc ?? '0');
       if (minimumDeposit != null && amountInDouble < minimumDeposit) {
@@ -140,7 +139,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      // **MODIFIED**: The AppBar is now always visible. The conditional logic was removed.
       appBar: AppBar(
         centerTitle: true,
         title: Text(
@@ -150,7 +148,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-          // This logic now correctly handles both states (WebView and Input)
           onPressed: () {
             if (_url != null) {
               setState(() {
@@ -212,14 +209,13 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         )
             : Stack(
           children: [
-            // **MODIFIED**: Removed the SizedBox from here to prevent extra space under the AppBar.
-            Expanded(
-              child: ClipRRect(
-                // Using ClipRRect to allow for potential future border radius
-                borderRadius: BorderRadius.zero,
-                child: WebViewWidget(controller: _webViewController),
-              ),
+            // =========== FIX APPLIED HERE ===========
+            // The invalid `Expanded` widget was removed from the Stack.
+            ClipRRect(
+              borderRadius: BorderRadius.zero,
+              child: WebViewWidget(controller: _webViewController),
             ),
+            // =========================================
             if (_isWebLoading) _buildLoadingIndicator(),
           ],
         ),

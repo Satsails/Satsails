@@ -1,4 +1,3 @@
-// lib/screens/sell/sell_type.dart
 
 import 'package:Satsails/helpers/sell_type_helper.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
@@ -19,7 +18,6 @@ class SellTypeScreen extends ConsumerWidget {
     final availableSellMethods = ref.watch(availableSellMethodsProvider);
     final availableSellTypes = ref.watch(availableSellTypesProvider);
 
-    // Reset selectedSellMethod if it's not in the available list
     if (selectedSellMethod != null && !availableSellMethods.contains(selectedSellMethod)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(selectedSellMethodProvider.notifier).state =
@@ -27,7 +25,6 @@ class SellTypeScreen extends ConsumerWidget {
       });
     }
 
-    // Reset selectedAsset if it's not in the available list
     if (!availableSellTypes.contains(selectedAsset)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(selectedCryptoTypeSellProvider.notifier).state =
@@ -113,7 +110,7 @@ class SellTypeScreen extends ConsumerWidget {
                             text: buttonText,
                             onPressed: isButtonEnabled
                                 ? () {
-                              final route = 'SellPixNox'; // Define your sell route
+                              final route = 'SellPixNox';
                               context.pushNamed(route);
                             }
                                 : () {},

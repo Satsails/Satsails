@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
@@ -70,7 +69,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     super.dispose();
   }
 
-  // **MODIFIED**: Fetches both amount purchased and the user fee.
   Future<void> _fetchInitialData() async {
     await Future.wait([
       _fetchAmountPurchasedToday(),
@@ -87,7 +85,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     }
   }
 
-  // **ADDED**: Method to pre-fetch the user fee.
   Future<void> _fetchUserFee() async {
     try {
       final fee = await ref.read(getUserFeeAmount.future);
@@ -162,14 +159,11 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
       final purchase =
       await ref.read(createEulenTransferRequestProvider(amountInDouble).future);
 
-      // **REMOVED**: Dynamic fee calculation is no longer used.
-
       if (mounted) {
         setState(() {
           _pixQRCode = purchase.pixKey;
           _isLoading = false;
           _amountToReceive = purchase.receivedAmount;
-          // **MODIFIED**: Use the pre-fetched fee variable.
           feePercentage = (_userFeePercentage ?? 0.0) * 100;
           _transactionId = purchase.transactionId;
         });
@@ -209,6 +203,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     }
 
     return Scaffold(
+      // resizeToAvoidBottomInset: true is the default and is required for this to work.
       backgroundColor: Colors.black,
       appBar: AppBar(
         centerTitle: true,
@@ -237,18 +232,30 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     );
   }
 
+  // =========== WIDGET WITH NEW LAYOUT ===========
   Widget _buildAmountInputView() {
     return Padding(
       key: const ValueKey('amountInput'),
       padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+      // Use a Column to separate the scrollable content from the fixed button.
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Expanded widget makes the SingleChildScrollView fill all available space.
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(height: 16.h),
+                  _buildAmountEntryCard(),
+                  SizedBox(height: 24.h),
+                  _buildInfoCard(),
+                ],
+              ),
+            ),
+          ),
+          // This SizedBox provides spacing between the scrollable area and the button.
           SizedBox(height: 16.h),
-          _buildAmountEntryCard(),
-          SizedBox(height: 24.h),
-          _buildInfoCard(),
-          const Spacer(),
+          // The button is now a direct child of the Column, so it stays at the bottom.
           CustomButton(
             onPressed: _generateQRCode,
             primaryColor: Colors.green.withOpacity(0.8),
@@ -260,6 +267,8 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
       ),
     );
   }
+  // ===============================================
+
 
   Widget _buildQRCodeView() {
     final paymentStatus = ref.watch(getEulenPixPaymentStateProvider(_transactionId!));
@@ -436,7 +445,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
         ]));
   }
 
-  // **MODIFIED**: This card now displays the pre-fetched fee.
   Widget _buildInfoCard() {
     return Container(
         padding: EdgeInsets.all(16.w),
@@ -468,7 +476,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
         ]));
   }
 
-  // **MODIFIED**: Helper now accepts a Widget.
   Widget _buildInfoRow({required IconData icon, required Widget child}) {
     return Row(children: [
       Icon(icon, color: Colors.white.withOpacity(0.7), size: 20.sp),
@@ -477,7 +484,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     ]);
   }
 
-  // **ADDED**: Shimmer placeholder for the fee row.
   Widget _buildShimmerInfoRow() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[850]!,
@@ -520,13 +526,16 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     return Shimmer.fromColors(
         baseColor: baseColor,
         highlightColor: highlightColor,
-        child: Column(children: [
-          SizedBox(height: 16.h),
-          shimmerBox(width: 250.w, height: 250.w),
-          SizedBox(height: 24.h),
-          shimmerBox(height: 56.h, radius: 12),
-          SizedBox(height: 24.h),
-          shimmerBox(height: 220.h, radius: 20)
-        ]));
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Column(children: [
+            SizedBox(height: 16.h),
+            shimmerBox(width: 250.w, height: 250.w),
+            SizedBox(height: 24.h),
+            shimmerBox(height: 56.h, radius: 12),
+            SizedBox(height: 24.h),
+            shimmerBox(height: 220.h, radius: 20)
+          ]),
+        ));
   }
 }

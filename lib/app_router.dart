@@ -1,6 +1,7 @@
 import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
+import 'package:Satsails/screens/explore/components/sell_pix_nox.dart';
 import 'package:Satsails/screens/pay/components/confirm_non_native_asset_payment.dart';
 import 'package:Satsails/screens/shared/nox_transaction_details.dart';
 import 'package:Satsails/screens/shared/peg_details.dart';
@@ -334,6 +335,16 @@ class AppRouter {
                     child: const SellTypeScreen(),
                     state: state,
                   ),
+                  routes: [
+                    GoRoute(
+                      path: '/sell_pix_nox',
+                      name: 'SellPixNox',
+                      pageBuilder: (context, state) => _buildFadeScalePage(
+                        child: const SellPixNox(),
+                        state: state,
+                      ),
+                    ),
+                  ]
                 ),
                 GoRoute(
                   path: 'deposit_type',
