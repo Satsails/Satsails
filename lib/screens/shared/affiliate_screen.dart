@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
-import 'package:Satsails/translations/translations.dart'; // Assuming translation support
+import 'package:Satsails/translations/localizations.dart'; // Assuming translation support
 
 class AffiliateScreen extends ConsumerStatefulWidget {
   const AffiliateScreen({super.key});

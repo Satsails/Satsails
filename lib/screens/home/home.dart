@@ -8,7 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/shared/balance_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:upgrader/upgrader.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/translations/localizations.dart';
 
 // This provider holds the state for the selected asset.
 final selectedAssetProvider = StateProvider<String>((ref) => 'Bitcoin');

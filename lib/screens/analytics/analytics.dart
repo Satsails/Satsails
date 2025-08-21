@@ -10,7 +10,7 @@ import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/analytics/components/bitcoin_price_chart.dart';
 import 'package:Satsails/screens/analytics/components/chart.dart';
 import 'package:Satsails/screens/analytics/components/pie_chart.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

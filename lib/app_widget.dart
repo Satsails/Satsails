@@ -13,8 +13,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
-import 'package:i18n_extension/i18n_extension.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import './app_router.dart';
 
 class AppWidget extends ConsumerStatefulWidget {

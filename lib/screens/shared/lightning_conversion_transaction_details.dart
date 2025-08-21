@@ -2,7 +2,7 @@ import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/common_operation_methods.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:i18n_extension/i18n_extension.dart';
+
 import 'package:intl/intl.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 

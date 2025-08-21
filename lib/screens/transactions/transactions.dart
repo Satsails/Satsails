@@ -2,7 +2,7 @@ import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/transactions_model.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/shared/transactions_builder.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';

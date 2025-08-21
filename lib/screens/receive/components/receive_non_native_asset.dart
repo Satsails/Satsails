@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:Satsails/screens/shared/address_display_widget.dart';
 import 'package:Satsails/screens/shared/qr_code.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/translations/localizations.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ReceiveNonNativeAsset extends ConsumerWidget {

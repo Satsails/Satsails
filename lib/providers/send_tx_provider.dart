@@ -1,5 +1,5 @@
 import 'package:Satsails/providers/sideswap_provider.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lwk/lwk.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';

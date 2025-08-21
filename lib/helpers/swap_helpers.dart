@@ -17,7 +17,7 @@ import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/screens/shared/transaction_modal.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/translations/localizations.dart';
 import 'package:action_slider/action_slider.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:auto_size_text_field/auto_size_text_field.dart';

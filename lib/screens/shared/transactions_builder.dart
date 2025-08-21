@@ -11,13 +11,15 @@ import 'package:Satsails/providers/nox_transfer_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/shared/lightning_conversion_transaction_details.dart';
+import 'package:Satsails/screens/shared/sideshift_transaction_details_screen.dart' as sideshift;
 import 'package:flutter/material.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:Satsails/translations/translations.dart';
+import 'package:Satsails/translations/localizations.dart';
 import 'package:i18n_extension/i18n_extension.dart';
+
 import 'package:intl/intl.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -454,7 +456,7 @@ Widget _buildSideshiftTransactionItem(SideShiftTransaction transaction, BuildCon
   final title = "${details.depositNetwork.capitalize()} ${details.depositCoin.toUpperCase()} → ${details.settleNetwork.capitalize()} ${details.settleCoin.toUpperCase()}";
   final locale = I18n.locale.languageCode;
   final formattedDate = DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
-  final statusText = isPending ? (details.status ?? '').capitalize() : formattedDate;
+  final statusText = isPending ? sideshift.getStatusText(details.status) : formattedDate;
 
   return _buildTransactionItemLayout(
     context: context,
