@@ -13,8 +13,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-// **MODIFIED**: Make sure your MinimumDeposit class and the new provider are imported.
-// import 'package:Satsails/models/minimum_deposit.dart';
 
 enum InputCurrency { brl, btc }
 

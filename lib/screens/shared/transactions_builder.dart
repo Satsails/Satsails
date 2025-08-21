@@ -515,11 +515,11 @@ Widget _buildSideswapPegTransactionItem(SideswapPegTransaction transaction, Buil
 Widget _buildEulenTransactionItem(EulenTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.details;
   final isPending = !details.completed && !details.failed && details.status != "expired";
-  final type = details.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
-  final title = "${details.to_currency} ($type)";
+  final type = details.transactionType.toString() == "BUY" ? "Purchase" : "Withdrawal";
+  final title = details.transactionType.toString() == "BUY" ? "${details.to_currency} $type".i18n : "${details.from_currency} $type".i18n;
   final locale = I18n.locale.languageCode;
   final formattedDate = DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
-  final statusText = isPending ? (details.status ?? '').capitalize() : formattedDate;
+  final statusText = isPending ? (details.statusText) : formattedDate;
   final isBuy = details.transactionType.toString() == "BUY";
 
   return _buildTransactionItemLayout(
@@ -529,7 +529,7 @@ Widget _buildEulenTransactionItem(EulenTransaction transaction, BuildContext con
       ref.read(selectedEulenTransferIdProvider.notifier).state = details.id;
       context.pushNamed('eulen_transaction_details');
     },
-    icon: eulenTransactionTypeIcon(),
+    icon: pixTransactionTypeIcon(),
     isPending: isPending,
     title: title,
     subtitle: statusText,
@@ -554,12 +554,12 @@ Widget _buildEulenTransactionItem(EulenTransaction transaction, BuildContext con
 
 Widget _buildNoxTransactionItem(NoxTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.details;
-  final isPending = !details.completed && !details.failed && details.status != "expired";
-  final type = details.transactionType.toString() == "BUY" ? "Purchase".i18n : "Withdrawal".i18n;
-  final title = "${details.to_currency} ($type)";
+  final isPending = !details.completed && !details.failed;
+  final type = details.transactionType.toString() == "BUY" ? "Purchase" : "Withdrawal";
+  final title = details.transactionType.toString() == "BUY" ? "${details.to_currency} $type".i18n : "${details.from_currency} $type".i18n;
   final locale = I18n.locale.languageCode;
   final formattedDate = DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
-  final statusText = isPending ? (details.status ?? '').capitalize() : formattedDate;
+  final statusText = isPending ? (details.statusText).capitalize() : formattedDate;
   final isBuy = details.transactionType.toString() == "BUY";
 
   return _buildTransactionItemLayout(
@@ -569,7 +569,7 @@ Widget _buildNoxTransactionItem(NoxTransaction transaction, BuildContext context
       ref.read(selectedNoxTransferIdProvider.notifier).state = transaction.details.id;
       context.pushNamed('nox_transaction_details');
     },
-    icon: eulenTransactionTypeIcon(),
+    icon: pixTransactionTypeIcon(),
     isPending: isPending,
     title: title,
     subtitle: statusText,

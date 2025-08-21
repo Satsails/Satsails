@@ -100,10 +100,11 @@ packages:
   bdk_flutter:
     dependency: "direct main"
     description:
-      name: bdk_flutter
-      sha256: "3e2bb3dfee6666857123a60adf93c0ee8e5707a99278504ce02236ebb87cc24e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: ac8d102240a4242e319e71492d3698828177e97b
+      resolved-ref: ac8d102240a4242e319e71492d3698828177e97b
+      url: "https://github.com/LtbLightning/bdk-flutter"
+    source: git
     version: "0.31.3"
   bip39:
     dependency: "direct main"

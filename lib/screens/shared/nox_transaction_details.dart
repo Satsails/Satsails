@@ -107,15 +107,7 @@ class NoxTransactionDetails extends ConsumerWidget {
   }
 
   Widget _buildTransactionDetails(BuildContext context, WidgetRef ref, NoxTransfer transaction) {
-    final status = transaction.status; String statusText;
-    switch (status) {
-      case "quote": statusText = "Quote".i18n; break;
-      case "KYC": statusText = "KYC".i18n; break;
-      case "depositpix": statusText = "Deposit Pix".i18n; break;
-      case "success": statusText = "Success".i18n; break;
-      case "completed": statusText = "Completed".i18n; break;
-      default: statusText = status?.replaceAll('_', ' ').i18n.capitalize() ?? "Unknown".i18n;
-    }
+    final statusText = transaction.statusText;
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 
     return Column(

@@ -252,7 +252,7 @@ Widget pegTransactionTypeIcon() {
   return circularIcon(Icons.swap_horiz_outlined, Colors.orange);
 }
 
-Widget eulenTransactionTypeIcon() {
+Widget pixTransactionTypeIcon() {
   Widget circularIcon(IconData icon, Color color) {
     return Container(
       width: 40,

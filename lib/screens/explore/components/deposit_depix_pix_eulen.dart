@@ -1,3 +1,4 @@
+
 import 'dart:async';
 
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
@@ -44,10 +45,8 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   double feePercentage = 0;
   String amountPurchasedToday = '0';
 
-  // **REMOVED**: State variable for pre-fetched fee is no longer needed.
-  // double? _userFeePercentage;
+  double? _userFeePercentage;
 
-  // Animation for success checkmark
   late final AnimationController _successAnimationController;
   late final Animation<double> _successScaleAnimation;
   bool _successCheckmarkValue = false;
@@ -55,10 +54,8 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   @override
   void initState() {
     super.initState();
-    // **MODIFIED**: Only fetch non-fee related data now.
-    _fetchAmountPurchasedToday();
+    _fetchInitialData();
 
-    // Initialize animation controller for the success checkmark
     _successAnimationController =
         AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
     _successScaleAnimation =
@@ -73,6 +70,14 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     super.dispose();
   }
 
+  // **MODIFIED**: Fetches both amount purchased and the user fee.
+  Future<void> _fetchInitialData() async {
+    await Future.wait([
+      _fetchAmountPurchasedToday(),
+      _fetchUserFee(),
+    ]);
+  }
+
   Future<void> _fetchAmountPurchasedToday() async {
     try {
       final result = await ref.read(getAmountPurchasedProvider.future);
@@ -82,7 +87,19 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     }
   }
 
-  // **REMOVED**: The _fetchUserFee method is no longer needed.
+  // **ADDED**: Method to pre-fetch the user fee.
+  Future<void> _fetchUserFee() async {
+    try {
+      final fee = await ref.read(getUserFeeAmount.future);
+      if (mounted) {
+        setState(() {
+          _userFeePercentage = fee;
+        });
+      }
+    } catch (e) {
+      print("Could not fetch user fee: $e");
+    }
+  }
 
   void _startPolling(String transactionId) {
     _pollingTimer?.cancel();
@@ -91,7 +108,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     });
   }
 
-  /// Resets the state to return to the initial amount input view.
   void _resetToInputView() {
     _pollingTimer?.cancel();
     setState(() {
@@ -135,8 +151,8 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
 
     setState(() {
       _isLoading = true;
-      _isPaid = false; // Reset paid status for new transaction
-      _successCheckmarkValue = false; // Reset checkmark animation value
+      _isPaid = false;
+      _successCheckmarkValue = false;
       _successAnimationController.reset();
     });
 
@@ -146,19 +162,15 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
       final purchase =
       await ref.read(createEulenTransferRequestProvider(amountInDouble).future);
 
-      // **MODIFIED**: Fee is now calculated from the transaction result.
-      // This assumes a fixed fee of 0.99 BRL is included in the total fee.
-      final totalFeeInBrl = purchase.originalAmount - purchase.receivedAmount;
-      final variableFeeInBrl = totalFeeInBrl - 0.99;
-      final newFeePercentage = (variableFeeInBrl / purchase.originalAmount) * 100;
+      // **REMOVED**: Dynamic fee calculation is no longer used.
 
       if (mounted) {
         setState(() {
           _pixQRCode = purchase.pixKey;
           _isLoading = false;
           _amountToReceive = purchase.receivedAmount;
-          // Use the dynamically calculated fee for display
-          feePercentage = newFeePercentage > 0 ? newFeePercentage : 0;
+          // **MODIFIED**: Use the pre-fetched fee variable.
+          feePercentage = (_userFeePercentage ?? 0.0) * 100;
           _transactionId = purchase.transactionId;
         });
         _startPolling(_transactionId!);
@@ -225,7 +237,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     );
   }
 
-  /// View for user to enter the deposit amount.
   Widget _buildAmountInputView() {
     return Padding(
       key: const ValueKey('amountInput'),
@@ -237,7 +248,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
           _buildAmountEntryCard(),
           SizedBox(height: 24.h),
           _buildInfoCard(),
-          const Spacer(), // Pushes the button to the bottom.
+          const Spacer(),
           CustomButton(
             onPressed: _generateQRCode,
             primaryColor: Colors.green.withOpacity(0.8),
@@ -250,7 +261,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     );
   }
 
-  /// View shown while waiting for payment, including the QR code.
   Widget _buildQRCodeView() {
     final paymentStatus = ref.watch(getEulenPixPaymentStateProvider(_transactionId!));
     final originalAmount = _amountController.text;
@@ -278,7 +288,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     );
   }
 
-  /// View shown after payment is confirmed.
   Widget _buildPaymentSuccessView() {
     final paymentStatus = ref.watch(getEulenPixPaymentStateProvider(_transactionId!));
 
@@ -315,7 +324,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     );
   }
 
-  /// Reusable card to show payment details.
   Widget _buildPaymentDetailsCard(String originalAmount, AsyncValue<bool> paymentStatus) {
     return Container(
       padding: EdgeInsets.all(20.w),
@@ -355,7 +363,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     );
   }
 
-  /// Builds the styled status display inside the details card.
   Widget _buildPaymentStatusRow(AsyncValue<bool> status) {
     Widget buildRow(String text, IconData icon, Color color, {bool showSpinner = false}) {
       return Padding(
@@ -392,7 +399,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     );
   }
 
-  /// Card for entering the amount.
   Widget _buildAmountEntryCard() {
     return Container(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
@@ -430,8 +436,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
         ]));
   }
 
-  /// Card displaying transfer limits and other info.
-  // **MODIFIED**: This card no longer displays any fee information.
+  // **MODIFIED**: This card now displays the pre-fetched fee.
   Widget _buildInfoCard() {
     return Container(
         padding: EdgeInsets.all(16.w),
@@ -440,32 +445,57 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
             borderRadius: BorderRadius.circular(16.r)),
         child: Column(children: [
           _buildInfoRow(
-              icon: Icons.info_outline, text: 'Transfer limit: R\$ 5000 per CPF/CNPJ'.i18n),
+            icon: Icons.info_outline,
+            child: Text('Transfer limit: R\$ 5000 per CPF/CNPJ'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
+          ),
           SizedBox(height: 12.h),
           _buildInfoRow(
-              icon: Icons.info_outline, text: 'Minimum deposit: R\$ 5'.i18n),
+            icon: Icons.info_outline,
+            child: Text('Minimum deposit: R\$ 5'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
+          ),
+          SizedBox(height: 12.h),
+          _userFeePercentage == null
+              ? _buildShimmerInfoRow()
+              : _buildInfoRow(
+            icon: Icons.receipt_long,
+            child: Text('Satsails fee: ${(_userFeePercentage! * 100).toStringAsFixed(2)} %', style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
+          ),
           SizedBox(height: 12.h),
           _buildInfoRow(
-              icon: Icons.attach_money,
-              text: 'Amount Purchased Today:'.i18n + ' R\$ $amountPurchasedToday')
+            icon: Icons.attach_money,
+            child: Text('Amount Purchased Today:'.i18n + ' R\$ $amountPurchasedToday', style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
+          )
         ]));
   }
 
-  /// Helper for building a row with an icon and text.
-  // **MODIFIED**: Reverted to accept a simple String for clarity.
-  Widget _buildInfoRow({required IconData icon, required String text}) {
+  // **MODIFIED**: Helper now accepts a Widget.
+  Widget _buildInfoRow({required IconData icon, required Widget child}) {
     return Row(children: [
       Icon(icon, color: Colors.white.withOpacity(0.7), size: 20.sp),
       SizedBox(width: 12.w),
-      Expanded(
-          child: Text(text,
-              style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)))
+      Expanded(child: child),
     ]);
   }
 
-  // **REMOVED**: The shimmer row is no longer necessary.
+  // **ADDED**: Shimmer placeholder for the fee row.
+  Widget _buildShimmerInfoRow() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[850]!,
+      highlightColor: Colors.grey[700]!,
+      child: _buildInfoRow(
+        icon: Icons.receipt_long,
+        child: Container(
+          height: 18.h,
+          width: 150.w,
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(4.r),
+          ),
+        ),
+      ),
+    );
+  }
 
-  /// Helper for building a detail row with a label and a value.
   Widget _buildDetailRow(String label, String value, {Color? valueColor}) {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Text(label,
@@ -476,7 +506,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     ]);
   }
 
-  /// Builds the shimmer loading effect.
   Widget _buildShimmerEffect() {
     final baseColor = Colors.grey[900]!;
     final highlightColor = Colors.grey[800]!;

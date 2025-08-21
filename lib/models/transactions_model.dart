@@ -310,8 +310,7 @@ class Transaction {
     tx.details.status == 'waiting' || tx.details.status == 'expired'));
     unsettled.addAll(eulenTransactions.where((tx) =>
     tx.details.failed || tx.details.status == 'expired' || tx.details.status == 'pending'));
-    unsettled.addAll(noxTransactions.where((tx) =>
-    tx.details.status == 'quote' || tx.details.status == 'failed'));
+    unsettled.addAll(noxTransactions.where((tx) => !tx.details.completed));
     unsettled.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return unsettled;
   }

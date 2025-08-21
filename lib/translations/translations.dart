@@ -3869,7 +3869,59 @@ extension Localization on String {
       {
         'en': 'Get a permanent Lightning Address and receive payments anytime.',
         'pt': 'Obtenha um Endereço Lightning permanente e receba pagamentos a qualquer momento.'
+      } +
+      {
+        'en': 'Get a permanent Lightning Address and receive payments anytime.',
+        'pt': 'Obtenha um Endereço Lightning permanente e receba pagamentos a qualquer momento.'
+      } +
+      {
+        'en': 'DEPIX Purchase',
+        'pt': 'Compra de DEPIX'
+      } +
+      {
+        'en': 'DEPIX Withdrawal',
+        'pt': 'Saque de DEPIX'
+      } +
+      {
+        'en': 'BTC Withdrawal',
+        'pt': 'Saque de BTC'
+      } +
+      {
+        'en': 'BTC Purchase',
+        'pt': 'Compra de BTC'
+      } +{
+    'en': 'Pix Deposit',
+    'pt': 'Depósito Pix'
+  } +
+      {
+        'en': 'Pix Withdrawal',
+        'pt': 'Saque Pix'
+      } +
+      {
+        'en': 'KYC Validation',
+        'pt': 'Validação KYC'
+      } +
+      {
+        'en': 'Quoting',
+        'pt': 'Obtendo Cotação'
+      } +
+      {
+        'en': 'Crypto Deposit',
+        'pt': 'Depósito de Cripto'
+      } +
+      {
+        'en': 'Crypto Withdrawal',
+        'pt': 'Saque de Cripto'
+      } +
+      {
+        'en': 'Fiat to Crypto Swap',
+        'pt': 'Troca de Fiat por Cripto'
+      } +
+      {
+        'en': 'Crypto to Fiat Swap',
+        'pt': 'Troca de Cripto por Fiat'
       };
+
   String get i18n => localize(this, _t);
 
 }

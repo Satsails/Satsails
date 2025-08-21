@@ -34,7 +34,10 @@ dependencies:
       url: https://github.com/breez/breez-sdk-liquid-flutter
 
   # Bitcoin & Liquid Libraries
-  bdk_flutter: ^0.31.3
+  bdk_flutter:
+    git:
+      url: https://github.com/LtbLightning/bdk-flutter
+      ref: ac8d102240a4242e319e71492d3698828177e97b
   lwk: ^0.2.1
   bip39: ^1.0.6
   bitcoin_message_signer: ^1.0.2

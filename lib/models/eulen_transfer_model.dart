@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:Satsails/handlers/response_handlers.dart';
+import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -183,6 +185,23 @@ class EulenTransfer extends HiveObject {
     this.cashback = 0.0,
     this.cashbackPayed = false,
   });
+
+  String get statusText {
+    switch (status) {
+      case "expired":
+        return "Expired".i18n;
+      case "pending":
+        return "Pending".i18n;
+      case "depix_sent":
+        return "Depix Sent".i18n;
+      case "under_review":
+        return "Under Review".i18n;
+      case "completed":
+        return "Completed".i18n;
+      default:
+        return status?.replaceAll('_', ' ').i18n.capitalize() ?? "Unknown".i18n;
+    }
+  }
 
   factory EulenTransfer.fromJson(Map<String, dynamic> json) {
     final data = json['transfer'] ?? json;

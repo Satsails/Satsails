@@ -113,15 +113,7 @@ class EulenTransactionDetails extends ConsumerWidget {
   }
 
   Widget _buildTransactionDetails(BuildContext context, WidgetRef ref, EulenTransfer transaction) {
-    final status = transaction.status; String statusText;
-    switch (status) {
-      case "expired": statusText = "Expired".i18n; break;
-      case "pending": statusText = "Pending".i18n; break;
-      case "depix_sent": statusText = "Depix Sent".i18n; break;
-      case "under_review": statusText = "Under Review".i18n; break;
-      case "completed": statusText = "Completed".i18n; break;
-      default: statusText = status?.replaceAll('_', ' ').i18n.capitalize() ?? "Unknown".i18n;
-    }
+    final statusText = transaction.statusText;
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 
     return Column(

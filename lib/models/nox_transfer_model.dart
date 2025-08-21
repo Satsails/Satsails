@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:Satsails/handlers/response_handlers.dart';
+import 'package:Satsails/helpers/string_extension.dart';
+import 'package:Satsails/translations/translations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -279,6 +281,31 @@ class NoxTransfer extends HiveObject {
     cashback: 0.0, // Default to 0.0
     cashbackPayed: false, // Default to false
   );
+
+  String get statusText {
+    switch (status) {
+      case "pix_deposit":
+        return "Pix Deposit".i18n;
+      case "pix_withdrawal":
+        return "Pix Withdrawal".i18n;
+      case "kyc_validation":
+        return "KYC Validation".i18n;
+      case "quoting":
+        return "Quoting".i18n;
+      case "crypto_deposit":
+        return "Crypto Deposit".i18n;
+      case "crypto_withdrawal":
+        return "Crypto Withdrawal".i18n;
+      case "swap_fiat_for_crypto":
+        return "Fiat to Crypto Swap".i18n;
+      case "swap_crypto_for_fiat":
+        return "Crypto to Fiat Swap".i18n;
+      case "client_side_success":
+        return "Completed".i18n;
+      default:
+        return status?.replaceAll('_', ' ').i18n.capitalize() ?? "Unknown".i18n;
+    }
+  }
 }
 
 class NoxService {
