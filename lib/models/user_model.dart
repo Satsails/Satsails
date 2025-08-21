@@ -181,4 +181,27 @@ class UserService {
       return Result(error: 'An error has occurred. Please try again later');
     }
   }
+
+  static Future<Result<double>> feeAmount(String auth) async {
+    try {
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
+
+      final response = await http.get(
+        Uri.parse('${dotenv.env['BACKEND']!}/users/fee_amount'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return  Result(data: jsonDecode(response.body)['fee']);
+      } else {
+        String errorMsg = jsonDecode(response.body)['error'] ?? 'Failed to add affiliate code';
+        return Result(error: errorMsg);
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please try again later');
+    }
+  }
 }

@@ -8,6 +8,22 @@ import 'package:http/http.dart' as http;
 
 part 'nox_transfer_model.g.dart';
 
+
+class MinimumDeposit {
+  final String brl;
+  final String btc;
+
+  MinimumDeposit({required this.brl, required this.btc});
+
+  /// A factory constructor to create a MinimumDeposit instance from a JSON map.
+  factory MinimumDeposit.fromJson(Map<String, dynamic> json) {
+    return MinimumDeposit(
+      brl: json['brl']?.toString() ?? '20.00', // Default value on parsing failure
+      btc: json['btc']?.toString() ?? '0.00005', // Default value on parsing failure
+    );
+  }
+}
+
 class NoxTransferNotifier extends StateNotifier<List<NoxTransfer>> {
   NoxTransferNotifier() : super([]) {
     _loadPurchases();
@@ -319,4 +335,30 @@ class NoxService {
     } catch (e) {
       return Result(error: 'An error has occurred. Please try again later');
     }
-  }}
+  }
+
+
+  static Future<Result<MinimumDeposit>> getMinimumDeposit(String auth) async {
+    try {
+      final uri = Uri.parse('${dotenv.env['BACKEND']!}/nox_transfers/minimum_deposits');
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        final minimumDeposits = MinimumDeposit.fromJson(jsonResponse);
+        return Result(data: minimumDeposits);
+      } else {
+        final error = jsonDecode(response.body)['error'] ?? 'Failed to get minimum deposit';
+        return Result(error: error);
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please try again later');
+    }
+  }
+}

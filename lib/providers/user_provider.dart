@@ -119,3 +119,13 @@ final depositInitializerProvider = FutureProvider.autoDispose<void>((ref) async 
     }
   }
 });
+
+final getUserFeeAmount = FutureProvider.autoDispose<double>((ref) async {
+  final auth = ref.read(userProvider).jwt;
+  final result = await UserService.feeAmount(auth);
+  if (result.isSuccess && result.data != null) {
+    return result.data!;
+  } else {
+    throw result.error!;
+  }
+});

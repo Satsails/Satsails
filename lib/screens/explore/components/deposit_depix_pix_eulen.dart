@@ -44,6 +44,9 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   double feePercentage = 0;
   String amountPurchasedToday = '0';
 
+  // **REMOVED**: State variable for pre-fetched fee is no longer needed.
+  // double? _userFeePercentage;
+
   // Animation for success checkmark
   late final AnimationController _successAnimationController;
   late final Animation<double> _successScaleAnimation;
@@ -52,6 +55,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   @override
   void initState() {
     super.initState();
+    // **MODIFIED**: Only fetch non-fee related data now.
     _fetchAmountPurchasedToday();
 
     // Initialize animation controller for the success checkmark
@@ -77,6 +81,8 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
       if (mounted) setState(() => amountPurchasedToday = '0');
     }
   }
+
+  // **REMOVED**: The _fetchUserFee method is no longer needed.
 
   void _startPolling(String transactionId) {
     _pollingTimer?.cancel();
@@ -110,6 +116,14 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
           context: context, message: 'Please enter a valid amount.'.i18n, error: true, top: true);
       return;
     }
+    if (amountInDouble < 5) {
+      showMessageSnackBar(
+          context: context,
+          message: 'The minimum deposit amount is 5 BRL'.i18n,
+          error: true,
+          top: true);
+      return;
+    }
     if (amountInDouble > 5000) {
       showMessageSnackBar(
           context: context,
@@ -131,6 +145,9 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
       await ref.read(depositInitializerProvider.future);
       final purchase =
       await ref.read(createEulenTransferRequestProvider(amountInDouble).future);
+
+      // **MODIFIED**: Fee is now calculated from the transaction result.
+      // This assumes a fixed fee of 0.99 BRL is included in the total fee.
       final totalFeeInBrl = purchase.originalAmount - purchase.receivedAmount;
       final variableFeeInBrl = totalFeeInBrl - 0.99;
       final newFeePercentage = (variableFeeInBrl / purchase.originalAmount) * 100;
@@ -140,6 +157,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
           _pixQRCode = purchase.pixKey;
           _isLoading = false;
           _amountToReceive = purchase.receivedAmount;
+          // Use the dynamically calculated fee for display
           feePercentage = newFeePercentage > 0 ? newFeePercentage : 0;
           _transactionId = purchase.transactionId;
         });
@@ -413,6 +431,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   }
 
   /// Card displaying transfer limits and other info.
+  // **MODIFIED**: This card no longer displays any fee information.
   Widget _buildInfoCard() {
     return Container(
         padding: EdgeInsets.all(16.w),
@@ -424,12 +443,16 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
               icon: Icons.info_outline, text: 'Transfer limit: R\$ 5000 per CPF/CNPJ'.i18n),
           SizedBox(height: 12.h),
           _buildInfoRow(
+              icon: Icons.info_outline, text: 'Minimum deposit: R\$ 5'.i18n),
+          SizedBox(height: 12.h),
+          _buildInfoRow(
               icon: Icons.attach_money,
               text: 'Amount Purchased Today:'.i18n + ' R\$ $amountPurchasedToday')
         ]));
   }
 
   /// Helper for building a row with an icon and text.
+  // **MODIFIED**: Reverted to accept a simple String for clarity.
   Widget _buildInfoRow({required IconData icon, required String text}) {
     return Row(children: [
       Icon(icon, color: Colors.white.withOpacity(0.7), size: 20.sp),
@@ -439,6 +462,8 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
               style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)))
     ]);
   }
+
+  // **REMOVED**: The shimmer row is no longer necessary.
 
   /// Helper for building a detail row with a label and a value.
   Widget _buildDetailRow(String label, String value, {Color? valueColor}) {

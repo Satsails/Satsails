@@ -13,6 +13,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+// **MODIFIED**: Make sure your MinimumDeposit class and the new provider are imported.
+// import 'package:Satsails/models/minimum_deposit.dart';
 
 enum InputCurrency { brl, btc }
 
@@ -51,6 +53,31 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
       return;
     }
 
+    // --- VALIDATION SECTION ---
+    final minimumDepositsAsync = ref.read(minimumNoxDepositsProvider);
+
+    if (_selectedCurrency == InputCurrency.brl) {
+      final minimumDeposit = double.tryParse(minimumDepositsAsync.valueOrNull?.brl ?? '0');
+      if (minimumDeposit != null && amountInDouble < minimumDeposit) {
+        showMessageSnackBar(
+            context: context,
+            message: '${'The minimum deposit is'.i18n} R\$ ${minimumDepositsAsync.value!.brl}',
+            error: true);
+        return;
+      }
+    }
+    // **ADDED**: A similar check for the BTC minimum deposit.
+    else if (_selectedCurrency == InputCurrency.btc) {
+      final minimumDeposit = double.tryParse(minimumDepositsAsync.valueOrNull?.btc ?? '0');
+      if (minimumDeposit != null && amountInDouble < minimumDeposit) {
+        showMessageSnackBar(
+            context: context,
+            message: '${'The minimum deposit is'.i18n} ${minimumDepositsAsync.value!.btc} BTC',
+            error: true);
+        return;
+      }
+    }
+
     setState(() => _isLoading = true);
 
     String? amountFiat;
@@ -66,7 +93,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
 
     try {
       await ref.read(depositInitializerProvider.future);
-      final url = await ref.read(createNoxTransferRequestProvider((amountCrypto: amountCrypto, amountFiat: amountFiat, type: 'onramp_instant')).future);
+      final url = await ref.read(createNoxTransferRequestProvider(
+          (amountCrypto: amountCrypto, amountFiat: amountFiat, type: 'onramp_instant')).future);
 
       if (url.isNotEmpty && mounted) {
         _initializeWebView(url);
@@ -99,7 +127,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
     });
   }
 
-  /// **MODIFIED:** This is now a simple, centered loading indicator on a white background.
   Widget _buildLoadingIndicator() {
     return Container(
       color: Colors.white,
@@ -115,8 +142,8 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: _url == null
-          ? AppBar(
+      // **MODIFIED**: The AppBar is now always visible. The conditional logic was removed.
+      appBar: AppBar(
         centerTitle: true,
         title: Text(
           'Deposit via Pix'.i18n,
@@ -125,6 +152,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          // This logic now correctly handles both states (WebView and Input)
           onPressed: () {
             if (_url != null) {
               setState(() {
@@ -135,8 +163,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
             }
           },
         ),
-      )
-          : null, // When there's a URL, don't show an AppBar.
+      ),
       body: SafeArea(
         top: true,
         bottom: true,
@@ -148,7 +175,9 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
               children: [
                 SizedBox(height: 24.h),
                 _buildAmountEntryCard(),
-                const Spacer(), // Pushes the button to the bottom.
+                SizedBox(height: 16.h),
+                _buildInfoCard(),
+                const Spacer(),
                 SizedBox(
                   height: 56.h,
                   width: double.infinity,
@@ -185,17 +214,14 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         )
             : Stack(
           children: [
-            Column(
-              children: [
-                SizedBox(height: 12.h), // Adds space at the top
-                Expanded(
-                  child: ClipRect(
-                    child: WebViewWidget(controller: _webViewController),
-                  ),
-                ),
-              ],
+            // **MODIFIED**: Removed the SizedBox from here to prevent extra space under the AppBar.
+            Expanded(
+              child: ClipRRect(
+                // Using ClipRRect to allow for potential future border radius
+                borderRadius: BorderRadius.zero,
+                child: WebViewWidget(controller: _webViewController),
+              ),
             ),
-            // **MODIFIED:** Uses the new centered loading indicator.
             if (_isWebLoading) _buildLoadingIndicator(),
           ],
         ),
@@ -246,6 +272,80 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildInfoCard() {
+    final minimumDepositsAsync = ref.watch(minimumNoxDepositsProvider);
+
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF333333).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Column(
+        children: [
+          _buildInfoRow(
+            icon: Icons.receipt_long,
+            label: Text(
+              'Fees will be shown on the next screen'.i18n,
+              style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500),
+            ),
+          ),
+          SizedBox(height: 12.h),
+          minimumDepositsAsync.when(
+            data: (deposits) {
+              final String text = _selectedCurrency == InputCurrency.brl
+                  ? '${'Minimum deposit:'.i18n} R\$ ${deposits.brl}'
+                  : '${'Minimum deposit:'.i18n} ${deposits.btc} BTC';
+
+              return _buildInfoRow(
+                icon: Icons.info_outline,
+                label: Text(
+                  text,
+                  style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500),
+                ),
+              );
+            },
+            loading: () => _buildInfoRow(
+              icon: Icons.info_outline,
+              label: Shimmer.fromColors(
+                baseColor: Colors.grey[850]!,
+                highlightColor: Colors.grey[700]!,
+                child: Container(
+                  height: 18.h,
+                  width: 200.w,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                ),
+              ),
+            ),
+            error: (err, stack) => _buildInfoRow(
+              icon: Icons.error_outline,
+              iconColor: Colors.orange,
+              label: Text(
+                'Could not load minimum deposit'.i18n,
+                style: TextStyle(fontSize: 15.sp, color: Colors.orange, fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({required IconData icon, required Widget label, Color? iconColor}) {
+    return Row(
+      children: [
+        Icon(icon, color: iconColor ?? Colors.white.withOpacity(0.7), size: 20.sp),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: label,
+        ),
+      ],
     );
   }
 
