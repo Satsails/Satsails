@@ -99,7 +99,6 @@ final Map<SellProvider, ProviderDetails> sellProviderDetails = {
 final Map<SellProvider, KYCAassessment> sellKycAssessment = {
   SellProvider.Nox: KYCAassessment(
     details: [
-      "You are required to report manually your sales if not USDT if your jurisdiction requires it".i18n,
       "Sales are reported to the Brazilian federal revenue agency under the seller's name".i18n,
       "*Always comply with the laws of your jurisdiction.".i18n
     ],
