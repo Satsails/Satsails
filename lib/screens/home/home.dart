@@ -82,16 +82,16 @@ class Home extends ConsumerWidget {
     return HomeCustomButton(
       icon: Icons.warning_amber_rounded,
       label: 'Backup Wallet'.i18n,
-      iconColor: Colors.red,
+      iconColor: Colors.white,
       textColor: Colors.white,
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: Colors.redAccent,
       onPressed: () => context.push('/seed_words'),
     );
   }
 
   Widget _buildBuyButton(BuildContext context, WidgetRef ref) {
     return HomeCustomButton(
-      label: 'Add money'.i18n,
+      label: 'Add Money'.i18n,
       textColor: Colors.black,
       backgroundColor: Colors.white.withOpacity(0.9),
       onPressed: () => context.push('/home/explore/deposit_type'),

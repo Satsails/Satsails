@@ -72,7 +72,7 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
     } catch (e) {
       showMessageSnackBar(
         context: context,
-        message: 'An error occurred: %s'.i18n.fill([e.toString()]),
+        message: e.toString().i18n,
         error: true,
       );
       setState(() {
@@ -127,8 +127,7 @@ class _ReceiveLightningWidgetState extends ConsumerState<ReceiveLightningWidget>
                 },
               );
             }
-            return _buildErrorDisplay(
-                'Error: %s'.i18n.fill([error.toString()]));
+            return _buildErrorDisplay(error.toString().i18n);
           },
           loading: () => _buildShimmerEffect(),
         )),

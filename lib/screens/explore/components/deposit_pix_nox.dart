@@ -63,8 +63,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
             error: true);
         return;
       }
-    }
-    else if (_selectedCurrency == InputCurrency.btc) {
+    } else if (_selectedCurrency == InputCurrency.btc) {
       final minimumDeposit = double.tryParse(minimumDepositsAsync.valueOrNull?.btc ?? '0');
       if (minimumDeposit != null && amountInDouble < minimumDeposit) {
         showMessageSnackBar(
@@ -209,13 +208,10 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         )
             : Stack(
           children: [
-            // =========== FIX APPLIED HERE ===========
-            // The invalid `Expanded` widget was removed from the Stack.
             ClipRRect(
               borderRadius: BorderRadius.zero,
               child: WebViewWidget(controller: _webViewController),
             ),
-            // =========================================
             if (_isWebLoading) _buildLoadingIndicator(),
           ],
         ),
@@ -288,6 +284,16 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
             ),
           ),
           SizedBox(height: 12.h),
+          // =========== NEW MESSAGE ADDED HERE ===========
+          _buildInfoRow(
+            icon: Icons.info_outline,
+            label: Text(
+              'Small amounts may incur higher relative costs due to Bitcoin network fees.'.i18n,
+              style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500),
+            ),
+          ),
+          SizedBox(height: 12.h),
+          // ===========================================
           minimumDepositsAsync.when(
             data: (deposits) {
               final String text = _selectedCurrency == InputCurrency.brl

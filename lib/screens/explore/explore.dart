@@ -252,8 +252,8 @@ class _BitcoinPriceChart extends ConsumerWidget {
         final settings = ref.watch(settingsProvider);
         final Map<DateTime, num> priceByDay = {for (var dp in marketData) dp.date.toLocal().dateOnly(): dp.price ?? 0};
         final lastPrice = marketData.last.price ?? 0;
-        final startPrice = marketData.first.price ?? 0;
-        final percentageChange = startPrice != 0 ? ((lastPrice - startPrice) / startPrice * 100) : 0;
+        final startPriceThisMonth = marketData.firstWhere((dp) => dp.date.toLocal().dateOnly() == start, orElse: () => marketData.first).price ?? 0;
+        final percentageChange = startPriceThisMonth != 0 ? ((lastPrice - startPriceThisMonth) / startPriceThisMonth * 100) : 0;
         final currencyFormatter = NumberFormat.simpleCurrency(name: settings.currency, decimalDigits: 2);
 
         return Card(

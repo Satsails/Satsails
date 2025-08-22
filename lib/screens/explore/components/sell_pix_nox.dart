@@ -67,7 +67,8 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
     try {
       // Assuming depositInitializerProvider is a generic initializer
       await ref.read(depositInitializerProvider.future);
-      final url = await ref.read(createNoxTransferRequestProvider((amountCrypto: amountCrypto, amountFiat: amountFiat, type: 'offramp_instant')).future);
+      final url = await ref.read(createNoxTransferRequestProvider(
+          (amountCrypto: amountCrypto, amountFiat: amountFiat, type: 'offramp_instant')).future);
 
       if (url.isNotEmpty && mounted) {
         _initializeWebView(url);
@@ -131,12 +132,14 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => _url == null ? context.pop() : setState(() { _url = null; }),
         ),
-        actions: _url != null ? [
+        actions: _url != null
+            ? [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () => _webViewController.reload(),
           ),
-        ] : null,
+        ]
+            : null,
       ),
       body: SafeArea(
         child: _url == null
@@ -148,7 +151,11 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
               children: [
                 SizedBox(height: 24.h),
                 _buildAmountEntryCard(),
+                SizedBox(height: 16.h),
+                // =========== INFO CARD ADDED HERE ===========
+                _buildInfoCard(),
                 SizedBox(height: 24.h),
+                // ==========================================
                 SizedBox(
                   height: 56.h,
                   child: _isLoading
@@ -247,6 +254,37 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
       ),
     );
   }
+
+  // =========== NEW WIDGETS ADDED HERE ===========
+  Widget _buildInfoCard() {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF333333).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: _buildInfoRow(
+        icon: Icons.info_outline,
+        label: Text(
+          'Small amounts may incur higher relative costs due to Bitcoin network fees.'.i18n,
+          style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({required IconData icon, required Widget label, Color? iconColor}) {
+    return Row(
+      children: [
+        Icon(icon, color: iconColor ?? Colors.white.withOpacity(0.7), size: 20.sp),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: label,
+        ),
+      ],
+    );
+  }
+  // ============================================
 
   /// A segmented control to switch between BRL and BTC input.
   Widget _buildCurrencyToggle() {

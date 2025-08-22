@@ -465,7 +465,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                                 });
                                               }
                                             } catch (e) {
-                                              showMessageSnackBar(message: e.toString(), error: true, context: context);
+                                              showMessageSnackBar(message: e.toString().i18n, error: true, context: context);
                                             }
                                           },
                                           child: Container(
