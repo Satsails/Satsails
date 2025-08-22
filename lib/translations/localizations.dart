@@ -749,7 +749,7 @@ extension Localization on String {
           'Purchases are not paid directly to your wallet but to a smart contract provided by SideShift. The provider, NOX, reports all purchases in USDC. The smart contract does not automatically report transactions. Ensure compliance with your local laws.': 'Purchases are not paid directly to your wallet but to a smart contract provided by SideShift. The provider, NOX, reports all purchases in USDC. The smart contract does not automatically report transactions. Ensure compliance with your local laws.',
           'Generate Payment': 'Generate Payment',
           'Note: Purchases from NOX are always in USDC and will be automatically converted via smart contract to the asset you want to purchase. The asset you receive is not reported to the goverment automatically.': 'Note: Purchases from NOX are always in USDC and will be automatically converted via smart contract to the asset you want to purchase. The asset you receive is not reported to the goverment automatically.',
-          'Minimum Deposit: ': 'Minimum Deposit: ',
+          'Minimum Deposit:': 'Minimum Deposit:',
           'Maximum Deposit: ': 'Maximum Deposit: ',
           'Value to Receive: ': 'Value to Receive: ',
           'Purchase multiple currencies via smart contacts directly': 'Purchase multiple currencies via smart contacts directly',
@@ -981,6 +981,11 @@ extension Localization on String {
           'Sending payments to yourself is not supported.': 'Sending payments to yourself is not supported.',
           'An unknown payment error occurred.': 'An unknown payment error occurred.',
           'Unsupported address or invoice type': 'Unsupported address or invoice type',
+          'Could not load minimum deposit': 'Could not load minimum deposit',
+          'Fees will be shown on the next screen': 'Fees will be shown on the next screen',
+          'Small amounts may incur higher relative costs due to Bitcoin network fees.': 'Small amounts may incur higher relative costs due to Bitcoin network fees.',
+          'The minimum deposit amount is 5 BRL': 'The minimum deposit amount is 5 BRL',
+          'Unable to Verify': 'Unable to Verify',
         },
         'pt': {
           'View Accounts': 'Ver Contas',
@@ -1724,7 +1729,7 @@ extension Localization on String {
           'Purchases are not paid directly to your wallet but to a smart contract provided by SideShift. The provider, NOX, reports all purchases in USDC. The smart contract does not automatically report transactions. Ensure compliance with your local laws.': 'As compras não são pagas diretamente para sua carteira, mas para um contrato inteligente fornecido pela SideShift. O provedor, NOX, reporta todas as compras em USDC. O contrato inteligente não reporta automaticamente as transações. Certifique-se de estar em conformidade com as leis locais.',
           'Generate Payment': 'Gerar Pagamento',
           'Note: Purchases from NOX are always in USDC and will be automatically converted via smart contract to the asset you want to purchase. The asset you receive is not reported to the goverment automatically.': 'Nota: As compras da NOX são sempre em USDC e serão automaticamente convertidas via contrato inteligentes para o ativo que você deseja comprar. O ativo que recebe não é automaticamente reportado automaticamente.',
-          'Minimum Deposit: ': 'Depósito Mínimo: ',
+          'Minimum Deposit:': 'Depósito Mínimo:',
           'Maximum Deposit: ': 'Depósito Máximo: ',
           'Value to Receive: ': 'Valor a Receber: ',
           'Purchase multiple currencies via smart contacts directly': 'Compre múltiplas moedas diretamente através de contractos inteligentes',
@@ -1946,6 +1951,11 @@ extension Localization on String {
           'Sending payments to yourself is not supported.': 'O envio de pagamentos para si mesmo não é suportado.',
           'An unknown payment error occurred.': 'Ocorreu um erro de pagamento desconhecido.',
           'Unsupported address or invoice type': 'Endereço ou tipo de fatura não suportado',
+          'Could not load minimum deposit': 'Não foi possível carregar o depósito mínimo.',
+          'Fees will be shown on the next screen': 'As taxas serão apresentadas no ecrã seguinte.',
+          'Small amounts may incur higher relative costs due to Bitcoin network fees.': 'Valores pequenos podem incorrer em custos relativos mais altos devido às taxas da rede Bitcoin.',
+          'The minimum deposit amount is 5 BRL': 'O valor mínimo de depósito é 5 BRL.',
+          'Unable to Verify': 'Não foi possível verificar.',
         }
       };
 
