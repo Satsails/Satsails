@@ -986,6 +986,7 @@ extension Localization on String {
           'Small amounts may incur higher relative costs due to Bitcoin network fees.': 'Small amounts may incur higher relative costs due to Bitcoin network fees.',
           'The minimum deposit amount is 5 BRL': 'The minimum deposit amount is 5 BRL',
           'Unable to Verify': 'Unable to Verify',
+          'Total Value': 'Total Value',
         },
         'pt': {
           'View Accounts': 'Ver Contas',
@@ -1956,6 +1957,7 @@ extension Localization on String {
           'Small amounts may incur higher relative costs due to Bitcoin network fees.': 'Valores pequenos podem incorrer em custos relativos mais altos devido às taxas da rede Bitcoin.',
           'The minimum deposit amount is 5 BRL': 'O valor mínimo de depósito é 5 BRL.',
           'Unable to Verify': 'Não foi possível verificar.',
+          'Total Value': 'Valor Total',
         }
       };
 

@@ -35,7 +35,6 @@ class SideShiftBridgeOption extends BridgeOption {
 class LightningBridgeOption extends BridgeOption {
   const LightningBridgeOption();
 }
-// End of helper classes
 
 final selectedNetworkTypeProvider = StateProvider<String>((ref) => "Bitcoin Network");
 
@@ -137,6 +136,8 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 },
               ),
             ),
+            _buildActionButtons(context, ref, isSmallScreen),
+            SizedBox(height: 8.h),
             Center(
               child: SmoothPageIndicator(
                 controller: _pageController,
@@ -149,8 +150,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 ),
               ),
             ),
-            SizedBox(height: 8.h),
-            _buildActionButtons(context, ref, isSmallScreen),
           ],
         ),
       ),

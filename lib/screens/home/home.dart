@@ -82,8 +82,8 @@ class Home extends ConsumerWidget {
     return HomeCustomButton(
       icon: Icons.warning_amber_rounded,
       label: 'Backup Wallet'.i18n,
-      iconColor: Colors.white,
-      textColor: Colors.white,
+      iconColor: Colors.black,
+      textColor: Colors.black,
       backgroundColor: Colors.redAccent,
       onPressed: () => context.push('/seed_words'),
     );
