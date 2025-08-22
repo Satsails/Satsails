@@ -462,13 +462,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
             child: Text('Minimum deposit: R\$ 5'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
           ),
           SizedBox(height: 12.h),
-          _userFeePercentage == null
-              ? _buildShimmerInfoRow()
-              : _buildInfoRow(
-            icon: Icons.receipt_long,
-            child: Text('Satsails fee: ${(_userFeePercentage! * 100).toStringAsFixed(2)} %', style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
-          ),
-          SizedBox(height: 12.h),
           _buildInfoRow(
             icon: Icons.attach_money,
             child: Text('Amount Purchased Today:'.i18n + ' R\$ $amountPurchasedToday', style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
