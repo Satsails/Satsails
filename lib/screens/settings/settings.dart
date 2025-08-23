@@ -451,7 +451,7 @@ class Settings extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.cloud_queue, color: Colors.white, size: 24.sp),
+              leading: Icon(Icons.cloud_rounded, color: Colors.white, size: 24.sp),
               title: Text('Blockstream',
                   style: TextStyle(color: Colors.white, fontSize: 16.sp)),
               onTap: () {
@@ -465,7 +465,7 @@ class Settings extends ConsumerWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.cloud_queue, color: Colors.white, size: 24.sp),
+              leading: Icon(Icons.cloud_rounded, color: Colors.white, size: 24.sp),
               title: Text('BullBitcoin',
                   style: TextStyle(color: Colors.white, fontSize: 16.sp)),
               onTap: () {

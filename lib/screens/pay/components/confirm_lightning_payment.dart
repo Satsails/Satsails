@@ -168,6 +168,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
   late String currency;
   late double currencyRate;
   bool _isDraining = false;
+  bool _isAmountlessInvoice = false;
 
   // State for variable amount invoices
   int? _minAmountSats;
@@ -216,6 +217,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
     int? newMaxSats;
     bool newIsFixedInvoice = false;
     int newAmount = 0;
+    bool newIsAmountlessInvoice = false;
 
     if (value.isNotEmpty) {
       try {
@@ -227,6 +229,10 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
           if (amount > 0) {
             newAmount = amount;
             newIsFixedInvoice = true;
+          } else {
+            // This is an invoice with no amount, which is not supported.
+            // Set the flag to display the message instead of the slider.
+            newIsAmountlessInvoice = true;
           }
         } else if (parsedInput is breez.InputType_Bolt12Offer) {
           final offer = parsedInput.offer;
@@ -243,18 +249,18 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
     }
 
     ref.read(sendTxProvider.notifier).updateAmount(newAmount);
-    // START: FIX #3 - Directly update controller text on invoice scan
+
     if (newIsFixedInvoice) {
       updateControllerText(newAmount);
       ref.read(sendTxProvider.notifier).updatePaymentType(PaymentType.Lightning);
     }
-    // END: FIX #3
 
     if (mounted) {
       setState(() {
         isInvoice = newIsFixedInvoice;
         _minAmountSats = newMinSats;
         _maxAmountSats = newMaxSats;
+        _isAmountlessInvoice = newIsAmountlessInvoice;
       });
     }
   }
@@ -269,10 +275,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
 
   @override
   Widget build(BuildContext context) {
-    // START: FIX #1 - Remove the problematic feedback loop from the build method.
-    // The ref.watch is still needed to rebuild on other state changes, but it no longer updates the controller.
     ref.watch(sendTxProvider);
-    // END: FIX #1
 
     final btcBalanceInFormat = ref.read(liquidBalanceInFormatProvider(btcFormat));
     final valueInBtc = ref.watch(liquidBalanceInFormatProvider('BTC')) == '0.00000000' ? 0 : double.parse(ref.watch(liquidBalanceInFormatProvider('BTC')));
@@ -425,7 +428,8 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                               value: currency,
                                               child: Padding(
                                                 padding: EdgeInsets.only(left: 16.w),
-                                                child: Text(currency, style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                                                child:
+                                                Text(currency, style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold)),
                                               ),
                                             ))
                                                 .toList(),
@@ -457,9 +461,7 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                               if (parsedInput is breez.InputType_LnUrlPay) {
                                                 final balance = ref.read(balanceNotifierProvider).liquidBtcBalance;
                                                 ref.read(sendTxProvider.notifier).updateAmount(balance);
-                                                // START: FIX #2 - Directly update controller on Max tap
                                                 updateControllerText(balance);
-                                                // END: FIX #2
                                                 setState(() {
                                                   _isDraining = true;
                                                 });
@@ -515,7 +517,27 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                       ),
                     ),
                   ),
-                  ActionSlider.standard(
+                  _isAmountlessInvoice
+                      ? Container(
+                    height: 75.h, // Approx height of the slider
+                    padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF212121),
+                      borderRadius: BorderRadius.circular(50.r),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Invoices with no amount are not supported.\nTry to insert an lnurl (xxx@xxx.com)'.i18n,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  )
+                      : ActionSlider.standard(
                     sliderBehavior: SliderBehavior.stretch,
                     width: double.infinity,
                     backgroundColor: Colors.black,

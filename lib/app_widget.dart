@@ -135,46 +135,46 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
     final language = ref.watch(settingsProvider).language;
     I18n.define(Locale(language));
 
-    return TransactionNotificationsListener(
-      child: Directionality(
-        textDirection: TextDirection.ltr,
-        child: Stack(
-          children: [
-            ScreenUtilInit(
-              designSize: const Size(430, 932),
-              minTextAdapt: true,
-              splitScreenMode: true,
-              builder: (context, child) {
-                return MaterialApp.router(
-                  routerConfig: _router,
-                  locale: Locale(language),
-                  themeMode: ThemeMode.dark,
-                  darkTheme: ThemeData(
-                    brightness: Brightness.dark,
-                    scaffoldBackgroundColor: Colors.black,
-                    appBarTheme: const AppBarTheme(
-                      backgroundColor: Colors.black,
-                      elevation: 0,
-                    ),
-                    // This sets the cursor and text selection colors globally.
-                    textSelectionTheme: TextSelectionThemeData(
-                      cursorColor: Colors.white,
-                      selectionColor: Colors.white.withOpacity(0.4),
-                      selectionHandleColor: Colors.white,
-                    ),
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Stack(
+        children: [
+          ScreenUtilInit(
+            designSize: const Size(430, 932),
+            minTextAdapt: true,
+            splitScreenMode: true,
+            builder: (context, child) {
+              return MaterialApp.router(
+                routerConfig: _router,
+                locale: Locale(language),
+                themeMode: ThemeMode.dark,
+                darkTheme: ThemeData(
+                  brightness: Brightness.dark,
+                  scaffoldBackgroundColor: Colors.black,
+                  appBarTheme: const AppBarTheme(
+                    backgroundColor: Colors.black,
+                    elevation: 0,
                   ),
-                  debugShowCheckedModeBanner: false,
-                  localizationsDelegates: const [
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  supportedLocales: const [
-                    Locale('en'),
-                    Locale('pt'),
-                  ],
-                  builder: (context, child) {
-                    return MediaQuery(
+                  // This sets the cursor and text selection colors globally.
+                  textSelectionTheme: TextSelectionThemeData(
+                    cursorColor: Colors.white,
+                    selectionColor: Colors.white.withOpacity(0.4),
+                    selectionHandleColor: Colors.white,
+                  ),
+                ),
+                debugShowCheckedModeBanner: false,
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: const [
+                  Locale('en'),
+                  Locale('pt'),
+                ],
+                builder: (context, child) {
+                  return TransactionNotificationsListener(
+                    child: MediaQuery(
                       data: MediaQuery.of(context).copyWith(
                         textScaler: const TextScaler.linear(1.0),
                       ),
@@ -182,20 +182,20 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
                         initialLocale: Locale(language),
                         child: child!,
                       ),
-                    );
-                  },
-                );
-              },
-            ),
-            if (_isBlurred)
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                child: Container(
-                  color: Colors.black.withOpacity(0.3),
-                ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+          if (_isBlurred)
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+              child: Container(
+                color: Colors.black.withOpacity(0.3),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }

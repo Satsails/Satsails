@@ -987,6 +987,8 @@ extension Localization on String {
           'The minimum deposit amount is 5 BRL': 'The minimum deposit amount is 5 BRL',
           'Unable to Verify': 'Unable to Verify',
           'Total Value': 'Total Value',
+          'Unrecognized input type': 'Unrecognized input type',
+          'Invoices with no amount are not supported.\ntry to insert an lnurl (xxx@xxx.com)': 'Invoices with no amount are not supported.\ntry to insert an lnurl (xxx@xxx.com)',
         },
         'pt': {
           'View Accounts': 'Ver Contas',
@@ -1958,6 +1960,8 @@ extension Localization on String {
           'The minimum deposit amount is 5 BRL': 'O valor mínimo de depósito é 5 BRL.',
           'Unable to Verify': 'Não foi possível verificar.',
           'Total Value': 'Valor Total',
+          'Unrecognized input type': 'Endereço de inválido',
+          'Invoices with no amount are not supported.\nTry to insert an lnurl (xxx@xxx.com)': 'Faturas sem valor não são suportadas.\nexperimente inserir um lnurl (xxx@xxx.com)'
         }
       };
 
