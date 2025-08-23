@@ -1961,6 +1961,7 @@ extension Localization on String {
           'Unable to Verify': 'Não foi possível verificar.',
           'Total Value': 'Valor Total',
           'Unrecognized input type': 'Endereço de inválido',
+          'Timestamp': 'Data',
           'Invoices with no amount are not supported.\nTry to insert an lnurl (xxx@xxx.com)': 'Faturas sem valor não são suportadas.\nexperimente inserir um lnurl (xxx@xxx.com)'
         }
       };

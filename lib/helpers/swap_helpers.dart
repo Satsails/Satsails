@@ -2243,6 +2243,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
                 amount: ref.read(sendTxProvider).amount,
                 context: context,
                 swapType: ref.read(swapTypeProvider)!,
+                orderId: peg.orderId ?? 'Unknown'
               );
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
@@ -2307,6 +2308,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
                 amount: ref.read(sendTxProvider).amount,
                 context: context,
                 swapType: ref.read(swapTypeProvider)!,
+                orderId: peg.orderId ?? 'Unknown'
               );
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
@@ -2365,11 +2367,12 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
           ref.read(transactionInProgressProvider.notifier).state = true;
           controller.loading();
           try {
-            await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
+            final swap = await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
             showFullscreenExchangeModal(
               amount: ref.read(sendTxProvider).amount,
               context: context,
               swapType: ref.read(swapTypeProvider)!,
+              orderId: swap.txid
             );
             ref.read(sendTxProvider.notifier).updateAddress('');
             ref.read(sendTxProvider.notifier).updateAmount(0);
