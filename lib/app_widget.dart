@@ -86,7 +86,6 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:
         _handleAppPause();
-        debugPrint("App paused, stopping sync service...");
         BackgroundSyncService().stop();
         break;
       case AppLifecycleState.detached:

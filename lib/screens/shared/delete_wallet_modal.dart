@@ -5,7 +5,7 @@ import 'package:Satsails/providers/liquid_config_provider.dart';
 import 'package:Satsails/restart_widget.dart';
 import 'package:Satsails/screens/shared/custom_alert_dialog.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
-import 'package:Satsails/services/background_sync_service.dart'; // Import the service
+import 'package:Satsails/services/background_sync_service.dart';
 import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,11 +98,9 @@ class DeleteWalletSection extends StatelessWidget {
           onPressed: () async {
             Navigator.of(context).pop();
 
-            // *** CHANGE: Stop the background service before deletion ***
             BackgroundSyncService().stop();
 
             await authModel.deleteAuthentication();
-            ref.read(appLockedProvider.notifier).state = true;
             ref.invalidate(bitcoinConfigProvider);
             ref.invalidate(liquidConfigProvider);
             RestartWidget.restartApp(context);

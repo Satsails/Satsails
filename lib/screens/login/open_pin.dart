@@ -118,7 +118,6 @@ class _OpenPinState extends ConsumerState<OpenPin>
   void _unlockApp(BuildContext context, WidgetRef ref) {
     _attempts = 0;
 
-    ref.read(appLockedProvider.notifier).state = false;
     ref.read(sendTxProvider.notifier).resetToDefault();
     ref.read(sendBlocksProvider.notifier).state = 1;
     ref.read(addressProvider); // Trigger data loading
@@ -130,7 +129,6 @@ class _OpenPinState extends ConsumerState<OpenPin>
     BackgroundSyncService().stop();
     final authModel = ref.read(authModelProvider);
     await authModel.deleteAuthentication();
-    ref.read(appLockedProvider.notifier).state = true;
     ref.invalidate(bitcoinConfigProvider);
     ref.invalidate(liquidConfigProvider);
     RestartWidget.restartApp(context);

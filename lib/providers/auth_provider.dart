@@ -5,4 +5,3 @@ final authModelProvider = StateProvider<AuthModel>((ref) {
   return AuthModel();
 });
 
-final appLockedProvider = StateProvider<bool>((ref) => true);
