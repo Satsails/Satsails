@@ -38,7 +38,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         unselectedColor: Colors.white,
       ),
       DotNavigationBarItem(
-        icon: Icon(Icons.add, size: iconSize),
+        icon: Icon(Icons.add_shopping_cart_outlined, size: iconSize),
         selectedColor: Colors.orangeAccent,
         unselectedColor: Colors.white,
       ),

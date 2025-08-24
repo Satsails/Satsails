@@ -3,8 +3,6 @@ import 'package:Satsails/helpers/fiat_format_converter.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/coingecko_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/providers/transactions_provider.dart';
-import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/analytics/components/chart.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/localizations.dart';
@@ -200,15 +198,17 @@ class _ActionCards extends ConsumerWidget {
             child: Container(
               height: 80.h,
               alignment: Alignment.center,
-              child: Row(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 12.w),
-                  Icon(Icons.shopping_cart,
+                  Image.asset(
+                    'lib/assets/bitrefill.png',
+                    height: 30.sp,
+                    fit: BoxFit.contain,
                     color: Colors.white,
-                    size: 28.sp,
                   ),
+                  SizedBox(height: 8.h),
+                  Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
