@@ -181,6 +181,12 @@ class Settings extends ConsumerWidget {
   }
 
   Widget _buildRateAppSection(BuildContext context, WidgetRef ref) {
+    final reviewDone = ref.watch(settingsProvider.select((s) => s.reviewDone));
+
+    if (reviewDone) {
+      return const SizedBox.shrink();
+    }
+
     return _buildSection(
       context: context,
       ref: ref,
@@ -191,12 +197,16 @@ class Settings extends ConsumerWidget {
         style: TextStyle(color: Colors.grey, fontSize: 14.sp),
       ),
       onTap: () async {
-        final InAppReview inAppReview = InAppReview.instance;
+        final settingsNotifier = ref.read(settingsProvider.notifier);
+        final inAppReview = InAppReview.instance;
+
         if (await inAppReview.isAvailable()) {
           await inAppReview.requestReview();
+          settingsNotifier.setReviewDone(true);
         } else {
           await inAppReview.openStoreListing(
               appStoreId: dotenv.env['APP_STORE_ID']!);
+          settingsNotifier.setReviewDone(true);
         }
       },
     );

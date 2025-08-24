@@ -130,7 +130,7 @@ class AuthModel {
     for (int i = 0; i < 3; i++) {
       // The read operation doesn't need special options, it will find the key
       // regardless of its accessibility or group.
-      final mnemonic = await _storage.read(key: 'mnemonic', iOptions: _getIOSOptions());
+      final mnemonic = await _storage.read(key: 'mnemonic');
       if (mnemonic != null) {
         return mnemonic;
       }

@@ -11,7 +11,8 @@ import 'package:Satsails/providers/nox_transfer_provider.dart';
 import 'package:Satsails/providers/sideswap_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
 import 'package:Satsails/screens/shared/lightning_conversion_transaction_details.dart';
-import 'package:Satsails/screens/shared/sideshift_transaction_details_screen.dart' as sideshift;
+import 'package:Satsails/screens/shared/sideshift_transaction_details_screen.dart'
+as sideshift;
 import 'package:flutter/material.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,11 +20,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/localizations.dart';
 import 'package:i18n_extension/i18n_extension.dart';
-
+import 'package:in_app_review/in_app_review.dart';
 import 'package:intl/intl.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
+// --- (buildHiddenTransactionsView and buildNoTransactionsFound widgets are unchanged) ---
 Widget buildHiddenTransactionsView(BuildContext context, WidgetRef ref) {
   return GestureDetector(
     onTap: () {
@@ -86,8 +88,7 @@ Widget buildNoTransactionsFound(double screenHeight) {
               style: TextStyle(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white.withOpacity(0.8)
-              ),
+                  color: Colors.white.withOpacity(0.8)),
             ),
             SizedBox(height: 8.h),
             Text(
@@ -143,12 +144,8 @@ class TransactionListByWeek extends ConsumerWidget {
   }
 }
 
-Widget _buildMonthGroup(
-    BuildContext context,
-    WidgetRef ref,
-    DateTime month,
-    List<BaseTransaction> transactions,
-    int index) {
+Widget _buildMonthGroup(BuildContext context, WidgetRef ref, DateTime month,
+    List<BaseTransaction> transactions, int index) {
   String locale = I18n.locale.languageCode ?? 'en';
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,13 +210,43 @@ class _TransactionListState extends ConsumerState<TransactionList> {
     super.dispose();
   }
 
+  /// Checks for transactions and prompts for a review if necessary.
+  Future<void> _checkForReviewPrompt(Transaction transactionState) async {
+    final settings = ref.read(settingsProvider);
+    // Exit if the review has already been done
+    if (settings.reviewDone) return;
+
+    // Condition: Check for any Bitcoin or Liquid transactions
+    final hasRelevantTransactions =
+        transactionState.bitcoinTransactions.isNotEmpty ||
+            transactionState.liquidTransactions.isNotEmpty;
+
+    if (hasRelevantTransactions) {
+      // We found transactions and haven't prompted before.
+      // Wait a couple of seconds so the prompt isn't too abrupt.
+      await Future.delayed(const Duration(seconds: 2));
+
+      final inAppReview = InAppReview.instance;
+      if (await inAppReview.isAvailable()) {
+        inAppReview.requestReview();
+        // IMPORTANT: Mark as prompted immediately after requesting.
+        ref.read(settingsProvider.notifier).setReviewDone(true);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
     final transactionState = ref.watch(transactionNotifierProvider);
 
-    final settledTransactions = transactionState.settledTransactions.take(6).toList();
+    ref.listen<Transaction>(transactionNotifierProvider, (previous, next) {
+      _checkForReviewPrompt(next);
+    });
+
+    final settledTransactions =
+    transactionState.settledTransactions.take(6).toList();
     final allTransactions = transactionState.allTransactionsSorted;
 
     return Container(
@@ -265,8 +292,7 @@ class _TransactionListState extends ConsumerState<TransactionList> {
               onPressed: () => context.pushNamed('transactions'),
               child: Text(
                 'See all transactions'.i18n,
-                style:
-                const TextStyle(color: Colors.white, fontSize: 16),
+                style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
         ],
@@ -275,7 +301,9 @@ class _TransactionListState extends ConsumerState<TransactionList> {
   }
 }
 
-Widget _buildUnifiedTransactionItem(BaseTransaction transaction, BuildContext context, WidgetRef ref) {
+// --- (All _build...TransactionItem and other helper widgets are unchanged) ---
+Widget _buildUnifiedTransactionItem(
+    BaseTransaction transaction, BuildContext context, WidgetRef ref) {
   if (transaction is SideswapPegTransaction) {
     return _buildSideswapPegTransactionItem(transaction, context, ref);
   }
@@ -346,7 +374,10 @@ Widget _buildTransactionItemLayout({
               children: [
                 Text(
                   title,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 4.h),
@@ -374,10 +405,10 @@ Widget _buildLightningConversionTransactionItem(
     WidgetRef ref) {
   final details = transaction.details;
   final isReceiving = details.paymentType == breez.PaymentType.receive;
-  final title =
-  isReceiving ? "Lightning → Liquid Bitcoin".i18n : "Liquid Bitcoin → Lightning".i18n;
+  final title = isReceiving
+      ? "Lightning → Liquid Bitcoin".i18n
+      : "Liquid Bitcoin → Lightning".i18n;
 
-  // Determine the subtitle based on the detailed payment state
   String subtitle;
   switch (details.status) {
     case breez.PaymentState.complete:
@@ -413,7 +444,8 @@ Widget _buildLightningConversionTransactionItem(
   final denomination = ref.read(settingsProvider).btcFormat;
   final amountSat = details.amountSat.toInt();
   final amountString = btcInDenominationFormatted(amountSat, denomination);
-  final fiatValue = lightningConversionTransactionAmountInFiat(transaction, ref);
+  final fiatValue =
+  lightningConversionTransactionAmountInFiat(transaction, ref);
 
   return _buildTransactionItemLayout(
     context: context,
@@ -450,18 +482,24 @@ Widget _buildLightningConversionTransactionItem(
   );
 }
 
-Widget _buildSideshiftTransactionItem(SideShiftTransaction transaction, BuildContext context, WidgetRef ref) {
+Widget _buildSideshiftTransactionItem(
+    SideShiftTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.details;
-  final isPending = !['settled', 'expired', 'failed', 'refunded'].contains(details.status);
-  final title = "${details.depositNetwork.capitalize()} ${details.depositCoin.toUpperCase()} → ${details.settleNetwork.capitalize()} ${details.settleCoin.toUpperCase()}";
+  final isPending =
+  !['settled', 'expired', 'failed', 'refunded'].contains(details.status);
+  final title =
+      "${details.depositNetwork.capitalize()} ${details.depositCoin.toUpperCase()} → ${details.settleNetwork.capitalize()} ${details.settleCoin.toUpperCase()}";
   final locale = I18n.locale.languageCode;
-  final formattedDate = DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
-  final statusText = isPending ? sideshift.getStatusText(details.status) : formattedDate;
+  final formattedDate =
+  DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
+  final statusText =
+  isPending ? sideshift.getStatusText(details.status) : formattedDate;
 
   return _buildTransactionItemLayout(
     context: context,
     ref: ref,
-    onTap: () => context.pushNamed('sideshiftTransactionDetails', extra: transaction),
+    onTap: () =>
+        context.pushNamed('sideshiftTransactionDetails', extra: transaction),
     icon: sideshiftTransactionTypeIcon(),
     isPending: isPending,
     title: title,
@@ -470,16 +508,22 @@ Widget _buildSideshiftTransactionItem(SideShiftTransaction transaction, BuildCon
         ? Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if(details.depositAmount != null)
+        if (details.depositAmount != null)
           Text(
             "- ${details.depositAmount} ${details.depositCoin.toUpperCase()}",
-            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.7)),
+            style: TextStyle(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.normal,
+                color: Colors.white.withOpacity(0.7)),
           ),
         SizedBox(height: 2.h),
-        if(details.settleAmount != null)
+        if (details.settleAmount != null)
           Text(
             "${double.parse(details.settleAmount!).toStringAsFixed(2)} ${details.settleCoin.toUpperCase()}",
-            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.white),
           ),
       ],
     )
@@ -487,9 +531,12 @@ Widget _buildSideshiftTransactionItem(SideShiftTransaction transaction, BuildCon
   );
 }
 
-Widget _buildSideswapPegTransactionItem(SideswapPegTransaction transaction, BuildContext context, WidgetRef ref) {
+Widget _buildSideswapPegTransactionItem(
+    SideswapPegTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.sideswapPegDetails;
-  final title = details.pegIn == true ? 'Bitcoin → Liquid Bitcoin' : 'Liquid Bitcoin → Bitcoin';
+  final title = details.pegIn == true
+      ? 'Bitcoin → Liquid Bitcoin'
+      : 'Liquid Bitcoin → Bitcoin';
   final date = details.list?.firstOrNull?.createdAt != null
       ? DateTime.fromMillisecondsSinceEpoch(details.list!.first.createdAt!)
       : transaction.timestamp;
@@ -509,18 +556,27 @@ Widget _buildSideswapPegTransactionItem(SideswapPegTransaction transaction, Buil
     subtitle: formattedDate,
     amountContent: Text(
       "See status".i18n,
-      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white70),
+      style: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.bold,
+          color: Colors.white70),
     ),
   );
 }
 
-Widget _buildEulenTransactionItem(EulenTransaction transaction, BuildContext context, WidgetRef ref) {
+Widget _buildEulenTransactionItem(
+    EulenTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.details;
-  final isPending = !details.completed && !details.failed && details.status != "expired";
-  final type = details.transactionType.toString() == "BUY" ? "Purchase" : "Withdrawal";
-  final title = details.transactionType.toString() == "BUY" ? "${details.to_currency} $type".i18n : "${details.from_currency} $type".i18n;
+  final isPending =
+      !details.completed && !details.failed && details.status != "expired";
+  final type =
+  details.transactionType.toString() == "BUY" ? "Purchase" : "Withdrawal";
+  final title = details.transactionType.toString() == "BUY"
+      ? "${details.to_currency} $type".i18n
+      : "${details.from_currency} $type".i18n;
   final locale = I18n.locale.languageCode;
-  final formattedDate = DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
+  final formattedDate =
+  DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
   final statusText = isPending ? (details.statusText) : formattedDate;
   final isBuy = details.transactionType.toString() == "BUY";
 
@@ -541,12 +597,18 @@ Widget _buildEulenTransactionItem(EulenTransaction transaction, BuildContext con
       children: [
         Text(
           "${isBuy ? '' : ''}${details.receivedAmount} ${details.from_currency}",
-          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.white),
         ),
         SizedBox(height: 2.h),
         Text(
           "${isBuy ? '' : ''}${details.price?.toStringAsFixed(2)} USD",
-          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.7)),
+          style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.normal,
+              color: Colors.white.withOpacity(0.7)),
         ),
       ],
     )
@@ -554,13 +616,18 @@ Widget _buildEulenTransactionItem(EulenTransaction transaction, BuildContext con
   );
 }
 
-Widget _buildNoxTransactionItem(NoxTransaction transaction, BuildContext context, WidgetRef ref) {
+Widget _buildNoxTransactionItem(
+    NoxTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.details;
   final isPending = !details.completed && !details.failed;
-  final type = details.transactionType.toString() == "BUY" ? "Purchase" : "Withdrawal";
-  final title = details.transactionType.toString() == "BUY" ? "${details.to_currency} $type".i18n : "${details.from_currency} $type".i18n;
+  final type =
+  details.transactionType.toString() == "BUY" ? "Purchase" : "Withdrawal";
+  final title = details.transactionType.toString() == "BUY"
+      ? "${details.to_currency} $type".i18n
+      : "${details.from_currency} $type".i18n;
   final locale = I18n.locale.languageCode;
-  final formattedDate = DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
+  final formattedDate =
+  DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
   final statusText = isPending ? (details.statusText).capitalize() : formattedDate;
   final isBuy = details.transactionType.toString() == "BUY";
 
@@ -568,7 +635,8 @@ Widget _buildNoxTransactionItem(NoxTransaction transaction, BuildContext context
     context: context,
     ref: ref,
     onTap: () {
-      ref.read(selectedNoxTransferIdProvider.notifier).state = transaction.details.id;
+      ref.read(selectedNoxTransferIdProvider.notifier).state =
+          transaction.details.id;
       context.pushNamed('nox_transaction_details');
     },
     icon: pixTransactionTypeIcon(),
@@ -581,12 +649,18 @@ Widget _buildNoxTransactionItem(NoxTransaction transaction, BuildContext context
       children: [
         Text(
           "${isBuy ? '-' : ''}${details.price} USD",
-          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.7)),
+          style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.normal,
+              color: Colors.white.withOpacity(0.7)),
         ),
         SizedBox(height: 2.h),
         Text(
           "${isBuy ? '' : '-'}${details.receivedAmount} ${details.from_currency}",
-          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.white),
         ),
       ],
     )
@@ -594,13 +668,15 @@ Widget _buildNoxTransactionItem(NoxTransaction transaction, BuildContext context
   );
 }
 
-Widget _buildBitcoinTransactionItem(BitcoinTransaction transaction, BuildContext context, WidgetRef ref) {
+Widget _buildBitcoinTransactionItem(
+    BitcoinTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.btcDetails;
   final isPending = details.confirmationTime == null;
   final title = "Bitcoin";
   final timestamp = isPending
       ? transaction.timestamp
-      : DateTime.fromMillisecondsSinceEpoch(details.confirmationTime!.timestamp.toInt() * 1000);
+      : DateTime.fromMillisecondsSinceEpoch(
+      details.confirmationTime!.timestamp.toInt() * 1000);
   final locale = I18n.locale.languageCode;
   final formattedDate = DateFormat('d MMM, HH:mm', locale).format(timestamp);
   final statusText = isPending ? "Pending".i18n : formattedDate;
@@ -618,7 +694,10 @@ Widget _buildBitcoinTransactionItem(BitcoinTransaction transaction, BuildContext
       children: [
         Text(
           transactionAmount(details, ref).replaceFirst('+', ''),
-          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.white),
         ),
         Text(
           transactionAmountInFiat(details, ref),
@@ -629,18 +708,29 @@ Widget _buildBitcoinTransactionItem(BitcoinTransaction transaction, BuildContext
   );
 }
 
-Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext context, WidgetRef ref) {
+Widget _buildLiquidTransactionItem(
+    LiquidTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.lwkDetails;
   final isPending = details.timestamp == null;
   final balancesToShow = details.balances.where((b) {
-    if (details.balances.length > 1 && b.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC) && b.value.abs() < 100) {
+    if (details.balances.length > 1 &&
+        b.assetId == AssetMapper.reverseMapTicker(AssetId.LBTC) &&
+        b.value.abs() < 100) {
       return false;
     }
     return true;
   }).toList();
 
-  final positiveTickers = balancesToShow.where((b) => b.value > 0).map((b) => AssetMapper.mapAsset(b.assetId).name).toSet().toList();
-  final negativeTickers = balancesToShow.where((b) => b.value < 0).map((b) => AssetMapper.mapAsset(b.assetId).name).toSet().toList();
+  final positiveTickers = balancesToShow
+      .where((b) => b.value > 0)
+      .map((b) => AssetMapper.mapAsset(b.assetId).name)
+      .toSet()
+      .toList();
+  final negativeTickers = balancesToShow
+      .where((b) => b.value < 0)
+      .map((b) => AssetMapper.mapAsset(b.assetId).name)
+      .toSet()
+      .toList();
 
   String title;
   if (negativeTickers.isNotEmpty) {
@@ -651,7 +741,9 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
     title = positiveTickers.join(' + ');
   }
 
-  final timestamp = isPending ? transaction.timestamp : DateTime.fromMillisecondsSinceEpoch(details.timestamp! * 1000);
+  final timestamp = isPending
+      ? transaction.timestamp
+      : DateTime.fromMillisecondsSinceEpoch(details.timestamp! * 1000);
   final locale = I18n.locale.languageCode;
   final formattedDate = DateFormat('d MMM, HH:mm', locale).format(timestamp);
   final statusText = isPending ? "Pending".i18n : formattedDate;
@@ -659,7 +751,8 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
   return _buildTransactionItemLayout(
     context: context,
     ref: ref,
-    onTap: () => context.pushNamed('liquidTransactionDetails', extra: transaction),
+    onTap: () =>
+        context.pushNamed('liquidTransactionDetails', extra: transaction),
     icon: transactionTypeLiquidIcon(details.kind),
     isPending: isPending,
     title: title.replaceFirst('L-BTC', 'Liquid Bitcoin'),
@@ -674,8 +767,12 @@ Widget _buildLiquidTransactionItem(LiquidTransaction transaction, BuildContext c
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                valueOfLiquidSubTransaction(asset, balance.value, ref).replaceFirst('+', ''),
-                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white),
+                valueOfLiquidSubTransaction(asset, balance.value, ref)
+                    .replaceFirst('+', ''),
+                style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
               ),
               if (asset == AssetId.LBTC)
                 Text(

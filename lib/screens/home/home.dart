@@ -144,7 +144,7 @@ class HomeCustomButton extends StatelessWidget {
               label,
               style: TextStyle(
                 color: textColor ?? Colors.white,
-                fontSize: 15.sp,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),

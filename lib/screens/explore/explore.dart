@@ -167,7 +167,7 @@ class _ActionCards extends ConsumerWidget {
                   child: Container(
                     height: 80.h,
                     alignment: Alignment.center,
-                    child: Text('Buy'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold)),
+                    child: Text('Buy'.i18n, style: TextStyle(fontSize: 20.sp, color: Colors.black, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),
@@ -183,7 +183,7 @@ class _ActionCards extends ConsumerWidget {
                   child: Container(
                     height: 80.h,
                     alignment: Alignment.center,
-                    child: Text('Sell'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.black, fontWeight: FontWeight.bold)),
+                    child: Text('Sell'.i18n, style: TextStyle(fontSize: 20.sp, color: Colors.black, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),

@@ -57,8 +57,6 @@ class LiquidTransaction extends BaseTransaction {
     required bool isConfirmed,
   }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
 
-  // Filter balances to only include the L-BTC asset
-  // and then calculate the total net amount for it.
   num get _lbtcNetAmount {
     final lbtcId = AssetMapper.reverseMapTicker(AssetId.LBTC);
     final lbtcBalance = lwkDetails.balances.firstWhere(
@@ -68,11 +66,9 @@ class LiquidTransaction extends BaseTransaction {
     return lbtcBalance.value;
   }
 
-  // The type is now based on the L-BTC net amount.
   @override
   TransactionType get type => _lbtcNetAmount >= 0 ? TransactionType.received : TransactionType.sent;
 
-  // The amount is the absolute value of the L-BTC net amount.
   @override
   num get amount => _lbtcNetAmount.abs();
 

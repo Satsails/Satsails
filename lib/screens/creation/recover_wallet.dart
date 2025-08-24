@@ -87,7 +87,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet>
 
     if (await authModel.validateMnemonic(mnemonic)) {
       await authModel.setMnemonic(mnemonic);
-      await ref.read(settingsProvider.notifier).setBackup(true);
+      ref.read(settingsProvider.notifier).setBackup(true);
       context.push('/set_pin');
     } else {
       FocusScope.of(context).unfocus();
