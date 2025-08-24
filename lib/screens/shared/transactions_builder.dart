@@ -213,23 +213,18 @@ class _TransactionListState extends ConsumerState<TransactionList> {
   /// Checks for transactions and prompts for a review if necessary.
   Future<void> _checkForReviewPrompt(Transaction transactionState) async {
     final settings = ref.read(settingsProvider);
-    // Exit if the review has already been done
     if (settings.reviewDone) return;
 
-    // Condition: Check for any Bitcoin or Liquid transactions
     final hasRelevantTransactions =
         transactionState.bitcoinTransactions.isNotEmpty ||
             transactionState.liquidTransactions.isNotEmpty;
 
     if (hasRelevantTransactions) {
-      // We found transactions and haven't prompted before.
-      // Wait a couple of seconds so the prompt isn't too abrupt.
       await Future.delayed(const Duration(seconds: 2));
 
       final inAppReview = InAppReview.instance;
       if (await inAppReview.isAvailable()) {
         inAppReview.requestReview();
-        // IMPORTANT: Mark as prompted immediately after requesting.
         ref.read(settingsProvider.notifier).setReviewDone(true);
       }
     }
