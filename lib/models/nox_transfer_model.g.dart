@@ -35,13 +35,15 @@ class NoxTransferAdapter extends TypeAdapter<NoxTransfer> {
       price: fields[16] as double?,
       cashback: fields[17] as double?,
       cashbackPayed: fields[18] as bool?,
+      subStatus: fields[19] as String?,
+      depositAddress: fields[20] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, NoxTransfer obj) {
     writer
-      ..writeByte(18)
+      ..writeByte(20)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -77,7 +79,11 @@ class NoxTransferAdapter extends TypeAdapter<NoxTransfer> {
       ..writeByte(17)
       ..write(obj.cashback)
       ..writeByte(18)
-      ..write(obj.cashbackPayed);
+      ..write(obj.cashbackPayed)
+      ..writeByte(19)
+      ..write(obj.subStatus)
+      ..writeByte(20)
+      ..write(obj.depositAddress);
   }
 
   @override

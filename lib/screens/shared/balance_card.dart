@@ -550,7 +550,7 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildSheetHeader(
-              title: widget.isSend ? "Send via".i18n : "Receive via".i18n,
+              title: widget.isSend ? "Send to".i18n : "Receive via".i18n,
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
                 onPressed: () {

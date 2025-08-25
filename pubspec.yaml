@@ -90,15 +90,13 @@ dev_dependencies:
     sdk: flutter
 
   # Code Generation & Build Tools
-  build_runner: ^2.6.0
   flutter_launcher_icons: ^0.14.4
   android_notification_icons: ^0.0.1
   flutter_native_splash: ^2.4.6
-  # hive_generator: ^2.0.0 # You might need this if you use Hive code generation
+#  hive_generator: ^2.0.0
 
   # Linters & Validators
   flutter_lints: ^5.0.0
-  dependency_validator: ^5.0.2
 
 flutter:
   uses-material-design: true

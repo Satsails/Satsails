@@ -17,11 +17,10 @@ class MinimumDeposit {
 
   MinimumDeposit({required this.brl, required this.btc});
 
-  /// A factory constructor to create a MinimumDeposit instance from a JSON map.
   factory MinimumDeposit.fromJson(Map<String, dynamic> json) {
     return MinimumDeposit(
-      brl: json['brl']?.toString() ?? '20.00', // Default value on parsing failure
-      btc: json['btc']?.toString() ?? '0.00005', // Default value on parsing failure
+      brl: json['brl']?.toString() ?? '20.00',
+      btc: json['btc']?.toString() ?? '0.00005',
     );
   }
 }
@@ -68,6 +67,8 @@ class NoxTransferNotifier extends StateNotifier<List<NoxTransfer>> {
       updatedAt: serverData.updatedAt,
       receivedAmount: serverData.receivedAmount,
       status: serverData.status ?? existingPurchase.status,
+      subStatus: serverData.subStatus ?? existingPurchase.subStatus,
+      depositAddress: serverData.depositAddress ?? existingPurchase.depositAddress,
       paymentMethod: serverData.paymentMethod ?? existingPurchase.paymentMethod,
       to_currency: serverData.to_currency ?? existingPurchase.to_currency,
       from_currency: serverData.from_currency ?? existingPurchase.from_currency,
@@ -101,6 +102,8 @@ class NoxTransferNotifier extends StateNotifier<List<NoxTransfer>> {
         updatedAt: serverData.updatedAt,
         receivedAmount: serverData.receivedAmount,
         status: serverData.status ?? existingPurchase.status,
+        subStatus: serverData.subStatus ?? existingPurchase.subStatus,
+        depositAddress: serverData.depositAddress ?? existingPurchase.depositAddress,
         paymentMethod: serverData.paymentMethod ?? existingPurchase.paymentMethod,
         to_currency: serverData.to_currency ?? existingPurchase.to_currency,
         from_currency: serverData.from_currency ?? existingPurchase.from_currency,
@@ -175,6 +178,12 @@ class NoxTransfer extends HiveObject {
   @HiveField(18)
   final bool? cashbackPayed;
 
+  @HiveField(19)
+  final String? subStatus;
+
+  @HiveField(20)
+  final String? depositAddress;
+
   NoxTransfer({
     required this.id,
     required this.transactionId,
@@ -192,8 +201,10 @@ class NoxTransfer extends HiveObject {
     this.transactionType = 'BUY',
     this.provider = 'Nox',
     this.price = 0.0,
-    this.cashback = 0.0, // Default to 0.0
-    this.cashbackPayed = false, // Default to false
+    this.cashback = 0.0,
+    this.cashbackPayed = false,
+    this.subStatus,
+    this.depositAddress,
   });
 
   factory NoxTransfer.fromJson(Map<String, dynamic> json) {
@@ -209,14 +220,16 @@ class NoxTransfer extends HiveObject {
       updatedAt: DateTime.tryParse(data['updated_at']?.toString() ?? '')?.toLocal() ?? DateTime.now(),
       receivedAmount: double.tryParse(data['amount_received_by_user']?.toString() ?? '') ?? 0.0,
       status: data['status']?.toString() ?? 'unknown',
+      subStatus: data['sub_status']?.toString(),
+      depositAddress: data['deposit_address']?.toString(),
       paymentMethod: data['payment_method']?.toString() ?? 'unknown',
       to_currency: data['to_currency']?.toString() ?? 'unknown',
       from_currency: data['from_currency']?.toString() ?? 'unknown',
       transactionType: data['type']?.toString() ?? 'BUY',
       provider: 'Nox',
       price: double.tryParse(data['price']?.toString() ?? '') ?? 0.0,
-      cashback: double.tryParse(data['cashback_to_pay_user']?.toString() ?? '') ?? 0.0, // Default to 0.0
-      cashbackPayed: data['cashback_payed'] ?? false, // Default to false
+      cashback: double.tryParse(data['cashback_to_pay_user']?.toString() ?? '') ?? 0.0,
+      cashbackPayed: data['cashback_payed'] ?? false,
     );
   }
 
@@ -230,6 +243,8 @@ class NoxTransfer extends HiveObject {
     DateTime? updatedAt,
     double? receivedAmount,
     String? status,
+    String? subStatus,
+    String? depositAddress,
     String? paymentMethod,
     String? to_currency,
     String? from_currency,
@@ -250,6 +265,8 @@ class NoxTransfer extends HiveObject {
       updatedAt: updatedAt ?? this.updatedAt,
       receivedAmount: receivedAmount ?? this.receivedAmount,
       status: status ?? this.status,
+      subStatus: subStatus ?? this.subStatus,
+      depositAddress: depositAddress ?? this.depositAddress,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       to_currency: to_currency ?? this.to_currency,
       from_currency: from_currency ?? this.from_currency,
@@ -272,14 +289,16 @@ class NoxTransfer extends HiveObject {
     updatedAt: DateTime.now(),
     receivedAmount: 0.0,
     status: 'unknown',
+    subStatus: null,
+    depositAddress: null,
     paymentMethod: 'unknown',
     to_currency: 'unknown',
     from_currency: 'unknown',
     transactionType: 'BUY',
     provider: 'Nox',
     price: 0.0,
-    cashback: 0.0, // Default to 0.0
-    cashbackPayed: false, // Default to false
+    cashback: 0.0,
+    cashbackPayed: false,
   );
 
   String get statusText {
@@ -305,6 +324,75 @@ class NoxTransfer extends HiveObject {
       default:
         return status?.replaceAll('_', ' ').i18n.capitalize() ?? "Unknown".i18n;
     }
+  }
+
+  String get subStatusText {
+    switch (status) {
+      case "quoting":
+        switch (subStatus) {
+          case "INITIAL": return "Initiated, not opened by client".i18n;
+          case "QUOTE": return "Quote shown to client, pending acceptance".i18n;
+          case "ERROR": return "Error on quote".i18n;
+          case "EXPIRED": return "Quote expired".i18n;
+          case "DONE": return "Quote accepted by client".i18n;
+        }
+        break;
+      case "kyc_validation":
+        switch (subStatus) {
+          case "INITIAL": return "Initiated, not opened by client".i18n;
+          case "INFO": return "KYC shown to client, pending filling".i18n;
+          case "INVALID": return "Invalid KYC data".i18n;
+          case "TIER_LIMIT": return "Transaction exceeds client's transactional limit".i18n;
+          case "DONE": return "KYC filled and accepted".i18n;
+        }
+        break;
+      case "pix_deposit":
+        switch (subStatus) {
+          case "INITIAL": return "Initiated, not opened by client".i18n;
+          case "QRCODE": return "QR Code shown, pending payment".i18n;
+          case "ERROR": return "Error processing payment".i18n;
+          case "DONE": return "Payment received successfully".i18n;
+        }
+        break;
+      case "pix_withdrawal":
+        switch (subStatus) {
+          case "INITIAL": return "Processing initiated".i18n;
+          case "WAITING": return "Waiting for payment confirmation".i18n;
+          case "DIVERGENT": return "Payment failed due to data divergence".i18n;
+          case "ERROR": return "Error processing payment".i18n;
+          case "DONE": return "Client received payment".i18n;
+        }
+        break;
+      case "crypto_deposit":
+        switch (subStatus) {
+          case "INITIAL": return "Processing initiated".i18n;
+          case "WAITING_DEPOSIT": return "Waiting for crypto deposit".i18n;
+          case "EXPIRED": return "Quote expired before deposit".i18n;
+          case "ERROR": return "Error processing payment".i18n;
+          case "DONE": return "Crypto deposit received".i18n;
+        }
+        break;
+      case "crypto_withdrawal":
+        switch (subStatus) {
+          case "INITIAL": return "Processing initiated".i18n;
+          case "WAITING_TRANSFER": return "Processing withdrawal".i18n;
+          case "ERROR": return "Error processing withdrawal".i18n;
+          case "DONE": return "Crypto withdrawal processed".i18n;
+        }
+        break;
+      case "swap_fiat_for_crypto":
+      case "swap_crypto_for_fiat":
+        switch (subStatus) {
+          case "INITIAL": return "Processing initiated".i18n;
+          case "ERROR": return "Error processing swap and transfer".i18n;
+          case "DONE": return "Swap and transfer processed".i18n;
+        }
+        break;
+      case "client_side_success":
+        if (subStatus == "INITIAL") return "Successfully processed".i18n;
+        break;
+    }
+    return subStatus?.replaceAll('_', ' ').i18n.capitalize() ?? '';
   }
 }
 
@@ -358,6 +446,29 @@ class NoxService {
         return Result(data: transactions);
       } else {
         return Result(error: 'An error has occurred. Please try again later');
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please try again later');
+    }
+  }
+
+  static Future<Result<NoxTransfer>> getTransfer(String auth, String transferId) async {
+    try {
+      final uri = Uri.parse('${dotenv.env['BACKEND']!}/nox_transfers/$transferId');
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        final transaction = NoxTransfer.fromJson(jsonResponse['transfer']);
+        return Result(data: transaction);
+      } else {
+        return Result(error: 'Failed to get transaction details');
       }
     } catch (e) {
       return Result(error: 'An error has occurred. Please try again later');

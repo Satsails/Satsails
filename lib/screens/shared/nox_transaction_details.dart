@@ -1,6 +1,8 @@
+import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/nox_transfer_model.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
+import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NoxTransactionDetails extends ConsumerWidget {
   const NoxTransactionDetails({super.key});
+
+  /// Formats a currency amount, handling BTC/sats conversion based on user settings.
+  String _formatCurrencyAmount(double amount, String currency, WidgetRef ref) {
+    if (currency.toUpperCase() == 'BTC') {
+      final denomination = ref.read(settingsProvider).btcFormat;
+      // Convert the BTC amount to sats for the formatter.
+      final satsAmount = (amount * 100000000).toInt();
+      // Use the helper to format into either BTC or sats string.
+      return "${btcInDenominationFormatted(satsAmount, denomination)} $denomination";
+    }
+    // For other currencies, format to 2 decimal places with grouping.
+    return "${NumberFormat('#,##0.00').format(amount)} $currency";
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,8 +70,9 @@ class NoxTransactionDetails extends ConsumerWidget {
     final statusIcon = transaction.failed ? Icons.error_rounded : transaction.completed ? Icons.check_circle_rounded : Icons.access_time_rounded;
     final statusColor = transaction.failed ? Colors.red : transaction.completed ? Colors.green : Colors.orange;
 
-    final sentAmount = "${transaction.originalAmount.toStringAsFixed(2)} ${transaction.from_currency ?? 'N/A'}";
-    final receivedAmount = "${transaction.receivedAmount.toStringAsFixed(2)} ${transaction.to_currency ?? 'N/A'}";
+    // Use the helper to format amounts, which will handle BTC/sats conversion.
+    final sentAmount = _formatCurrencyAmount(transaction.originalAmount, transaction.from_currency ?? 'N/A', ref);
+    final receivedAmount = _formatCurrencyAmount(transaction.receivedAmount, transaction.to_currency ?? 'N/A', ref);
 
     return Container(
       width: double.infinity,
@@ -108,12 +124,18 @@ class NoxTransactionDetails extends ConsumerWidget {
 
   Widget _buildTransactionDetails(BuildContext context, WidgetRef ref, NoxTransfer transaction) {
     final statusText = transaction.statusText;
+    final subStatusText = transaction.subStatusText;
+    final statusColor = transaction.failed ? Colors.red : transaction.completed ? Colors.green : Colors.orange;
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 
     return Column(
       children: [
         TransactionDetailRow(label: "Type".i18n, value: transaction.transactionType?.i18n ?? 'Unknown'.i18n),
-        TransactionDetailRow(label: "Status".i18n, value: statusText, valueColor: transaction.failed ? Colors.red : transaction.completed ? Colors.green : Colors.orange),
+        TransactionDetailRow(label: "Status".i18n, value: statusText, valueColor: statusColor),
+
+        if (transaction.subStatus != null && transaction.subStatus!.isNotEmpty)
+          TransactionDetailRow(label: "Sub-Status".i18n, value: subStatusText, valueColor: statusColor),
+
         TransactionDetailRow(label: "Provider".i18n, value: transaction.provider ?? "N/A"),
         TransactionDetailRow(label: "Payment Method".i18n, value: transaction.paymentMethod ?? "N/A".i18n),
         TransactionDetailRow(label: "Created At".i18n, value: dateFormat.format(transaction.createdAt)),
@@ -135,16 +157,33 @@ class NoxTransactionDetails extends ConsumerWidget {
     final fee = (transaction.originalAmount - transaction.receivedAmount).abs();
     final feePercentage = transaction.originalAmount != 0 ? (fee / transaction.originalAmount) * 100 : 0.0;
     final feeCurrency = transaction.from_currency ?? 'N/A';
+    final formattedFee = _formatCurrencyAmount(fee, feeCurrency, ref);
 
     final price = transaction.price ?? 0;
     final fromCurrency = transaction.from_currency ?? '';
     final toCurrency = transaction.to_currency ?? '';
-    final rateString = price > 0 ? "1 $fromCurrency ≈ ${price.toStringAsFixed(8)} $toCurrency" : "N/A";
+
+    String rateString;
+    if (price > 0) {
+      String toPart;
+      // If the rate is in BTC, format it according to user settings (BTC or sats).
+      if (toCurrency.toUpperCase() == 'BTC') {
+        final denomination = ref.read(settingsProvider).btcFormat;
+        final satsAmount = (price * 100000000).toInt();
+        toPart = "${btcInDenominationFormatted(satsAmount, denomination)} $denomination";
+      } else {
+        // Format other currencies with appropriate precision.
+        toPart = "${NumberFormat('#,##0.00########').format(price)} $toCurrency";
+      }
+      rateString = "1 $fromCurrency ≈ $toPart";
+    } else {
+      rateString = "N/A";
+    }
 
     return Column(
       children: [
         TransactionDetailRow(label: "Exchange Rate".i18n, value: rateString),
-        TransactionDetailRow(label: "Fee".i18n, value: "${fee.toStringAsFixed(2)} $feeCurrency"),
+        TransactionDetailRow(label: "Fee".i18n, value: formattedFee),
         TransactionDetailRow(label: "Fee Percentage".i18n, value: "${feePercentage.toStringAsFixed(2)}%"),
       ],
     );

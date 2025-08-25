@@ -51,3 +51,15 @@ final minimumNoxDepositsProvider = FutureProvider.autoDispose<MinimumDeposit>((r
     throw result.error!;
   }
 });
+
+final getNoxTransferDetailsProvider = FutureProvider.autoDispose.family<NoxTransfer, String>((ref, transferId) async {
+  final auth = ref.read(userProvider).jwt;
+  final result = await NoxService.getTransfer(auth, transferId);
+
+  if (result.isSuccess && result.data != null) {
+    ref.read(noxTransferProvider.notifier).mergeTransfer(result.data!);
+    return result.data!;
+  } else {
+    throw result.error!;
+  }
+});

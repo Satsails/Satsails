@@ -152,6 +152,32 @@ class _ActionCards extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       children: [
+        Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          color: const Color(0xFF333333).withOpacity(0.4),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: () => showMessageSnackBar(message: "Coming soon".i18n, context: context, error: true),
+            child: Container(
+              height: 80.h,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'lib/assets/bitrefill.png',
+                    height: 35.sp,
+                    fit: BoxFit.contain,
+                    color: Colors.white,
+                  ),
+                  SizedBox(height: 8.h),
+                  Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 12.h),
         Row(
           children: [
             Expanded(
@@ -187,32 +213,6 @@ class _ActionCards extends ConsumerWidget {
               ),
             ),
           ],
-        ),
-        SizedBox(height: 12.h),
-        Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          color: const Color(0xFF333333).withOpacity(0.4),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(10),
-            onTap: () => showMessageSnackBar(message: "Coming soon".i18n, context: context, error: true),
-            child: Container(
-              height: 80.h,
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'lib/assets/bitrefill.png',
-                    height: 30.sp,
-                    fit: BoxFit.contain,
-                    color: Colors.white,
-                  ),
-                  SizedBox(height: 8.h),
-                  Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-          ),
         ),
       ],
     );

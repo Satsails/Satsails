@@ -115,6 +115,7 @@ class BitcoinTransactionDetailsScreen extends ConsumerWidget {
   Widget _buildDetailsCard(BuildContext context, WidgetRef ref) {
     final denomination = ref.read(settingsProvider).btcFormat;
     final isConfirmed = transaction.btcDetails.confirmationTime != null;
+    final isOutgoing = transaction.btcDetails.sent > transaction.btcDetails.received;
 
     return Container(
       padding: EdgeInsets.all(16.w),
@@ -145,19 +146,37 @@ class BitcoinTransactionDetailsScreen extends ConsumerWidget {
           Divider(color: Colors.white.withOpacity(0.1), height: 32.h),
           _buildSectionHeader("Amounts".i18n),
           SizedBox(height: 8.h),
-          TransactionDetailRow(
-            label: "Received".i18n,
-            value: "${btcInDenominationFormatted(transaction.btcDetails.received.toInt(), denomination)} $denomination",
-          ),
-          TransactionDetailRow(
-            label: "Sent".i18n,
-            value: "${btcInDenominationFormatted(transaction.btcDetails.sent.toInt(), denomination)} $denomination",
-          ),
-          if (transaction.btcDetails.fee != null)
+
+          if (isOutgoing) ...[
             TransactionDetailRow(
-              label: "Fee".i18n,
-              value: "${btcInDenominationFormatted(transaction.btcDetails.fee!.toInt(), denomination)} $denomination",
+              label: "Amount Sent".i18n,
+              value: "${btcInDenominationFormatted(
+                  (transaction.btcDetails.sent - transaction.btcDetails.received - (transaction.btcDetails.fee ?? BigInt.zero)).toInt(),
+                  denomination)} $denomination",
             ),
+            if (transaction.btcDetails.fee != null)
+              TransactionDetailRow(
+                label: "Fee".i18n,
+                value: "${btcInDenominationFormatted(transaction.btcDetails.fee!.toInt(), denomination)} $denomination",
+              ),
+          ] else ...[
+            // For incoming transactions, the original view is clearer.
+            TransactionDetailRow(
+              label: "Received".i18n,
+              value: "${btcInDenominationFormatted(transaction.btcDetails.received.toInt(), denomination)} $denomination",
+            ),
+            TransactionDetailRow(
+              label: "Sent".i18n,
+              value: "${btcInDenominationFormatted(transaction.btcDetails.sent.toInt(), denomination)} $denomination",
+            ),
+            if (transaction.btcDetails.fee != null)
+              TransactionDetailRow(
+                label: "Fee".i18n,
+                value: "${btcInDenominationFormatted(transaction.btcDetails.fee!.toInt(), denomination)} $denomination",
+              ),
+          ],
+          // --- MODIFICATION END ---
+
           Divider(color: Colors.white.withOpacity(0.1), height: 32.h),
           _buildActionButtons(context, ref),
         ],
@@ -450,4 +469,3 @@ class _BumpFeeModalSheetState extends ConsumerState<BumpFeeModalSheet> {
     );
   }
 }
-

@@ -51,7 +51,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
       return;
     }
 
-    // --- VALIDATION SECTION ---
     final minimumDepositsAsync = ref.read(minimumNoxDepositsProvider);
 
     if (_selectedCurrency == InputCurrency.brl) {
@@ -89,8 +88,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
 
     try {
       await ref.read(depositInitializerProvider.future);
-      final url = await ref.read(createNoxTransferRequestProvider(
-          (amountCrypto: amountCrypto, amountFiat: amountFiat, type: 'onramp_instant')).future);
+      final url = await ref.read(createNoxTransferRequestProvider((amountCrypto: amountCrypto, amountFiat: amountFiat, type: 'onramp_instant')).future);
 
       if (url.isNotEmpty && mounted) {
         _initializeWebView(url);

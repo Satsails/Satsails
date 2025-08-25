@@ -25,13 +25,17 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet>
   final List<FocusNode> _focusNodes = List.generate(24, (_) => FocusNode());
   List<String> _filteredWords = [];
   int _totalWords = 12;
-  int _selectedWordIndex = -1;
 
   @override
   void initState() {
     super.initState();
     for (var i = 0; i < _controllers.length; i++) {
       _controllers[i].addListener(() => _onTextChanged(i));
+      _focusNodes[i].addListener(() {
+        if (_focusNodes[i].hasFocus) {
+          _onTextChanged(i);
+        }
+      });
     }
   }
 
@@ -47,7 +51,12 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet>
   }
 
   void _onTextChanged(int index) {
-    if (!_focusNodes[index].hasFocus) return;
+    if (!_focusNodes[index].hasFocus) {
+      if (_filteredWords.isNotEmpty) {
+        setState(() => _filteredWords = []);
+      }
+      return;
+    }
 
     final query = _controllers[index].text;
     final wordsState = ref.read(wordsProvider);
@@ -67,10 +76,15 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet>
   }
 
   void _onWordSelected(String word) {
-    if (_selectedWordIndex != -1) {
-      _controllers[_selectedWordIndex].text = word;
-      if (_selectedWordIndex < _totalWords - 1) {
-        FocusScope.of(context).requestFocus(_focusNodes[_selectedWordIndex + 1]);
+    final focusedIndex = _focusNodes.indexWhere((node) => node.hasFocus);
+
+    if (focusedIndex != -1) {
+      _controllers[focusedIndex].text = word;
+      _controllers[focusedIndex].selection = TextSelection.fromPosition(
+          TextPosition(offset: _controllers[focusedIndex].text.length)); // Move cursor to end
+
+      if (focusedIndex < _totalWords - 1) {
+        FocusScope.of(context).requestFocus(_focusNodes[focusedIndex + 1]);
       } else {
         FocusScope.of(context).unfocus();
       }
@@ -286,7 +300,6 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet>
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.zero,
                 ),
-                onTap: () => setState(() => _selectedWordIndex = index),
               ),
             ],
           ),

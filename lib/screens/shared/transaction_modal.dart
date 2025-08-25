@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:vibration/vibration.dart';
 
@@ -627,10 +626,10 @@ class _ExchangeTransactionOverlayState
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildAssetInfo(fromAsset, 'FROM'),
+                      _buildAssetInfo(fromAsset, 'from'),
                       Icon(Icons.arrow_forward_rounded,
                           color: Colors.white.withOpacity(0.6), size: 24.sp),
-                      _buildAssetInfo(toAsset, 'TO'),
+                      _buildAssetInfo(toAsset, 'To'),
                     ],
                   ),
                 ),
@@ -666,7 +665,7 @@ class _ExchangeTransactionOverlayState
 
   Widget _buildAssetInfo(String assetName, String direction) {
     return Column(
-      crossAxisAlignment: direction == 'FROM'
+      crossAxisAlignment: direction == 'from'
           ? CrossAxisAlignment.start
           : CrossAxisAlignment.end,
       children: [
@@ -678,7 +677,7 @@ class _ExchangeTransactionOverlayState
         SizedBox(height: 8.h),
         Row(
           children: [
-            if (direction == 'FROM') ...[
+            if (direction == 'from') ...[
               getAssetImage(assetName, width: 24.sp, height: 24.sp),
               SizedBox(width: 8.w),
             ],
@@ -687,7 +686,7 @@ class _ExchangeTransactionOverlayState
                     color: Colors.white,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold)),
-            if (direction == 'TO') ...[
+            if (direction == 'To') ...[
               SizedBox(width: 8.w),
               getAssetImage(assetName, width: 24.sp, height: 24.sp),
             ],
@@ -720,7 +719,7 @@ class _ExchangeTransactionOverlayState
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("SWAP ID", style: labelStyle),
+              Text("Swap ID".i18n, style: labelStyle),
               SizedBox(height: 4.h),
               GestureDetector(
                 onTap: () {
@@ -728,7 +727,7 @@ class _ExchangeTransactionOverlayState
                   Clipboard.setData(ClipboardData(text: swapId));
                   showMessageSnackBar(
                       context: context,
-                      message: "Swap ID Copied",
+                      message: "Swap ID Copied".i18n,
                       error: false);
                 },
                 child: Row(
@@ -745,7 +744,7 @@ class _ExchangeTransactionOverlayState
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text("TIMESTAMP", style: labelStyle),
+              Text("Timestamp", style: labelStyle),
               SizedBox(height: 4.h),
               Text(timestamp, style: metadataStyle),
             ],
