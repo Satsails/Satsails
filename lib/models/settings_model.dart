@@ -1,11 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SettingsModel extends StateNotifier<Settings> {
-  // The constructor no longer requires a box.
   SettingsModel(super.state);
 
-  // Each method is now async and opens the box itself.
+  final _secureStorage = const FlutterSecureStorage();
+
+  IOSOptions _getIOSOptions() => const IOSOptions(
+    accessibility: KeychainAccessibility.first_unlock,
+  );
+
   Future<void> setCurrency(String newCurrency) async {
     final box = await Hive.openBox('settings');
     await box.put('currency', newCurrency);
@@ -65,8 +70,11 @@ class SettingsModel extends StateNotifier<Settings> {
   }
 
   Future<void> setReviewDone(bool hasBeenReviewed) async {
-    final box = await Hive.openBox('settings');
-    await box.put('reviewDone', hasBeenReviewed);
+    await _secureStorage.write(
+      key: 'reviewDone',
+      value: hasBeenReviewed.toString(),
+      iOptions: _getIOSOptions(),
+    );
     state = state.copyWith(reviewDone: hasBeenReviewed);
   }
 }

@@ -326,6 +326,24 @@ class NoxTransfer extends HiveObject {
     }
   }
 
+  bool get shouldShowInMainTransaction {
+    const userInteractionStartedStatuses = [
+      'kyc_validation',
+      'pix_deposit',
+      'pix_withdrawal',
+      'crypto_deposit',
+      'crypto_withdrawal',
+      'swap_fiat_for_crypto',
+      'swap_crypto_for_fiat',
+      'client_side_success',
+    ];
+
+    if (status != null && userInteractionStartedStatuses.contains(status)) {
+      return true;
+    }
+    return false;
+  }
+
   String get subStatusText {
     switch (status) {
       case "quoting":
@@ -394,6 +412,7 @@ class NoxTransfer extends HiveObject {
     }
     return subStatus?.replaceAll('_', ' ').i18n.capitalize() ?? '';
   }
+
 }
 
 class NoxService {

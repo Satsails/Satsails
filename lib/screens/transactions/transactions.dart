@@ -35,21 +35,15 @@ class _TransactionsState extends ConsumerState<Transactions> {
 
   @override
   Widget build(BuildContext context) {
-    // The provider now returns a Transaction object directly, not an AsyncValue.
-    // The .when() is no longer needed here.
     final transactionData = ref.watch(transactionNotifierProvider);
 
-    // --- REFACTORED FILTERING LOGIC ---
     List<BaseTransaction> transactionsToDisplay;
 
-    // 1. Determine the base list: unsettled or settled transactions.
     if (_selectedFilter == 'Expired and Pending') {
       transactionsToDisplay = transactionData.unsettledSwapsAndPurchases;
     } else {
-      // For all other filters, we start with the list of settled transactions.
       final settled = transactionData.settledTransactions;
 
-      // 2. Apply the category filter on top of the settled list.
       switch (_selectedFilter) {
         case 'All':
           transactionsToDisplay = settled;
@@ -97,9 +91,7 @@ class _TransactionsState extends ConsumerState<Transactions> {
       }
     }
 
-    // 3. Finally, apply the date filter to the result.
     final filteredTransactions = applyDateFilter(transactionsToDisplay);
-    // --- END OF REFACTORED LOGIC ---
 
     return Scaffold(
       backgroundColor: Colors.black,

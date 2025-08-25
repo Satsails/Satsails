@@ -1,13 +1,13 @@
 import 'dart:async';
+
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
-import 'package:Satsails/providers/address_receive_provider.dart';
+import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
-import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
-import 'package:Satsails/providers/send_tx_provider.dart';
+import 'package:Satsails/providers/send_tx_provider.dart'; // Using your provider context
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
@@ -36,9 +36,8 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
   String? _url;
   late WebViewController _webViewController;
   bool _isWebLoading = false;
-
-  int _currentAmountInSats = 0;
-  bool _isUpdatingFromSlider = false;
+  bool _isCalculatingMax = false;
+  bool _isSyncingController = false;
 
   Timer? _pollingTimer;
   String? _activeTransferId;
@@ -46,6 +45,10 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
   @override
   void initState() {
     super.initState();
+    // Resetting on init is good practice to ensure a clean state when the screen is first built.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(sendTxProvider.notifier).resetToDefault();
+    });
     _amountController.addListener(_onAmountChanged);
   }
 
@@ -54,34 +57,78 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
     _amountController.removeListener(_onAmountChanged);
     _amountController.dispose();
     _pollingTimer?.cancel();
+    // REMOVED: The reset logic is now handled by PopScope.
+    // ref.read(sendTxProvider.notifier).resetToDefault();
     super.dispose();
   }
 
+  void _syncControllerWithProvider(int amountInSats) {
+    _isSyncingController = true;
+    final btcFormat = ref.read(settingsProvider).btcFormat;
+    final formattedAmount = btcInDenominationFormatted(amountInSats.toDouble(), btcFormat);
+    if (_amountController.text != formattedAmount) {
+      _amountController.text = formattedAmount;
+    }
+    _isSyncingController = false;
+  }
+
   void _onAmountChanged() {
-    if (_isUpdatingFromSlider || !mounted) return;
+    if (_isSyncingController) return;
+
+    ref.read(sendTxProvider.notifier).updateDrain(false);
 
     final btcFormat = ref.read(settingsProvider).btcFormat;
-    final text = _amountController.text.replaceAll(',', '.');
+    final text = _amountController.text;
 
     if (text.isEmpty) {
-      if (_currentAmountInSats != 0) {
-        setState(() => _currentAmountInSats = 0);
-      }
+      ref.read(sendTxProvider.notifier).updateAmount(0);
       return;
     }
 
     int newAmountInSats;
     if (btcFormat == 'sats') {
-      newAmountInSats = int.tryParse(text) ?? 0;
+      newAmountInSats = int.tryParse(text.replaceAll(',', '')) ?? 0;
     } else {
-      final btcValue = double.tryParse(text) ?? 0.0;
+      final btcValue = double.tryParse(text.replaceAll(',', '.')) ?? 0.0;
       newAmountInSats = (btcValue * 100000000).toInt();
     }
 
-    if (_currentAmountInSats != newAmountInSats) {
-      setState(() {
-        _currentAmountInSats = newAmountInSats;
-      });
+    ref.read(sendTxProvider.notifier).updateAmount(newAmountInSats);
+  }
+
+  Future<void> _calculateAndSetMaxSellableAmount() async {
+    if (_isCalculatingMax) return;
+    setState(() => _isCalculatingMax = true);
+
+    try {
+      ref.read(sendTxProvider.notifier).updateAddress(ref.read(addressProvider).bitcoinAddress);
+      final balance = ref.read(balanceNotifierProvider).onChainBtcBalance;
+      if (balance == 0) {
+        showMessageSnackBar(context: context, message: 'Zero balance'.i18n, error: true);
+        return;
+      }
+
+      final transactionBuilder = await ref.watch(bitcoinTransactionBuilderProvider(0).future);
+      final transaction = await ref.watch(buildDrainWalletBitcoinTransactionProvider(transactionBuilder).future);
+
+      final fee = (transaction.$1.feeAmount() ?? BigInt.zero).toInt();
+      final amountToSet = balance - fee;
+
+      if (amountToSet <= 0) {
+        showMessageSnackBar(context: context, message: 'Balance too low to cover network fees'.i18n, error: true);
+        return;
+      }
+
+      ref.read(sendTxProvider.notifier).updateAmount(amountToSet);
+      ref.read(sendTxProvider.notifier).updateDrain(true);
+    } catch (e) {
+      if (mounted) {
+        showMessageSnackBar(context: context, message: e.toString().i18n, error: true);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isCalculatingMax = false);
+      }
     }
   }
 
@@ -97,15 +144,25 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
       try {
         ref.invalidate(getNoxTransferDetailsProvider(transferId));
         final transferDetails = await ref.read(getNoxTransferDetailsProvider(transferId).future);
-
         final address = transferDetails.depositAddress;
+
         if (address != null && address.isNotEmpty) {
-          // Stop polling once address is found to prevent multiple sends
           timer.cancel();
 
-          ref.read(sendTxProvider.notifier).updateAddress(address);
-          ref.read(sendTxProvider.notifier).updateAmount(_currentAmountInSats);
-          ref.read(sendBitcoinTransactionProvider);
+          try {
+            ref.read(sendTxProvider.notifier).updateAddress(address);
+            ref.read(sendTxProvider.notifier).updateDrain(false);
+            await ref.read(sendBitcoinTransactionProvider.future);
+          } catch (e) {
+            if (mounted) {
+              showMessageSnackBar(
+                  context: context, message: "Transaction failed: ${e.toString()}".i18n, error: true);
+              setState(() {
+                _url = null;
+                _activeTransferId = null;
+              });
+            }
+          }
         }
       } catch (e) {
         print('Error polling for transfer details: $e');
@@ -114,16 +171,11 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
   }
 
   Future<void> _handleInput() async {
-    final amount = _amountController.text.replaceAll(',', '.');
+    final sendTxState = ref.read(sendTxProvider);
+    final btcFormat = ref.read(settingsProvider).btcFormat;
 
-    if (amount.isEmpty) {
-      showMessageSnackBar(context: context, message: 'Amount cannot be empty'.i18n, error: true);
-      return;
-    }
-
-    final double? amountInDouble = double.tryParse(amount);
-    if (amountInDouble == null || amountInDouble <= 0) {
-      showMessageSnackBar(context: context, message: 'Please enter a valid amount.'.i18n, error: true);
+    if (sendTxState.amount <= 0) {
+      showMessageSnackBar(context: context, message: 'Please enter a valid amount'.i18n, error: true);
       return;
     }
 
@@ -132,8 +184,10 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
     try {
       await ref.read(depositInitializerProvider.future);
 
+      final amountForApi = btcInDenominationFormatted(sendTxState.amount.toDouble(), btcFormat).replaceAll(',', '.');
+
       final url = await ref.read(createNoxTransferRequestProvider((
-      amountCrypto: amount, // Always use the input amount as crypto
+      amountCrypto: amountForApi,
       amountFiat: null,
       type: 'offramp_instant'
       )).future);
@@ -141,10 +195,7 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
       final transferId = url.split('/').last;
 
       if (url.isNotEmpty && mounted) {
-        setState(() {
-          _activeTransferId = transferId;
-        });
-
+        setState(() => _activeTransferId = transferId);
         _initializeWebView(url);
         _startPollingForAddress(transferId);
       }
@@ -180,194 +231,177 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
     return Container(
       color: Colors.white,
       child: const Center(
-        child: CircularProgressIndicator(
-          color: Colors.black,
-        ),
+        child: CircularProgressIndicator(color: Colors.black),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          _url == null ? 'Sell via Pix'.i18n : 'Sell'.i18n,
-          style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
-        ),
+    final sendTxState = ref.watch(sendTxProvider);
+    _syncControllerWithProvider(sendTxState.amount);
+
+    // ADDED: PopScope to handle the back navigation event.
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (bool didPop) {
+        // This callback is triggered after the pop has happened.
+        if (didPop) {
+          ref.read(sendTxProvider.notifier).resetToDefault();
+        }
+      },
+      child: Scaffold(
         backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-          onPressed: () {
-            if (_url == null) {
-              context.pop();
-            } else {
-              setState(() {
-                _url = null;
-                _pollingTimer?.cancel();
-                _activeTransferId = null;
-              });
-            }
-          },
-        ),
-        actions: _url != null
-            ? [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: () => _webViewController.reload(),
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text(
+            _url == null ? 'Sell via Pix'.i18n : 'Sell'.i18n,
+            style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
           ),
-        ]
-            : null,
-      ),
-      body: SafeArea(
-        child: _url == null
-            ? KeyboardDismissOnTap(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(height: 16.h),
-                _buildBalanceCardWithSlider(),
-                SizedBox(height: 16.h),
-                _buildAmountEntryCard(),
-                SizedBox(height: 16.h),
-                _buildInfoCard(),
-                SizedBox(height: 24.h),
-                SizedBox(
-                  height: 56.h,
-                  child: _isLoading
-                      ? Shimmer.fromColors(
-                    baseColor: Colors.green.withOpacity(0.6),
-                    highlightColor: Colors.green.withOpacity(0.9),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Generating Sale'.i18n,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
+          backgroundColor: Colors.black,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+            onPressed: () {
+              if (_url == null) {
+                // This will trigger the PopScope's onPopInvoked callback.
+                context.pop();
+              } else {
+                // This just changes the local state and does not pop the route.
+                setState(() {
+                  _url = null;
+                  _pollingTimer?.cancel();
+                  _activeTransferId = null;
+                });
+              }
+            },
+          ),
+          actions: _url != null
+              ? [
+            IconButton(
+              icon: const Icon(Icons.refresh, color: Colors.white),
+              onPressed: () => _webViewController.reload(),
+            ),
+          ]
+              : null,
+        ),
+        body: SafeArea(
+          child: _url == null
+              ? KeyboardDismissOnTap(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: 16.h),
+                  _buildBalanceCard(),
+                  SizedBox(height: 16.h),
+                  _buildAmountEntryCard(),
+                  SizedBox(height: 16.h),
+                  _buildInfoCard(),
+                  SizedBox(height: 24.h),
+                  SizedBox(
+                    height: 56.h,
+                    child: _isLoading
+                        ? Shimmer.fromColors(
+                      baseColor: Colors.green.withOpacity(0.6),
+                      highlightColor: Colors.green.withOpacity(0.9),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Generating Sale'.i18n,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
+                    )
+                        : CustomButton(
+                      onPressed: _handleInput,
+                      primaryColor: Colors.green.withOpacity(0.8),
+                      secondaryColor: Colors.green.withOpacity(0.6),
+                      textColor: Colors.white,
+                      text: 'Generate Sale'.i18n,
                     ),
-                  )
-                      : CustomButton(
-                    onPressed: _handleInput,
-                    primaryColor: Colors.green.withOpacity(0.8),
-                    secondaryColor: Colors.green.withOpacity(0.6),
-                    textColor: Colors.white,
-                    text: 'Generate Sale'.i18n,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+          )
+              : Stack(
+            children: [
+              WebViewWidget(controller: _webViewController),
+              if (_isWebLoading) _buildLoadingIndicator(),
+            ],
           ),
-        )
-            : Stack(
-          children: [
-            WebViewWidget(controller: _webViewController),
-            if (_isWebLoading) _buildLoadingIndicator(),
-          ],
         ),
       ),
     );
   }
 
-  Widget _buildBalanceCardWithSlider() {
+  Widget _buildBalanceCard() {
     final btcFormat = ref.watch(settingsProvider).btcFormat;
     final balanceState = ref.watch(balanceNotifierProvider);
-    final currency = ref.watch(settingsProvider).currency;
-    final currencyNotifier = ref.watch(currencyNotifierProvider);
     final maxBalance = balanceState.onChainBtcBalance;
-
     final balanceString = btcInDenominationFormatted(maxBalance, btcFormat);
-    final sliderMax = maxBalance > 0 ? maxBalance.toDouble() : 1.0;
 
     return Card(
       color: const Color(0x00333333).withOpacity(0.4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       elevation: 4,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: EdgeInsets.all(16.w),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Available Bitcoin Balance'.i18n,
-                      style: TextStyle(color: Colors.grey, fontSize: 14.sp),
-                    ),
-                    SizedBox(height: 4.h),
-                    AutoSizeText(
-                      balanceString,
-                      maxLines: 1,
-                      minFontSize: 16,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Simplified "Max" button logic
-                    _amountController.text = btcInDenominationFormatted(maxBalance.toDouble(), btcFormat);
-                  },
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Available Bitcoin Balance'.i18n,
+                    style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
-                  child: Text(
-                    'Max',
+                  SizedBox(height: 4.h),
+                  AutoSizeText(
+                    balanceString,
+                    maxLines: 1,
+                    minFontSize: 16,
                     style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14.sp,
+                      color: Colors.white,
+                      fontSize: 22.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 4.h),
-            SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 6.h,
-                activeTrackColor: Colors.white,
-                inactiveTrackColor: Colors.white.withOpacity(0.3),
-                thumbColor: Colors.white,
-                overlayColor: Colors.white.withOpacity(0.2),
-                thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.r),
-                overlayShape: RoundSliderOverlayShape(overlayRadius: 16.r),
+                ],
               ),
-              child: Slider(
-                value: _currentAmountInSats.toDouble().clamp(0.0, sliderMax),
-                min: 0,
-                max: sliderMax,
-                onChanged: maxBalance == 0
-                    ? null
-                    : (newValue) {
-                  final newSats = newValue.toInt();
-                  _isUpdatingFromSlider = true;
-                  _amountController.text = btcInDenominationFormatted(newSats.toDouble(), btcFormat);
-                  setState(() => _currentAmountInSats = newSats);
-                  _isUpdatingFromSlider = false;
-                },
+            ),
+            TextButton(
+              onPressed: _isCalculatingMax ? null : _calculateAndSetMaxSellableAmount,
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+              ),
+              child: _isCalculatingMax
+                  ? SizedBox(
+                height: 20.sp,
+                width: 20.sp,
+                child: const CircularProgressIndicator(strokeWidth: 2.0, color: Colors.black),
+              )
+                  : Text(
+                'Max',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -388,7 +422,6 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Currency Toggle has been removed
           SizedBox(height: 12.h),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,

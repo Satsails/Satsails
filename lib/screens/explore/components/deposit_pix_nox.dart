@@ -161,46 +161,48 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
         bottom: true,
         child: _url == null
             ? KeyboardDismissOnTap(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
-            child: Column(
-              children: [
-                SizedBox(height: 24.h),
-                _buildAmountEntryCard(),
-                SizedBox(height: 16.h),
-                _buildInfoCard(),
-                const Spacer(),
-                SizedBox(
-                  height: 56.h,
-                  width: double.infinity,
-                  child: _isLoading
-                      ? Shimmer.fromColors(
-                    baseColor: Colors.green.withOpacity(0.6),
-                    highlightColor: Colors.green.withOpacity(0.9),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(16.r),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+              child: Column(
+                children: [
+                  SizedBox(height: 24.h),
+                  _buildAmountEntryCard(),
+                  SizedBox(height: 16.h),
+                  _buildInfoCard(),
+                  SizedBox(height: 24.h),
+                  SizedBox(
+                    height: 56.h,
+                    width: double.infinity,
+                    child: _isLoading
+                        ? Shimmer.fromColors(
+                      baseColor: Colors.green.withOpacity(0.6),
+                      highlightColor: Colors.green.withOpacity(0.9),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Generating Payment'.i18n,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Generating Payment'.i18n,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold),
-                      ),
+                    )
+                        : CustomButton(
+                      onPressed: _handleInput,
+                      primaryColor: Colors.green.withOpacity(0.8),
+                      secondaryColor: Colors.green.withOpacity(0.6),
+                      textColor: Colors.white,
+                      text: 'Generate Payment'.i18n,
                     ),
-                  )
-                      : CustomButton(
-                    onPressed: _handleInput,
-                    primaryColor: Colors.green.withOpacity(0.8),
-                    secondaryColor: Colors.green.withOpacity(0.6),
-                    textColor: Colors.white,
-                    text: 'Generate Payment'.i18n,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         )

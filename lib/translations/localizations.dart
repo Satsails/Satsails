@@ -2020,6 +2020,11 @@ extension Localization on String {
           'To': 'Para',
           'Swap ID': 'ID de troca',
           'Timestamp': 'Data',
+          'The minimum deposit is': 'O Deposito minimo é',
+          'Available Bitcoin Balance': 'Saldo Bitcoin Disponível',
+          'Generate Sale': 'Gerar venda',
+          'Minimum deposit:': 'Deposito minimo:',
+          'Minimum deposit:': 'Deposito minimo:',
         }
       };
 

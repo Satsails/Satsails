@@ -33,11 +33,11 @@ class BitcoinTransaction extends BaseTransaction {
   final bdk.TransactionDetails btcDetails;
 
   BitcoinTransaction({
-    required String id,
-    required DateTime timestamp,
-    required bool isConfirmed,
+    required super.id,
+    required super.timestamp,
+    required super.isConfirmed,
     required this.btcDetails,
-  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+  });
 
   @override
   TransactionType get type => btcDetails.received > btcDetails.sent ? TransactionType.received : TransactionType.sent;
@@ -51,11 +51,11 @@ class LiquidTransaction extends BaseTransaction {
   final lwk.Tx lwkDetails;
 
   LiquidTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.lwkDetails,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+    required super.isConfirmed,
+  });
 
   num get _lbtcNetAmount {
     final lbtcId = AssetMapper.reverseMapTicker(AssetId.LBTC);
@@ -81,16 +81,16 @@ class LightningConversionTransaction extends BaseTransaction {
   final breez.Payment details;
 
   LightningConversionTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.details,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+    required super.isConfirmed,
+  });
 
   @override
   TransactionType get type => TransactionType.received;
   @override
-  num get amount => 0; // Per requirement, only BTC/Liquid flows are counted
+  num get amount => 0;
   @override
   String get asset => AssetMapper.reverseMapTicker(AssetId.LBTC);
 }
@@ -99,16 +99,16 @@ class EulenTransaction extends BaseTransaction {
   final EulenTransfer details;
 
   EulenTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.details,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+    required super.isConfirmed,
+  });
 
   @override
   TransactionType get type => TransactionType.received;
   @override
-  num get amount => 0; // Per requirement, only BTC/Liquid flows are counted
+  num get amount => 0;
   @override
   String get asset => details.to_currency ?? 'unknown';
 }
@@ -117,16 +117,16 @@ class NoxTransaction extends BaseTransaction {
   final NoxTransfer details;
 
   NoxTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.details,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+    required super.isConfirmed,
+  });
 
   @override
   TransactionType get type => TransactionType.received;
   @override
-  num get amount => 0; // Per requirement, only BTC/Liquid flows are counted
+  num get amount => 0;
   @override
   String get asset => details.to_currency ?? 'unknown';
 }
@@ -135,16 +135,16 @@ class SideswapPegTransaction extends BaseTransaction {
   final SideswapPegStatus sideswapPegDetails;
 
   SideswapPegTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.sideswapPegDetails,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+    required super.isConfirmed,
+  });
 
   @override
   TransactionType get type => (sideswapPegDetails.pegIn ?? false) ? TransactionType.received : TransactionType.sent; // FIX: Handle nullable bool
   @override
-  num get amount => 0; // Per requirement, only BTC/Liquid flows are counted
+  num get amount => 0;
   @override
   String get asset => AssetMapper.reverseMapTicker(AssetId.LBTC);
 }
@@ -153,11 +153,11 @@ class SideswapInstantSwapTransaction extends BaseTransaction {
   final SideswapCompletedSwap sideswapInstantSwapDetails;
 
   SideswapInstantSwapTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.sideswapInstantSwapDetails,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+    required super.isConfirmed,
+  });
 
   @override
   TransactionType get type => TransactionType.received;
@@ -171,11 +171,11 @@ class SideShiftTransaction extends BaseTransaction {
   final SideShift details;
 
   SideShiftTransaction({
-    required String id,
-    required DateTime timestamp,
+    required super.id,
+    required super.timestamp,
     required this.details,
-    required bool isConfirmed,
-  }) : super(id: id, timestamp: timestamp, isConfirmed: isConfirmed);
+    required super.isConfirmed,
+  });
 
   @override
   TransactionType get type => TransactionType.received;
@@ -306,10 +306,14 @@ class Transaction {
     tx.details.status == 'waiting' || tx.details.status == 'expired'));
     unsettled.addAll(eulenTransactions.where((tx) =>
     tx.details.failed || tx.details.status == 'expired' || tx.details.status == 'pending'));
-    unsettled.addAll(noxTransactions.where((tx) => !tx.details.completed));
+    unsettled.addAll(noxTransactions.where((tx) =>
+    tx.details.failed ||
+        tx.details.subStatus == 'EXPIRED' ||
+        !tx.details.shouldShowInMainTransaction));
     unsettled.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return unsettled;
   }
+
 
   List<BaseTransaction> get settledTransactions {
     final unsettledIds = unsettledSwapsAndPurchases.map((tx) => tx.id).toSet();

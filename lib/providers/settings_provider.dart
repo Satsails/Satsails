@@ -2,10 +2,12 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/settings_model.dart';
 import 'package:hive/hive.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 final initialSettingsProvider = FutureProvider<Settings>((ref) async {
       final languageIsPortuguese = Platform.localeName.contains('pt');
       final box = await Hive.openBox('settings');
+      const secureStorage = FlutterSecureStorage();
 
       final currency = box.get('currency', defaultValue: 'USD');
       final language =
@@ -19,7 +21,9 @@ final initialSettingsProvider = FutureProvider<Settings>((ref) async {
           defaultValue: 'elements-mainnet.blockstream.info:50002');
       final nodeType = box.get('nodeType', defaultValue: 'Blockstream');
       final biometricsEnabled = box.get('biometricsEnabled', defaultValue: true);
-      final reviewDone = box.get('reviewDone', defaultValue: false);
+
+      final reviewDoneString = await secureStorage.read(key: 'reviewDone');
+      final reviewDone = reviewDoneString == 'true';
 
       return Settings(
             currency: currency,
@@ -36,14 +40,12 @@ final initialSettingsProvider = FutureProvider<Settings>((ref) async {
       );
 });
 
-// The main provider now uses the FutureProvider to get its initial state.
 final settingsProvider = StateNotifierProvider<SettingsModel, Settings>((ref) {
       final initialSettings = ref.watch(initialSettingsProvider);
 
       return SettingsModel(
             initialSettings.when(
                   data: (settings) => settings,
-                  // Provide default settings for loading and error states.
                   loading: () {
                         final languageIsPortuguese = Platform.localeName.contains('pt');
                         return Settings(
@@ -61,7 +63,6 @@ final settingsProvider = StateNotifierProvider<SettingsModel, Settings>((ref) {
                         );
                   },
                   error: (err, stack) {
-                        // In case of an error, also return default settings.
                         final languageIsPortuguese = Platform.localeName.contains('pt');
                         return Settings(
                               currency: 'USD',
