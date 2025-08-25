@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:Satsails/app_widget.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/models/eulen_transfer_model.dart';
@@ -64,14 +65,16 @@ Future<void> _initializeApp() async {
       };
     }),
 
-    // Initialize Hive for local storage
     _initHive(),
   ]);
 
   // Sequential initializations
   await migrateMnemonicStorage();
   await LibLwk.init();
-  await initialize();
+  // only here for internal testing, delete once able
+  if (Platform.isAndroid){
+    await initialize();
+  }
 
   try {
     await FlutterBranchSdk.init(

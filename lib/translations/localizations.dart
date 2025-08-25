@@ -2025,6 +2025,8 @@ extension Localization on String {
           'Generate Sale': 'Gerar venda',
           'Minimum deposit:': 'Deposito minimo:',
           'Minimum deposit:': 'Deposito minimo:',
+          'Insert an affiliate code to get up to 0.5% discount of your purchase': 'Insira um código de afiliado para obter até 0,5% de desconto em sua compra',
+          'Bitcoin unit': 'Denominação Bitcoin',
         }
       };
 
