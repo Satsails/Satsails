@@ -2027,6 +2027,7 @@ extension Localization on String {
           'Minimum deposit:': 'Deposito minimo:',
           'Insert an affiliate code to get up to 0.5% discount of your purchase': 'Insira um código de afiliado para obter até 0,5% de desconto em sua compra',
           'Bitcoin unit': 'Denominação Bitcoin',
+          'Available Balance': 'Saldo Disponível',
         }
       };
 

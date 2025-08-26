@@ -220,7 +220,7 @@ class _TransactionListState extends ConsumerState<TransactionList> {
             transactionState.liquidTransactions.isNotEmpty;
 
     if (hasRelevantTransactions) {
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 5));
 
       final inAppReview = InAppReview.instance;
       if (await inAppReview.isAvailable()) {

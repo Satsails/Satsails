@@ -45,7 +45,7 @@ class BalanceCard extends ConsumerStatefulWidget {
   ConsumerState<BalanceCard> createState() => _BalanceCardState();
 }
 
-class _BalanceCardState extends ConsumerState<BalanceCard> {
+class _BalanceCardState extends ConsumerState<BalanceCard> with TickerProviderStateMixin {
   static final List<Map<String, String>> _allAssets = [
     {'name': 'Bitcoin', 'icon': 'lib/assets/bitcoin-logo.png', 'network': 'Bitcoin Network'},
     {'name': 'Lightning Bitcoin', 'icon': 'lib/assets/Bitcoin_lightning_logo.png', 'network': 'Lightning Network'},
@@ -57,17 +57,28 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
 
   late final PageController _pageController;
 
+  // Custom Popup State
+  late final AnimationController _popupAnimationController;
+  OverlayEntry? _overlayEntry;
+
   @override
   void initState() {
     super.initState();
     final initialAsset = ref.read(selectedAssetProvider);
     final initialIndex = _allAssets.indexWhere((asset) => asset['name'] == initialAsset);
     _pageController = PageController(initialPage: initialIndex >= 0 ? initialIndex : 0);
+
+    _popupAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _popupAnimationController.dispose();
+    _removeOverlay();
     super.dispose();
   }
 
@@ -83,6 +94,31 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
         );
       },
     );
+  }
+
+  void _togglePopup() {
+    if (_overlayEntry != null) {
+      _closePopup();
+    } else {
+      _openPopup();
+    }
+  }
+
+  void _openPopup() {
+    _overlayEntry = _createOverlayEntry();
+    Overlay.of(context).insert(_overlayEntry!);
+    _popupAnimationController.forward();
+  }
+
+  void _closePopup() {
+    _popupAnimationController.reverse().then((_) {
+      _removeOverlay();
+    });
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
   }
 
   @override
@@ -114,7 +150,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(child: _buildAssetSelectorDropdown(context, ref)),
+                Expanded(child: _buildAssetSelector(context, ref)),
                 SizedBox(width: 8.w),
                 _buildSyncStatusIndicator(ref),
               ],
@@ -173,170 +209,211 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     );
   }
 
-  Widget _buildAssetSelectorDropdown(BuildContext context, WidgetRef ref) {
-    final selectedAsset = ref.watch(selectedAssetProvider);
-    final networks = ['Bitcoin Network', 'Lightning Network', 'Liquid Network'];
+  OverlayEntry _createOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) => Stack(
+        alignment: Alignment.center,
+        children: [
+          // Scrim / Backdrop
+          FadeTransition(
+            opacity: CurvedAnimation(parent: _popupAnimationController, curve: Curves.easeOut),
+            child: GestureDetector(
+              onTap: _closePopup,
+              child: Container(
+                color: Colors.black.withOpacity(0.6),
+              ),
+            ),
+          ),
+          // The popup menu itself
+          FadeTransition(
+            opacity: CurvedAnimation(parent: _popupAnimationController, curve: Curves.easeOut),
+            child: ScaleTransition(
+              alignment: Alignment.center,
+              scale: CurvedAnimation(parent: _popupAnimationController, curve: Curves.easeOutCubic),
+              child: _buildPopupMenu(),
+            ),
+          )
+        ],
+      ),
+    );
+  }
 
+  Widget _buildPopupMenu() {
     final balanceState = ref.watch(balanceNotifierProvider);
     final settings = ref.watch(settingsProvider);
     final isBalanceVisible = settings.balanceVisible;
+    final selectedAsset = ref.watch(selectedAssetProvider);
+    final networks = ['Bitcoin Network', 'Lightning Network', 'Liquid Network'];
 
-    List<DropdownMenuItem<String>> items = [];
-    for (var network in networks) {
-      items.add(
-        DropdownMenuItem(
-          enabled: false,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(12.w, 4.h, 12.w, 4.h),
-            child: Text(
-              network,
-              style: TextStyle(
-                color: Colors.grey,
-                fontWeight: FontWeight.bold,
-                fontSize: 14.sp,
-              ),
-            ),
-          ),
-        ),
-      );
-
-      final networkAssets = _allAssets.where((asset) => asset['network'] == network);
-      items.addAll(
-        networkAssets.map((asset) {
-          final assetName = asset['name']!;
-          final isSelected = selectedAsset == assetName;
-
-          String balanceString;
-          final assetForBalance = asset['network'] == 'Lightning Network' ? 'Liquid Bitcoin' : assetName;
-
-          switch (assetForBalance) {
-            case 'Bitcoin':
-              balanceString = btcInDenominationFormatted(balanceState.onChainBtcBalance, settings.btcFormat);
-              break;
-            case 'Liquid Bitcoin':
-              balanceString = btcInDenominationFormatted(balanceState.liquidBtcBalance, settings.btcFormat);
-              break;
-            case 'USDT':
-              balanceString = fiatInDenominationFormatted(balanceState.liquidUsdtBalance);
-              break;
-            case 'EURx':
-              balanceString = fiatInDenominationFormatted(balanceState.liquidEuroxBalance);
-              break;
-            case 'Depix':
-              balanceString = fiatInDenominationFormatted(balanceState.liquidDepixBalance);
-              break;
-            default:
-              balanceString = '';
-          }
-
-          if (!isBalanceVisible) {
-            balanceString = '****';
-          }
-
-          return DropdownMenuItem<String>(
-            value: asset['name'],
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        width: 0.9.sw, // 90% of screen width
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20.r),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
+              constraints: BoxConstraints(maxHeight: 0.6.sh), // 60% of screen height
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white.withOpacity(0.1) : Colors.transparent,
-                borderRadius: BorderRadius.circular(8.r),
+                color: const Color(0xFF2C2C2C).withOpacity(0.85),
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(color: Colors.white.withOpacity(0.1)),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-              child: Row(
-                children: [
-                  Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
-                  SizedBox(width: 12.w),
-                  Text(
-                    assetName,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16.sp),
-                  ),
-                  const Spacer(),
-                  Text(
-                    balanceString,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 15.sp,
+              child: ListView.separated(
+                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
+                shrinkWrap: true,
+                itemCount: _allAssets.length + networks.length,
+                separatorBuilder: (context, index) {
+                  final isLastItemInGroup = _allAssets.where((a) => a['network'] == networks.first).length == index ||
+                      _allAssets.where((a) => a['network'] == networks[1] || a['network'] == networks[0]).length + 1 == index;
+                  return isLastItemInGroup ? Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
+                    child: Divider(height: 1, color: Colors.white.withOpacity(0.1)),
+                  ) : const SizedBox.shrink();
+                },
+                itemBuilder: (context, index) {
+                  int assetIndex = index;
+                  if (index < _allAssets.where((a) => a['network'] == networks.first).length + 1) { // Bitcoin Network
+                    if (index == 0) return _buildNetworkHeader(networks.first);
+                    assetIndex -= 1;
+                  } else if (index < _allAssets.where((a) => a['network'] != networks.last).length + 2) { // Lightning Network
+                    if (index == _allAssets.where((a) => a['network'] == networks.first).length + 1) return _buildNetworkHeader(networks[1]);
+                    assetIndex -= 2;
+                  } else { // Liquid Network
+                    if (index == _allAssets.where((a) => a['network'] != networks.last).length + 2) return _buildNetworkHeader(networks.last);
+                    assetIndex -= 3;
+                  }
+
+                  final asset = _allAssets[assetIndex];
+                  final assetName = asset['name']!;
+                  final isSelected = selectedAsset == assetName;
+
+                  String balanceString;
+                  final assetForBalance = asset['network'] == 'Lightning Network' ? 'Liquid Bitcoin' : assetName;
+
+                  switch (assetForBalance) {
+                    case 'Bitcoin': balanceString = btcInDenominationFormatted(balanceState.onChainBtcBalance, settings.btcFormat); break;
+                    case 'Liquid Bitcoin': balanceString = btcInDenominationFormatted(balanceState.liquidBtcBalance, settings.btcFormat); break;
+                    case 'USDT': balanceString = fiatInDenominationFormatted(balanceState.liquidUsdtBalance); break;
+                    case 'EURx': balanceString = fiatInDenominationFormatted(balanceState.liquidEuroxBalance); break;
+                    case 'Depix': balanceString = fiatInDenominationFormatted(balanceState.liquidDepixBalance); break;
+                    default: balanceString = '';
+                  }
+
+                  if (!isBalanceVisible) balanceString = '••••••';
+
+                  return GestureDetector(
+                    onTap: () {
+                      ref.read(selectedAssetProvider.notifier).state = assetName;
+                      _closePopup();
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.white.withOpacity(0.1) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+                      child: Row(
+                        children: [
+                          Image.asset(asset['icon']!, width: 32.sp, height: 32.sp),
+                          SizedBox(width: 16.w),
+                          Expanded(
+                            child: Text(
+                              assetName,
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 18.sp),
+                            ),
+                          ),
+                          Text(
+                            balanceString,
+                            style: TextStyle(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.w500, fontSize: 16.sp),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 8.w),
-                  if (isSelected)
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.white,
-                      size: 20.sp,
-                    )
-                  else
-                    SizedBox(width: 20.sp),
-                ],
+                  );
+                },
               ),
             ),
-          );
-        }),
-      );
-    }
-
-    return DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
-        value: selectedAsset,
-        isExpanded: true,
-        dropdownColor: const Color(0xFF2C2C2C),
-        borderRadius: BorderRadius.circular(12.r),
-        itemHeight: null,
-        icon: Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.25),
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'View Balances'.i18n,
-                style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500),
-              ),
-              SizedBox(width: 4.w),
-              Icon(
-                Icons.keyboard_arrow_down,
-                color: Colors.white,
-                size: 20.sp,
-              ),
-            ],
           ),
         ),
-        onChanged: (newValue) {
-          if (newValue != null) {
-            ref.read(selectedAssetProvider.notifier).state = newValue;
-          }
-        },
-        items: items,
-        selectedItemBuilder: (BuildContext context) {
-          return items.map((DropdownMenuItem<String> item) {
-            final selectedValue = ref.watch(selectedAssetProvider);
-            final asset = _allAssets.firstWhere(
-                  (a) => a['name'] == selectedValue,
-              orElse: () => _allAssets.first,
-            );
+      ),
+    );
+  }
 
-            if (item.value == selectedValue) {
-              return Row(
-                children: [
-                  Image.asset(asset['icon']!, width: 24.sp, height: 24.sp),
-                  SizedBox(width: 12.w),
-                  Text(
-                    asset['name']!,
-                    style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
-                    overflow: TextOverflow.ellipsis,
+  Widget _buildNetworkHeader(String networkName) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(12.w, 12.h, 12.w, 8.h),
+      child: Text(
+        networkName.toUpperCase(),
+        style: TextStyle(
+          color: Colors.grey.shade400,
+          fontWeight: FontWeight.w600,
+          fontSize: 13.sp,
+          letterSpacing: 0.8,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAssetSelector(BuildContext context, WidgetRef ref) {
+    final selectedAssetName = ref.watch(selectedAssetProvider);
+    final selectedAssetData = _allAssets.firstWhere(
+          (a) => a['name'] == selectedAssetName,
+      orElse: () => _allAssets.first,
+    );
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _togglePopup,
+      child: Row(
+        children: [
+          // Selected asset on the left
+          Image.asset(selectedAssetData['icon']!, width: 28.sp, height: 28.sp),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              selectedAssetData['name']!,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          // "View Balances" button on the right
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.25),
+              borderRadius: BorderRadius.circular(16.r),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'View Balances'.i18n,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500),
+                ),
+                SizedBox(width: 4.w),
+                RotationTransition(
+                  turns: Tween(begin: 0.0, end: 0.5).animate(CurvedAnimation(
+                      parent: _popupAnimationController,
+                      curve: Curves.easeInOut)),
+                  child: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                    size: 20.sp,
                   ),
-                ],
-              );
-            }
-            return Container();
-          }).toList();
-        },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -408,6 +485,9 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   }
 }
 
+// --- The rest of your file (TransactionOptionsSheet, _AssetDetailsView, etc.) remains unchanged. ---
+// --- Paste the classes below this comment. ---
+
 class TransactionOptionsSheet extends ConsumerStatefulWidget {
   final bool isSend;
   final List<Map<String, String>> allNativeAssets;
@@ -478,38 +558,36 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
   // --- Main Build Method ---
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        height: _sheetHeight,
-        decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-        ),
-        child: Column(
-          children: [
-            _buildGrabber(),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (child, animation) {
-                  final slideIn = Tween<Offset>(
-                    begin: const Offset(1.0, 0.0),
-                    end: Offset.zero,
-                  ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
-                  if (child.key == const ValueKey('BridgeSelection')) {
-                    return SlideTransition(position: slideIn, child: child);
-                  }
-                  return FadeTransition(opacity: animation, child: child);
-                },
-                child: _selectedNativeAsset == null
-                    ? _buildNativeAssetSelectionView()
-                    : _buildBridgeOptionsView(),
-              ),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      height: _sheetHeight,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      child: Column(
+        children: [
+          _buildGrabber(),
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) {
+                final slideIn = Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
+                if (child.key == const ValueKey('BridgeSelection')) {
+                  return SlideTransition(position: slideIn, child: child);
+                }
+                return FadeTransition(opacity: animation, child: child);
+              },
+              child: _selectedNativeAsset == null
+                  ? _buildNativeAssetSelectionView()
+                  : _buildBridgeOptionsView(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -950,9 +1028,6 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
     );
   }
 }
-
-
-// --- Widgets below this line are unchanged ---
 
 class _AssetDetailsView extends ConsumerWidget {
   final Map<String, String> assetData;

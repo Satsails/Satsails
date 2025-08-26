@@ -61,7 +61,7 @@ class Home extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (backupNeeded)
+          if (!backupNeeded)
             _buildBackupButton(context)
           else
             Text(
@@ -84,7 +84,7 @@ class Home extends ConsumerWidget {
       label: 'Backup Wallet'.i18n,
       iconColor: Colors.black,
       textColor: Colors.black,
-      backgroundColor: Colors.redAccent,
+      backgroundColor: Colors.red,
       onPressed: () => context.push('/seed_words'),
     );
   }
