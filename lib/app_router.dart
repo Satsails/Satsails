@@ -98,18 +98,28 @@ class AppRouter {
       initialLocation: initialRoute,
       redirect: (BuildContext context, GoRouterState state) {
         final uri = state.uri;
-        if (uri.scheme == 'https' && uri.host == 'links.satsails.com') {
+        if (uri.scheme == 'https' && (uri.host == 'satsails.app.link' || uri.host == 'satsails-alternate.app.link')) {
+          String? code;
+          if (uri.pathSegments.isNotEmpty) {
+            code = uri.pathSegments.first;
+          }
+          if (code != null && code.isNotEmpty) {
+            return '/affiliate?code=$code';
+          }
           return '/affiliate';
         }
-        return null; // No redirect by default
+        return null;
       },
       routes: [
         GoRoute(
           path: '/affiliate',
-          pageBuilder: (context, state) => _buildFadeScalePage(
-            child: const AffiliateScreen(),
-            state: state,
-          ),
+          pageBuilder: (context, state) {
+            final code = state.uri.queryParameters['code'];
+            return _buildFadeScalePage(
+              child: AffiliateScreen(affiliateCode: code ?? ''),
+              state: state,
+            );
+          },
         ),
         GoRoute(
           path: '/splash',
@@ -330,21 +340,21 @@ class AppRouter {
               ),
               routes: [
                 GoRoute(
-                  path: '/sell_type',
-                  pageBuilder: (context, state) => _buildFadeScalePage(
-                    child: const SellTypeScreen(),
-                    state: state,
-                  ),
-                  routes: [
-                    GoRoute(
-                      path: '/sell_pix_nox',
-                      name: 'SellPixNox',
-                      pageBuilder: (context, state) => _buildFadeScalePage(
-                        child: const SellPixNox(),
-                        state: state,
-                      ),
+                    path: '/sell_type',
+                    pageBuilder: (context, state) => _buildFadeScalePage(
+                      child: const SellTypeScreen(),
+                      state: state,
                     ),
-                  ]
+                    routes: [
+                      GoRoute(
+                        path: '/sell_pix_nox',
+                        name: 'SellPixNox',
+                        pageBuilder: (context, state) => _buildFadeScalePage(
+                          child: const SellPixNox(),
+                          state: state,
+                        ),
+                      ),
+                    ]
                 ),
                 GoRoute(
                   path: 'deposit_type',
@@ -353,22 +363,22 @@ class AppRouter {
                     state: state,
                   ),
                   routes: [
-                      GoRoute(
-                        path: '/deposit_pix_eulen',
-                        name: 'DepositPixEulen',
-                        pageBuilder: (context, state) => _buildFadeScalePage(
-                          child: const DepositDepixPixEulen(),
-                          state: state,
-                        ),
+                    GoRoute(
+                      path: '/deposit_pix_eulen',
+                      name: 'DepositPixEulen',
+                      pageBuilder: (context, state) => _buildFadeScalePage(
+                        child: const DepositDepixPixEulen(),
+                        state: state,
                       ),
-                      GoRoute(
-                        path: '/deposit_pix_nox',
-                        name: 'DepositPixNox',
-                        pageBuilder: (context, state) => _buildFadeScalePage(
-                          child: const DepositPixNox(),
-                          state: state,
-                        ),
+                    ),
+                    GoRoute(
+                      path: '/deposit_pix_nox',
+                      name: 'DepositPixNox',
+                      pageBuilder: (context, state) => _buildFadeScalePage(
+                        child: const DepositPixNox(),
+                        state: state,
                       ),
+                    ),
                   ],
                 ),
               ],

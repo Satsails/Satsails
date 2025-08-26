@@ -58,8 +58,8 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="links.satsails.com" />
-                <data android:scheme="https" android:host="1zl8l-alternate.app.link" />
+                <data android:scheme="https" android:host="satsails.app.link" />
+                <data android:scheme="https" android:host="satsails-alternate.app.link" />
             </intent-filter>
         </activity>
         <meta-data

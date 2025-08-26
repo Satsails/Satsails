@@ -2022,12 +2022,19 @@ extension Localization on String {
           'Timestamp': 'Data',
           'The minimum deposit is': 'O Deposito minimo é',
           'Available Bitcoin Balance': 'Saldo Bitcoin Disponível',
-          'Generate Sale': 'Gerar venda',
-          'Minimum deposit:': 'Deposito minimo:',
-          'Minimum deposit:': 'Deposito minimo:',
-          'Insert an affiliate code to get up to 0.5% discount of your purchase': 'Insira um código de afiliado para obter até 0,5% de desconto em sua compra',
-          'Bitcoin unit': 'Denominação Bitcoin',
-          'Available Balance': 'Saldo Disponível',
+          "Generate Sale": "Gerar venda",
+          "Minimum deposit:": "Depósito mínimo:",
+          "Insert an affiliate code to get up to 0.5% discount of your purchase": "Insira um código de afiliado para obter até 0,5% de desconto em sua compra",
+          "Bitcoin unit": "Denominação Bitcoin",
+          "Available Balance": "Saldo Disponível",
+          "Affiliate Program": "Programa de Afiliados",
+          "Code applied successfully!": "Código aplicado com sucesso!",
+          "Affiliate Code": "Código de Afiliado",
+          "You already have this affiliate code applied. It cannot be changed.": "Já tem este código de afiliado aplicado. Não pode ser alterado.",
+          "No new affiliate code was found. You can add one later in your settings.": "Nenhum novo código de afiliado foi encontrado. Pode adicionar um mais tarde nas suas definições.",
+          "Continue": "Continuar",
+          "Affiliate code synced with your account": "Código de afiliado sincronizado com a sua conta",
+          "Error syncing affiliate code": "Erro ao sincronizar o código de afiliado"
         }
       };
 

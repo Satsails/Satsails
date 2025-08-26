@@ -52,13 +52,13 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
 
   void _initializeDeepLinkListener() {
     _branchSubscription = FlutterBranchSdk.listSession().listen((data) async {
-      if (data.containsKey("affiliateCode")) {
-        final insertedAffiliateCode = data["affiliateCode"];
-        final upperCaseCode = insertedAffiliateCode.toUpperCase();
-        final box = await Hive.openBox('user');
-        final currentInsertedAffiliateCode = box.get('affiliateCode', defaultValue: '');
-        if (insertedAffiliateCode != null && currentInsertedAffiliateCode.isEmpty) {
-          box.put('affiliateCode', upperCaseCode);
+      if (data.containsKey('+clicked_branch_link')) {
+        final String link = data['+clicked_branch_link'];
+        final uri = Uri.parse(link);
+
+        if (uri.pathSegments.isNotEmpty) {
+          final String affiliateCode = uri.pathSegments.first;
+          _router.go('/affiliate?code=$affiliateCode');
         }
       }
     });

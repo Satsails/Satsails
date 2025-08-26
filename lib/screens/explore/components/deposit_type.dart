@@ -134,7 +134,7 @@ class DepositTypeScreen extends ConsumerWidget {
                             secondaryColor: isButtonEnabled
                                 ? Colors.green.shade700
                                 : Colors.red.withOpacity(0.6),
-                            textColor: Colors.white,
+                            textColor: Colors.black,
                           );
                         },
                       ),
