@@ -181,12 +181,6 @@ class Settings extends ConsumerWidget {
   }
 
   Widget _buildRateAppSection(BuildContext context, WidgetRef ref) {
-    final reviewDone = ref.watch(settingsProvider.select((s) => s.reviewDone));
-
-    if (reviewDone) {
-      return const SizedBox.shrink();
-    }
-
     return _buildSection(
       context: context,
       ref: ref,
@@ -379,9 +373,7 @@ class Settings extends ConsumerWidget {
   }
 
   Widget _buildAffiliateSection(BuildContext context, WidgetRef ref) {
-    // Watch the user provider to get the user state and rebuild on change.
     final user = ref.watch(userProvider);
-    // Assuming the user object has a nullable `affiliateCode` property.
     final affiliateCode = user.affiliateCode;
     final bool hasAffiliateCode = affiliateCode != null && affiliateCode.isNotEmpty;
 
@@ -396,7 +388,6 @@ class Settings extends ConsumerWidget {
             : 'Insert an affiliate code to get up to 0.5% discount of your purchase'.i18n,
         style: TextStyle(color: Colors.grey, fontSize: 14.sp),
       ),
-      // If a code is inserted, onTap does nothing. Otherwise, it opens the modal.
       onTap: hasAffiliateCode
           ? null
           : () {
