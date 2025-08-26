@@ -61,7 +61,7 @@ class Home extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (!backupNeeded)
+          if (backupNeeded)
             _buildBackupButton(context)
           else
             Text(
