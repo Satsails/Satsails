@@ -21,6 +21,7 @@ class Home extends ConsumerWidget {
     final language = ref.read(settingsProvider).language;
     final dialogStyle = Platform.isIOS ? UpgradeDialogStyle.cupertino : UpgradeDialogStyle.material;
     final backupNeeded = !ref.watch(settingsProvider).backup;
+    final accountString = 'Account'.i18n;
 
     return UpgradeAlert(
       dialogStyle: dialogStyle,
@@ -30,23 +31,79 @@ class Home extends ConsumerWidget {
       ),
       child: WillPopScope(
         onWillPop: () async => false,
-        child: Scaffold(
-          backgroundColor: Colors.black,
-          extendBodyBehindAppBar: true,
-          body: SafeArea(
-            bottom: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const BalanceScreen(),
-                _buildHeaderRow(context, ref, backupNeeded),
-                const Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                    child: TransactionList(),
-                  ),
+        child: SafeArea(
+          top: true,
+          bottom: false,
+          child: Scaffold(
+            backgroundColor: Colors.black,
+            extendBodyBehindAppBar: true, // Allows body to draw behind AppBar
+            appBar: AppBar(
+              toolbarHeight: 30.sp,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 0, // Remove default title spacing
+              title: Padding(
+                padding: EdgeInsets.only(left: 20.sp, right: 2.sp),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircleAvatar(
+                          radius: 13.sp, // Controls the size of the circle
+                          backgroundColor: Colors.white, // Circle's background color
+                          child: Text(
+                            accountString.substring(0, 1), // Gets the first letter "A"
+                            style: TextStyle(
+                              color: Colors.black, // Letter color
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.sp,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          accountString,
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Settings icon on the right
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: Icon(
+                        Icons.settings,
+                        color: Colors.white,
+                        size: 25.sp,
+                      ),
+                      onPressed: () => context.push('/settings'),
+                    ),
+                  ],
                 ),
-              ],
+              ),
+            ),
+            body: SafeArea(
+              bottom: true,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const BalanceScreen(),
+                  _buildHeaderRow(context, ref, backupNeeded),
+                  const Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                      child: TransactionList(),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -54,7 +111,6 @@ class Home extends ConsumerWidget {
     );
   }
 
-  // UPDATED WIDGET
   Widget _buildHeaderRow(BuildContext context, WidgetRef ref, bool backupNeeded) {
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 10.h),

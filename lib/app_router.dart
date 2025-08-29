@@ -240,6 +240,14 @@ class AppRouter {
           ),
         ),
         GoRoute(
+          path: '/settings',
+          name: 'settings',
+          pageBuilder: (context, state) => _buildFadeScalePage(
+            child: const Settings(),
+            state: state,
+          ),
+        ),
+        GoRoute(
           path: '/camera',
           name: 'camera',
           pageBuilder: (context, state) {

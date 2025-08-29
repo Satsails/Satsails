@@ -48,66 +48,66 @@ class Settings extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final biometricsAvailable = ref.watch(biometricsAvailableProvider);
 
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          centerTitle: false,
-          automaticallyImplyLeading: false,
-          title: Text(
-            'Settings'.i18n,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 22.sp,
-              fontWeight: FontWeight.bold,
-            ),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        centerTitle: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          'Settings'.i18n,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22.sp,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        body: SafeArea(
-          bottom: false,
-          child: Stack(
-            children: [
-              const Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.black,
+      ),
+      body: SafeArea(
+        bottom: false,
+        child: Stack(
+          children: [
+            const Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            SingleChildScrollView(
+              padding: EdgeInsets.only(
+                left: 14.sp,
+                right: 14.sp,
+                top: 14.sp,
+                bottom: 14.sp + MediaQuery.of(context).padding.bottom,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildChatWithSupportSection(context, ref),
+                  _buildRateAppSection(context, ref),
+                  _buildSeedSection(context, ref),
+                  biometricsAvailable.when(
+                    data: (isAvailable) => isAvailable
+                        ? _buildBiometricsSection(context, ref)
+                        : const SizedBox.shrink(),
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
                   ),
-                ),
+                  _buildLanguageSection(ref, context),
+                  _buildCurrencyDenominationSection(ref, context),
+                  _buildBitcoinUnitSection(ref, context),
+                  _buildElectrumNodeSection(context, ref),
+                  _buildAffiliateSection(context, ref),
+                  _buildBlockExplorerSection(context, ref),
+                  DeleteWalletSection(ref: ref),
+                ],
               ),
-              SingleChildScrollView(
-                padding: EdgeInsets.only(
-                  left: 14.sp,
-                  right: 14.sp,
-                  top: 14.sp,
-                  bottom: 14.sp + MediaQuery.of(context).padding.bottom,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildChatWithSupportSection(context, ref),
-                    _buildRateAppSection(context, ref),
-                    _buildSeedSection(context, ref),
-                    biometricsAvailable.when(
-                      data: (isAvailable) => isAvailable
-                          ? _buildBiometricsSection(context, ref)
-                          : const SizedBox.shrink(),
-                      loading: () => const SizedBox.shrink(),
-                      error: (_, __) => const SizedBox.shrink(),
-                    ),
-                    _buildLanguageSection(ref, context),
-                    _buildCurrencyDenominationSection(ref, context),
-                    _buildBitcoinUnitSection(ref, context),
-                    _buildElectrumNodeSection(context, ref),
-                    _buildAffiliateSection(context, ref),
-                    _buildBlockExplorerSection(context, ref),
-                    DeleteWalletSection(ref: ref),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

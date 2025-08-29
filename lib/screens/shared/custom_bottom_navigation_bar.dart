@@ -42,11 +42,6 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         selectedColor: Colors.orangeAccent,
         unselectedColor: Colors.white,
       ),
-      DotNavigationBarItem(
-        icon: Icon(Icons.settings, size: iconSize),
-        selectedColor: Colors.orangeAccent,
-        unselectedColor: Colors.white,
-      ),
     ];
 
     return DotNavigationBar(

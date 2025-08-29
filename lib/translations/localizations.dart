@@ -2034,7 +2034,8 @@ extension Localization on String {
           "No new affiliate code was found. You can add one later in your settings.": "Nenhum novo código de afiliado foi encontrado. Pode adicionar um mais tarde nas suas definições.",
           "Continue": "Continuar",
           "Affiliate code synced with your account": "Código de afiliado sincronizado com a sua conta",
-          "Error syncing affiliate code": "Erro ao sincronizar o código de afiliado"
+          "Error syncing affiliate code": "Erro ao sincronizar o código de afiliado",
+          "Account": "Conta"
         }
       };
 
