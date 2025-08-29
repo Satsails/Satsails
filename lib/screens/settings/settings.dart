@@ -385,7 +385,7 @@ class Settings extends ConsumerWidget {
       subtitle: Text(
         hasAffiliateCode
             ? "${'Affiliate code inserted'.i18n}: $affiliateCode"
-            : 'Insert an affiliate code to get up to 0.5% discount of your purchase'.i18n,
+            : 'Insert an affiliate code to get up to 16,67% discount on the fees'.i18n,
         style: TextStyle(color: Colors.grey, fontSize: 14.sp),
       ),
       onTap: hasAffiliateCode
