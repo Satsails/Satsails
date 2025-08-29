@@ -43,7 +43,7 @@ class Home extends ConsumerWidget {
             automaticallyImplyLeading: false,
             titleSpacing: 0,
             title: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              padding: EdgeInsets.only(left: 20.sp, right: 10.sp),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
