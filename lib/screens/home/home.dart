@@ -23,6 +23,9 @@ class Home extends ConsumerWidget {
     final backupNeeded = !ref.watch(settingsProvider).backup;
     final accountString = 'Account'.i18n;
 
+    // A more refined, softer background color for a professional look.
+    const scaffoldBackgroundColor = Color(0xFF121212);
+
     return UpgradeAlert(
       dialogStyle: dialogStyle,
       upgrader: Upgrader(
@@ -31,79 +34,72 @@ class Home extends ConsumerWidget {
       ),
       child: WillPopScope(
         onWillPop: () async => false,
-        child: SafeArea(
-          top: true,
-          bottom: false,
-          child: Scaffold(
-            backgroundColor: Colors.black,
-            extendBodyBehindAppBar: true, // Allows body to draw behind AppBar
-            appBar: AppBar(
-              toolbarHeight: 30.sp,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              automaticallyImplyLeading: false,
-              titleSpacing: 0, // Remove default title spacing
-              title: Padding(
-                padding: EdgeInsets.only(left: 20.sp, right: 2.sp),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircleAvatar(
-                          radius: 13.sp, // Controls the size of the circle
-                          backgroundColor: Colors.white, // Circle's background color
-                          child: Text(
-                            accountString.substring(0, 1), // Gets the first letter "A"
-                            style: TextStyle(
-                              color: Colors.black, // Letter color
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.sp,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          accountString,
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18.sp,
-                          ),
-                        ),
-                      ],
-                    ),
-                    // Settings icon on the right
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      icon: Icon(
-                        Icons.settings,
-                        color: Colors.white,
-                        size: 25.sp,
-                      ),
-                      onPressed: () => context.push('/settings'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            body: SafeArea(
-              bottom: true,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: Scaffold(
+          backgroundColor: scaffoldBackgroundColor,
+          appBar: AppBar(
+            toolbarHeight: 35.sp, // Adjusted height for better spacing
+            backgroundColor: scaffoldBackgroundColor,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            titleSpacing: 0,
+            title: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const BalanceScreen(),
-                  _buildHeaderRow(context, ref, backupNeeded),
-                  const Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                      child: TransactionList(),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        radius: 14.sp,
+                        backgroundColor: Colors.white24,
+                        child: Text(
+                          accountString.substring(0, 1),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16.sp,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Text(
+                        accountString,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18.sp,
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.settings_outlined, // Using outlined icon for a modern feel
+                      color: Colors.white.withOpacity(0.8),
+                      size: 25.sp,
                     ),
+                    onPressed: () => context.push('/settings'),
                   ),
                 ],
               ),
+            ),
+          ),
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const BalanceScreen(),
+                // Conditionally display a prominent backup warning banner
+                if (backupNeeded) _buildBackupWarning(context),
+                _buildTransactionsHeader(context, ref),
+                const Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: TransactionList(),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -111,49 +107,65 @@ class Home extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeaderRow(BuildContext context, WidgetRef ref, bool backupNeeded) {
+  /// A dedicated header for the transactions list.
+  Widget _buildTransactionsHeader(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 10.h),
+      padding: EdgeInsets.fromLTRB(20.w, 15.h, 20.w, 15.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (backupNeeded)
-            _buildBackupButton(context)
-          else
-            Text(
-              'Transactions'.i18n,
-              style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+          Text(
+            'Transactions'.i18n,
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.white.withOpacity(0.9),
             ),
-          _buildBuyButton(context, ref),
+          ),
+          HomeCustomButton(
+            label: 'Deposit'.i18n, // More standard fintech term
+            textColor: Colors.black,
+            backgroundColor: Colors.white,
+            onPressed: () => context.push('/home/explore/deposit_type'),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBackupButton(BuildContext context) {
-    return HomeCustomButton(
-      icon: Icons.warning_amber_rounded,
-      label: 'Backup Wallet'.i18n,
-      iconColor: Colors.black,
-      textColor: Colors.black,
-      backgroundColor: Colors.red,
-      onPressed: () => context.push('/seed_words'),
-    );
-  }
-
-  Widget _buildBuyButton(BuildContext context, WidgetRef ref) {
-    return HomeCustomButton(
-      label: 'Add Money'.i18n,
-      textColor: Colors.black,
-      backgroundColor: Colors.white.withOpacity(0.9),
-      onPressed: () => context.push('/home/explore/deposit_type'),
+  /// A visually distinct banner to alert the user about wallet backup.
+  Widget _buildBackupWarning(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/seed_words'),
+      child: Container(
+        margin: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: const Color(0xFFC84141), // A slightly desaturated red
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.white, size: 22.sp),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Text(
+                'Backup Wallet'.i18n,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                ),
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16.sp),
+          ],
+        ),
+      ),
     );
   }
 }
+
 
 /// A reusable custom button widget for the Home screen.
 class HomeCustomButton extends StatelessWidget {
@@ -179,10 +191,10 @@ class HomeCustomButton extends StatelessWidget {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: backgroundColor ?? const Color(0xFF212121),
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(12.r), // Softer corners
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -200,7 +212,7 @@ class HomeCustomButton extends StatelessWidget {
               label,
               style: TextStyle(
                 color: textColor ?? Colors.white,
-                fontSize: 16.sp,
+                fontSize: 15.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -217,7 +229,7 @@ class BalanceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: EdgeInsets.fromLTRB(16, 8.h, 16, 8.h),
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxHeight: 250.h,
