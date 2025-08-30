@@ -23,8 +23,7 @@ class Home extends ConsumerWidget {
     final backupNeeded = !ref.watch(settingsProvider).backup;
     final accountString = 'Account'.i18n;
 
-    // A more refined, softer background color for a professional look.
-    const scaffoldBackgroundColor = Color(0xFF121212);
+    const scaffoldBackgroundColor = Colors.black;
 
     return UpgradeAlert(
       dialogStyle: dialogStyle,
