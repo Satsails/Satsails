@@ -67,7 +67,7 @@ class _BitcoinWidgetState extends ConsumerState<BitcoinWidget> {
             text: 'Create Address'.i18n,
             primaryColor: Colors.green.withOpacity(0.8),
             secondaryColor: Colors.green.withOpacity(0.6),
-            textColor: Colors.white,
+            textColor: Colors.black,
           ),
         ),
       ],

@@ -116,7 +116,7 @@ class SellTypeScreen extends ConsumerWidget {
                                 : () {},
                             primaryColor: isButtonEnabled ? Colors.green.shade700 : Colors.red.withOpacity(0.8),
                             secondaryColor: isButtonEnabled ? Colors.green.shade700 : Colors.red.withOpacity(0.6),
-                            textColor: Colors.white,
+                            textColor: Colors.black,
                           );
                         },
                       ),

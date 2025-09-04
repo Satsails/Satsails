@@ -2035,7 +2035,8 @@ extension Localization on String {
           "Continue": "Continuar",
           "Affiliate code synced with your account": "Código de afiliado sincronizado com a sua conta",
           "Error syncing affiliate code": "Erro ao sincronizar o código de afiliado",
-          "Account": "Conta"
+          "Account": "Conta",
+          "Amount exceeds available balance": "O valor excede o saldo disponível",
         }
       };
 

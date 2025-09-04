@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
-import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
@@ -45,9 +44,10 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
   @override
   void initState() {
     super.initState();
-    // Resetting on init is good practice to ensure a clean state when the screen is first built.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(sendTxProvider.notifier).resetToDefault();
+      // Sync controller with the initial state (which is 0 amount) to clear it.
+      _syncControllerWithProvider(ref.read(sendTxProvider).amount);
     });
     _amountController.addListener(_onAmountChanged);
   }
@@ -57,17 +57,20 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
     _amountController.removeListener(_onAmountChanged);
     _amountController.dispose();
     _pollingTimer?.cancel();
-    // REMOVED: The reset logic is now handled by PopScope.
-    // ref.read(sendTxProvider.notifier).resetToDefault();
     super.dispose();
   }
 
   void _syncControllerWithProvider(int amountInSats) {
     _isSyncingController = true;
     final btcFormat = ref.read(settingsProvider).btcFormat;
-    final formattedAmount = btcInDenominationFormatted(amountInSats.toDouble(), btcFormat);
-    if (_amountController.text != formattedAmount) {
-      _amountController.text = formattedAmount;
+    // If the amount is 0, clear the controller to show the hint text.
+    if (amountInSats == 0) {
+      _amountController.clear();
+    } else {
+      final formattedAmount = btcInDenominationFormatted(amountInSats.toDouble(), btcFormat);
+      if (_amountController.text != formattedAmount) {
+        _amountController.text = formattedAmount;
+      }
     }
     _isSyncingController = false;
   }
@@ -87,9 +90,10 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
 
     int newAmountInSats;
     if (btcFormat == 'sats') {
-      newAmountInSats = int.tryParse(text.replaceAll(',', '')) ?? 0;
+      newAmountInSats = int.tryParse(text) ?? 0;
     } else {
-      final btcValue = double.tryParse(text.replaceAll(',', '.')) ?? 0.0;
+      // Use dot as decimal separator now.
+      final btcValue = double.tryParse(text) ?? 0.0;
       newAmountInSats = (btcValue * 100000000).toInt();
     }
 
@@ -121,6 +125,9 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
 
       ref.read(sendTxProvider.notifier).updateAmount(amountToSet);
       ref.read(sendTxProvider.notifier).updateDrain(true);
+
+      // Explicitly update the controller after setting the max amount
+      _syncControllerWithProvider(amountToSet);
     } catch (e) {
       if (mounted) {
         showMessageSnackBar(context: context, message: e.toString().i18n, error: true);
@@ -173,9 +180,15 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
   Future<void> _handleInput() async {
     final sendTxState = ref.read(sendTxProvider);
     final btcFormat = ref.read(settingsProvider).btcFormat;
+    final availableBalance = ref.read(balanceNotifierProvider).onChainBtcBalance;
 
     if (sendTxState.amount <= 0) {
       showMessageSnackBar(context: context, message: 'Please enter a valid amount'.i18n, error: true);
+      return;
+    }
+
+    if (sendTxState.amount > availableBalance) {
+      showMessageSnackBar(context: context, message: 'Amount exceeds available balance'.i18n, error: true);
       return;
     }
 
@@ -184,7 +197,7 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
     try {
       await ref.read(depositInitializerProvider.future);
 
-      final amountForApi = btcInDenominationFormatted(sendTxState.amount.toDouble(), btcFormat).replaceAll(',', '.');
+      final amountForApi = btcInDenominationFormatted(sendTxState.amount.toDouble(), btcFormat);
 
       final url = await ref.read(createNoxTransferRequestProvider((
       amountCrypto: amountForApi,
@@ -238,14 +251,9 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
 
   @override
   Widget build(BuildContext context) {
-    final sendTxState = ref.watch(sendTxProvider);
-    _syncControllerWithProvider(sendTxState.amount);
-
-    // ADDED: PopScope to handle the back navigation event.
     return PopScope(
       canPop: true,
       onPopInvoked: (bool didPop) {
-        // This callback is triggered after the pop has happened.
         if (didPop) {
           ref.read(sendTxProvider.notifier).resetToDefault();
         }
@@ -263,10 +271,8 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
             onPressed: () {
               if (_url == null) {
-                // This will trigger the PopScope's onPopInvoked callback.
                 context.pop();
               } else {
-                // This just changes the local state and does not pop the route.
                 setState(() {
                   _url = null;
                   _pollingTimer?.cancel();
@@ -314,7 +320,7 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
                         child: Text(
                           'Generating Sale'.i18n,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
                           ),
@@ -325,7 +331,7 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
                       onPressed: _handleInput,
                       primaryColor: Colors.green.withOpacity(0.8),
                       secondaryColor: Colors.green.withOpacity(0.6),
-                      textColor: Colors.white,
+                      textColor: Colors.black,
                       text: 'Generate Sale'.i18n,
                     ),
                   ),
@@ -440,7 +446,8 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
                   controller: _amountController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
-                    CommaTextInputFormatter(),
+                    // Allow numbers and a single dot for decimals.
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                     btcFormat == 'sats'
                         ? DecimalTextInputFormatter(decimalRange: 0)
                         : DecimalTextInputFormatter(decimalRange: 8),
