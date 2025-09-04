@@ -14,7 +14,7 @@ final initialSettingsProvider = FutureProvider<Settings>((ref) async {
       box.get('language', defaultValue: languageIsPortuguese ? 'pt' : 'en');
       final btcFormat = box.get('btcFormat', defaultValue: 'BTC');
       final backup = box.get('backup', defaultValue: false);
-      final balanceVisible = box.get('balanceVisible', defaultValue: false);
+      final balanceVisible = box.get('balanceVisible', defaultValue: true);
       final bitcoinElectrumNode = box.get('bitcoinElectrumNode',
           defaultValue: 'bitcoin-mainnet.blockstream.info:50002');
       final liquidElectrumNode = box.get('liquidElectrumNode',
