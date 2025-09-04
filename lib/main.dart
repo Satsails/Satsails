@@ -34,7 +34,9 @@ Future<void> main() async {
     systemNavigationBarDividerColor: Colors.transparent,
   ));
 
-  await _initializeApp();
+  if (Platform.isAndroid){
+    await _initializeApp();
+  }
 
   runApp(
     const OverlaySupport.global(
