@@ -49,12 +49,12 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       enablePaddingAnimation:false,
       currentIndex: widget.currentIndex,
       onTap: widget.onTap,
-      backgroundColor: const Color(0x00333333).withOpacity(0.4),
+      backgroundColor: const Color(0xFF212121),
       dotIndicatorColor: Colors.transparent,
       unselectedItemColor: Colors.grey[300],
       splashColor: Colors.transparent,
       marginR: EdgeInsets.zero,
-      itemPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+      itemPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
     );
   }
 }

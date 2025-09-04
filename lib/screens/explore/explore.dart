@@ -55,15 +55,15 @@ class Explore extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.h),
+                      padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 2.sp),
                       child: const _BalanceDisplay(),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.h),
+                      padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 2.sp),
                       child: const _ActionCards(),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.h),
+                      padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 2.sp),
                       child: const _BitcoinPriceChart(),
                     ),
                     SizedBox(height: 130.sp),
@@ -156,7 +156,7 @@ class _ActionCards extends ConsumerWidget {
             borderRadius: BorderRadius.circular(10),
             onTap: () => showMessageSnackBar(message: "Coming soon".i18n, context: context, error: true),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.sp),
               child: Row(
                 children: [
                   Expanded(
@@ -166,14 +166,14 @@ class _ActionCards extends ConsumerWidget {
                       children: [
                         Image.asset(
                           'lib/assets/bitrefill.png',
-                          height: 35.sp,
+                          height: 30.sp,
                           fit: BoxFit.contain,
                           color: Colors.white,
                         ),
-                        SizedBox(height: 8.h),
+                        SizedBox(height: 2.sp),
                         Padding(
                           padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-                          child: Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                          child: Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.white)),
                         ),
                       ],
                     ),
@@ -188,7 +188,7 @@ class _ActionCards extends ConsumerWidget {
             ),
           ),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 2.sp),
         Row(
           children: [
             Expanded(

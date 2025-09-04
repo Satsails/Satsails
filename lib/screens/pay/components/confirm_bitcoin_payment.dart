@@ -706,7 +706,7 @@ class _ConfirmBitcoinPaymentState extends ConsumerState<ConfirmBitcoinPayment> {
                     sliderBehavior: SliderBehavior.stretch,
                     width: double.infinity,
                     backgroundColor: Colors.black,
-                    toggleColor: const Color(0xFF212121),
+                    toggleColor: const Color(0x00333333).withOpacity(0.4),
                     icon: const Icon(
                       Icons.keyboard_arrow_right_rounded,
                       color: Colors.orange, // Orange arrow icon

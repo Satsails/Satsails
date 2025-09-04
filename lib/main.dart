@@ -72,9 +72,7 @@ Future<void> _initializeApp() async {
   await migrateMnemonicStorage();
   await LibLwk.init();
   // only here for internal testing, delete once able
-  if (Platform.isAndroid){
-    await initialize();
-  }
+  await initialize();
 
   try {
     await FlutterBranchSdk.init(

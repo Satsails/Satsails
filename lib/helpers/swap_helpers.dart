@@ -608,16 +608,20 @@ Widget buildBalanceCardWithSlider(WidgetRef ref, TextEditingController controlle
                     ),
                   ],
                 ),
-                TextButton(
+                ElevatedButton(
                   onPressed: () async {
                     await handleMaxButtonPress(ref, swapType, controller, btcFormat);
                   },
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 4.h),
+                  style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
+                    // You can now control the height with vertical padding
+                    padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 6.sp),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r),
                     ),
+                    elevation: 4,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Text(
                     'Max',
@@ -2203,7 +2207,7 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
         child: ActionSlider.standard(
           width: double.infinity,
           backgroundColor: Colors.black,
-          toggleColor: const Color(0xFF212121),
+          toggleColor: const Color(0x00333333).withOpacity(0.4),
           icon: const Icon(
             Icons.keyboard_arrow_right_rounded,
             color: Colors.orange, // Orange arrow icon
@@ -2288,7 +2292,7 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
         child: ActionSlider.standard(
           width: double.infinity,
           backgroundColor: Colors.black,
-          toggleColor: const Color(0xFF212121),
+          toggleColor: const Color(0x00333333).withOpacity(0.4),
           icon: const Icon(
             Icons.keyboard_arrow_right_rounded,
             color: Colors.orange, // Orange arrow icon
@@ -2377,7 +2381,7 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
       child: ActionSlider.standard(
         width: double.infinity,
         backgroundColor: Colors.black,
-        toggleColor: const Color(0xFF212121),
+        toggleColor: const Color(0x00333333).withOpacity(0.4),
         icon: const Icon(
           Icons.keyboard_arrow_right_rounded,
           color: Colors.orange, // Orange arrow icon
