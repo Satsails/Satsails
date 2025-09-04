@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/models/settings_model.dart' as settings_model; // <--- FIX: Added import with prefix
 import 'package:crisp_chat/crisp_chat.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -299,6 +300,7 @@ class Settings extends ConsumerWidget {
           builder: (BuildContext context) {
             return DenominationChangeModalBottomSheet(
               settingsNotifier: ref.read(settingsProvider.notifier),
+              settings: settings,
               initialTab: 'currency',
               showCurrencyOnly: true,
             );
@@ -326,6 +328,7 @@ class Settings extends ConsumerWidget {
           builder: (BuildContext context) {
             return DenominationChangeModalBottomSheet(
               settingsNotifier: ref.read(settingsProvider.notifier),
+              settings: settings,
               initialTab: 'denomination',
               showDenominationOnly: true,
             );
@@ -497,6 +500,7 @@ class Settings extends ConsumerWidget {
 
 class DenominationChangeModalBottomSheet extends StatelessWidget {
   final dynamic settingsNotifier;
+  final settings_model.Settings settings; // <--- FIX: Used prefixed type
   final String initialTab;
   final bool showCurrencyOnly;
   final bool showDenominationOnly;
@@ -504,6 +508,7 @@ class DenominationChangeModalBottomSheet extends StatelessWidget {
   const DenominationChangeModalBottomSheet({
     super.key,
     required this.settingsNotifier,
+    required this.settings,
     this.initialTab = 'currency',
     this.showCurrencyOnly = false,
     this.showDenominationOnly = false,
@@ -517,95 +522,94 @@ class DenominationChangeModalBottomSheet extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
       child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (showCurrencyOnly)
-              _buildCurrencyList(context, settingsNotifier),
-            if (showDenominationOnly)
-              _buildBitcoinFormatList(context, settingsNotifier),
-          ],
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (showCurrencyOnly)
+                _buildCurrencyList(context, settingsNotifier),
+              if (showDenominationOnly)
+                _buildBitcoinFormatList(context, settingsNotifier),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildCurrencyList(BuildContext context, settingsNotifier) {
+    final currencies = [
+      {'code': 'BRL', 'flag': Flag(Flags.brazil)},
+      {'code': 'GBP', 'flag': Flag(Flags.united_kingdom)},
+      {'code': 'CHF', 'flag': Flag(Flags.switzerland)},
+      {'code': 'USD', 'flag': Flag(Flags.united_states_of_america)},
+      {'code': 'EUR', 'flag': Flag(Flags.european_union)},
+    ];
+
     return Column(
-      children: [
-        ListTile(
-          leading: Flag(Flags.brazil),
-          title:
-          Text('BRL', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+      children: currencies.map((currencyData) {
+        final code = currencyData['code'] as String;
+        final isSelected = settings.currency == code; // <--- FIX: This now works
+        final tile = ListTile(
+          leading: currencyData['flag'] as Widget,
+          title: Text(code, style: TextStyle(color: Colors.white, fontSize: 16.sp)),
           onTap: () {
-            settingsNotifier.setCurrency('BRL');
+            settingsNotifier.setCurrency(code);
             context.pop();
           },
-        ),
-        ListTile(
-          leading: Flag(Flags.united_kingdom),
-          title:
-          Text('GBP', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
-          onTap: () {
-            settingsNotifier.setCurrency('GBP');
-            context.pop();
-          },
-        ),
-        ListTile(
-          leading: Flag(Flags.switzerland),
-          title:
-          Text('CHF', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
-          onTap: () {
-            settingsNotifier.setCurrency('CHF');
-            context.pop();
-          },
-        ),
-        ListTile(
-          leading: Flag(Flags.united_states_of_america),
-          title:
-          Text('USD', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
-          onTap: () {
-            settingsNotifier.setCurrency('USD');
-            context.pop();
-          },
-        ),
-        ListTile(
-          leading: Flag(Flags.european_union),
-          title:
-          Text('EUR', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
-          onTap: () {
-            settingsNotifier.setCurrency('EUR');
-            context.pop();
-          },
-        ),
-      ],
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        );
+
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 16.w),
+          child: isSelected
+              ? Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: tile,
+          )
+              : tile,
+        );
+      }).toList(),
     );
   }
 
   Widget _buildBitcoinFormatList(BuildContext context, settingsNotifier) {
+    final formats = [
+      {'key': 'BTC', 'label': 'BTC', 'icon': '₿'},
+      {'key': 'sats', 'label': 'Satoshi', 'icon': 'sats'},
+    ];
+
     return Column(
-      children: [
-        ListTile(
-          leading:
-          Text('₿', style: TextStyle(color: Colors.white, fontSize: 24.sp)),
-          title:
-          Text('BTC', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+      children: formats.map((format) {
+        final key = format['key']!;
+        final isSelected = settings.btcFormat == key; // <--- FIX: This now works
+        final tile = ListTile(
+          leading: Text(format['icon']!, style: TextStyle(color: Colors.white, fontSize: 24.sp)),
+          title: Text(format['label']!, style: TextStyle(color: Colors.white, fontSize: 16.sp)),
           onTap: () {
-            settingsNotifier.setBtcFormat('BTC');
+            settingsNotifier.setBtcFormat(key);
             context.pop();
           },
-        ),
-        ListTile(
-          leading:
-          Text('sats', style: TextStyle(color: Colors.white, fontSize: 24.sp)),
-          title: Text('Satoshi',
-              style: TextStyle(color: Colors.white, fontSize: 16.sp)),
-          onTap: () {
-            settingsNotifier.setBtcFormat('sats');
-            context.pop();
-          },
-        ),
-      ],
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        );
+
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 16.w),
+          child: isSelected
+              ? Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: tile,
+          )
+              : tile,
+        );
+      }).toList(),
     );
   }
 }

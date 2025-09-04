@@ -13,7 +13,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
-import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -21,6 +20,8 @@ import 'package:go_router/go_router.dart';
 import 'package:Satsails/translations/localizations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
+import '../../providers/currency_conversions_provider.dart';
 
 // Helper classes and enums for Bridge functionality
 abstract class BridgeOption {
@@ -151,8 +152,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> with TickerProviderSt
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(child: _buildAssetSelector(context, ref)),
-                SizedBox(width: 8.w),
-                _buildSyncStatusIndicator(ref),
               ],
             ),
             Expanded(
@@ -382,7 +381,8 @@ class _BalanceCardState extends ConsumerState<BalanceCard> with TickerProviderSt
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          // "View Balances" button on the right
+          _buildSyncStatusIndicator(ref),
+          SizedBox(width: 8.w),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
             decoration: BoxDecoration(
@@ -1131,8 +1131,6 @@ class _AssetDetailsView extends ConsumerWidget {
     final primaryBalanceSize = isSmallScreen ? 28.sp : 36.sp;
     final secondaryBalanceSize = isSmallScreen ? 15.sp : 18.sp;
 
-    final isBalanceVisible = ref.watch(settingsProvider).balanceVisible;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1165,16 +1163,6 @@ class _AssetDetailsView extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                 ],
-              ),
-            ),
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              onPressed: () => ref.read(settingsProvider.notifier).setBalanceVisible(!isBalanceVisible),
-              icon: Icon(
-                isBalanceVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                color: textColor,
-                size: 24.sp,
               ),
             ),
           ],

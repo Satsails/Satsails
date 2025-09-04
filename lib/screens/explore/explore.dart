@@ -89,7 +89,6 @@ class _BalanceDisplay extends ConsumerStatefulWidget {
 }
 
 class _BalanceDisplayState extends ConsumerState<_BalanceDisplay> {
-
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
@@ -111,8 +110,6 @@ class _BalanceDisplayState extends ConsumerState<_BalanceDisplay> {
         padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
         child: Column(
           children: [
-            Text('Your Balances'.i18n, style: TextStyle(fontSize: 20.sp, color: Colors.grey, fontWeight: FontWeight.w500)),
-            SizedBox(height: 16.h),
             Row(children: [_buildBalanceRow(imagePath: 'lib/assets/bitcoin-logo.png', label: 'Bitcoin'.i18n, balance: onChainBtcBalance), _buildBalanceRow(imagePath: 'lib/assets/l-btc.png', label: 'Liquid Bitcoin', balance: liquidBtcBalance)]),
             SizedBox(height: 12.h),
             Row(children: [_buildBalanceRow(imagePath: 'lib/assets/eurx.png', label: 'Liquid EURx', balance: euroBalance), _buildBalanceRow(imagePath: 'lib/assets/tether.png', label: 'Liquid USDT', balance: liquidUsdtBalance)]),
@@ -134,7 +131,7 @@ class _BalanceDisplayState extends ConsumerState<_BalanceDisplay> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(fontSize: 16.sp, color: Colors.grey, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
+                Text(label, style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
                 SizedBox(height: 2.h),
                 Text(balance, style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
               ],
@@ -158,20 +155,34 @@ class _ActionCards extends ConsumerWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(10),
             onTap: () => showMessageSnackBar(message: "Coming soon".i18n, context: context, error: true),
-            child: Container(
-              height: 80.h,
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Row(
                 children: [
-                  Image.asset(
-                    'lib/assets/bitrefill.png',
-                    height: 35.sp,
-                    fit: BoxFit.contain,
-                    color: Colors.white,
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                          'lib/assets/bitrefill.png',
+                          height: 35.sp,
+                          fit: BoxFit.contain,
+                          color: Colors.white,
+                        ),
+                        SizedBox(height: 8.h),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+                          child: Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 8.h),
-                  Text('Shop With Bitcoin'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                  Icon(
+                    Icons.shopping_cart_outlined,
+                    color: Colors.orange,
+                    size: 30.sp,
+                  ),
                 ],
               ),
             ),
@@ -203,7 +214,7 @@ class _ActionCards extends ConsumerWidget {
                 color: Colors.red.withOpacity(0.8),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
-                  onTap: () =>  context.push('/home/explore/sell_type'),
+                  onTap: () => context.push('/home/explore/sell_type'),
                   child: Container(
                     height: 80.h,
                     alignment: Alignment.center,

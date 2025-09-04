@@ -521,35 +521,6 @@ Widget bitcoinFeeSlider(WidgetRef ref) {
   );
 }
 
-
-Widget _simpleFeeText(String label, double fee, WidgetRef ref) {
-  final wholeFee = fee.toInt();
-
-  return Column(
-    children: [
-      Text(
-        label.i18n,
-        style: TextStyle(
-          color: Colors.white70,
-          fontSize: 12.sp,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-      SizedBox(height: 2.h),
-      Text(
-        "$wholeFee sat/vB",
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 12.sp,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    ],
-  );
-}
-
-/// ** REFACTORED WIDGET **
-/// Displays the available balance with a "Max" button and a slider to select an amount.
 Widget buildBalanceCardWithSlider(WidgetRef ref, TextEditingController controller, BuildContext context) {
   final balanceString = ref.watch(balanceFromAssetProvider);
   final swapType = ref.watch(swapTypeProvider);
@@ -596,6 +567,8 @@ Widget buildBalanceCardWithSlider(WidgetRef ref, TextEditingController controlle
   // Ensure slider doesn't crash if maxBalance is 0
   final sliderMax = maxBalance > 0 ? maxBalance.toDouble() : 1.0;
 
+  final percentage = maxBalance > 0 ? (currentAmount / maxBalance * 100) : 0.0;
+
   return Padding(
     padding: EdgeInsets.only(top: 8.0.w),
     child: Card(
@@ -640,7 +613,7 @@ Widget buildBalanceCardWithSlider(WidgetRef ref, TextEditingController controlle
                     await handleMaxButtonPress(ref, swapType, controller, btcFormat);
                   },
                   style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                    padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 4.h),
                     backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r),
@@ -650,7 +623,7 @@ Widget buildBalanceCardWithSlider(WidgetRef ref, TextEditingController controlle
                     'Max',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14.sp,
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -667,11 +640,18 @@ Widget buildBalanceCardWithSlider(WidgetRef ref, TextEditingController controlle
                 overlayColor: Colors.white.withOpacity(0.2),
                 thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.r),
                 overlayShape: RoundSliderOverlayShape(overlayRadius: 16.r),
+                valueIndicatorColor: Colors.white, // Tooltip background color
+                valueIndicatorTextStyle: TextStyle(
+                  color: Colors.black, // Tooltip text color
+                  fontSize: 14.sp,
+                ),
               ),
               child: Slider(
                 value: currentAmount.toDouble().clamp(0.0, sliderMax),
                 min: 0,
                 max: sliderMax,
+                divisions: maxBalance > 0 ? 100 : null,
+                label: '${percentage.toStringAsFixed(0)}%',
                 onChanged: maxBalance == 0
                     ? null // Disable slider if there's no balance
                     : (newValue) {
@@ -864,7 +844,6 @@ void _showAdvancedOptionsSheet(BuildContext context, WidgetRef ref) {
   );
 }
 
-
 Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingController controller) {
   final fromAsset = ref.watch(fromAssetProvider);
   final toAsset = ref.watch(toAssetProvider);
@@ -905,7 +884,7 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
                             SizedBox(width: 8.w),
                             Text(
                               asset,
-                              style: TextStyle(color: Colors.white, fontSize: 18.sp), // MODIFIED: Increased font size
+                              style: TextStyle(color: Colors.white, fontSize: 18.sp),
                             ),
                           ],
                         ),
@@ -930,16 +909,15 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
                         child: Icon(
                           Icons.keyboard_arrow_down_sharp,
                           color: Colors.white,
-                          size: 28.sp, // MODIFIED: Increased icon size
+                          size: 28.sp,
                         ),
                       ),
                       isDense: true,
-                      style: TextStyle(color: Colors.white, fontSize: 18.sp), // MODIFIED: Increased font size for selected item
+                      style: TextStyle(color: Colors.white, fontSize: 18.sp),
                     ),
                   ),
                 ],
               ),
-              // Use Expanded to allow the assetLogic to take available space
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(left: 16.w),
@@ -950,6 +928,7 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
           ),
           SizedBox(height: 24.h),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Expanded(
                 child: Divider(
@@ -969,18 +948,15 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
                   ref.read(swapTypeNotifierProvider.notifier).updateProviders(ref.watch(swapTypeProvider));
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  padding: EdgeInsets.all(8.w),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade800,
-                    borderRadius: BorderRadius.circular(20.r),
+                    shape: BoxShape.circle,
                   ),
-                  child: Text(
-                    'Reverse'.i18n,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 13.sp,
-                    ),
+                  child: Icon(
+                    Icons.swap_vert,
+                    color: Colors.white,
+                    size: 24.sp,
                   ),
                 ),
               ),
@@ -1014,7 +990,7 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
                             SizedBox(width: 8.w),
                             Text(
                               asset,
-                              style: TextStyle(color: Colors.white, fontSize: 18.sp), // MODIFIED: Increased font size
+                              style: TextStyle(color: Colors.white, fontSize: 18.sp),
                             ),
                           ],
                         ),
@@ -1038,16 +1014,15 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
                         child: Icon(
                           Icons.keyboard_arrow_down_sharp,
                           color: Colors.white,
-                          size: 28.sp, // MODIFIED: Increased icon size
+                          size: 28.sp,
                         ),
                       ),
                       isDense: true,
-                      style: TextStyle(color: Colors.white, fontSize: 18.sp), // MODIFIED: Increased font size for selected item
+                      style: TextStyle(color: Colors.white, fontSize: 18.sp),
                     ),
                   ),
                 ],
               ),
-              // Use Expanded to allow the assetLogic to take available space
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(left: 16.w),
@@ -2229,6 +2204,26 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
           width: double.infinity,
           backgroundColor: Colors.black,
           toggleColor: const Color(0xFF212121),
+          icon: const Icon(
+            Icons.keyboard_arrow_right_rounded,
+            color: Colors.orange, // Orange arrow icon
+          ),
+          loadingIcon: const SizedBox(
+            width: 24.0,
+            height: 24.0,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.0,
+              color: Colors.orange, // Orange loading spinner
+            ),
+          ),
+          successIcon: const Icon(
+            Icons.check_rounded,
+            color: Colors.orange, // Orange success icon
+          ),
+          failureIcon: const Icon(
+            Icons.close_rounded,
+            color: Colors.orange, // Orange failure icon
+          ),
           action: (controller) async {
             ref.read(transactionInProgressProvider.notifier).state = true;
             controller.loading();
@@ -2240,10 +2235,10 @@ Widget _liquidPegSlideToSend(WidgetRef ref, BuildContext context) {
               await ref.watch(sendLiquidTransactionProvider.future);
               await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
               showFullscreenExchangeModal(
-                amount: ref.read(sendTxProvider).amount,
-                context: context,
-                swapType: ref.read(swapTypeProvider)!,
-                orderId: peg.orderId ?? 'Unknown'
+                  amount: ref.read(sendTxProvider).amount,
+                  context: context,
+                  swapType: ref.read(swapTypeProvider)!,
+                  orderId: peg.orderId ?? 'Unknown'
               );
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
@@ -2294,6 +2289,26 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
           width: double.infinity,
           backgroundColor: Colors.black,
           toggleColor: const Color(0xFF212121),
+          icon: const Icon(
+            Icons.keyboard_arrow_right_rounded,
+            color: Colors.orange, // Orange arrow icon
+          ),
+          loadingIcon: const SizedBox(
+            width: 24.0,
+            height: 24.0,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.0,
+              color: Colors.orange, // Orange loading spinner
+            ),
+          ),
+          successIcon: const Icon(
+            Icons.check_rounded,
+            color: Colors.orange, // Orange success icon
+          ),
+          failureIcon: const Icon(
+            Icons.close_rounded,
+            color: Colors.orange, // Orange failure icon
+          ),
           action: (controller) async {
             ref.read(transactionInProgressProvider.notifier).state = true;
             controller.loading();
@@ -2363,6 +2378,26 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
         width: double.infinity,
         backgroundColor: Colors.black,
         toggleColor: const Color(0xFF212121),
+        icon: const Icon(
+          Icons.keyboard_arrow_right_rounded,
+          color: Colors.orange, // Orange arrow icon
+        ),
+        loadingIcon: const SizedBox(
+          width: 24.0,
+          height: 24.0,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.0,
+            color: Colors.orange, // Orange loading spinner
+          ),
+        ),
+        successIcon: const Icon(
+          Icons.check_rounded,
+          color: Colors.orange, // Orange success icon
+        ),
+        failureIcon: const Icon(
+          Icons.close_rounded,
+          color: Colors.orange, // Orange failure icon
+        ),
         action: (controller) async {
           ref.read(transactionInProgressProvider.notifier).state = true;
           controller.loading();

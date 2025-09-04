@@ -542,6 +542,26 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                     width: double.infinity,
                     backgroundColor: Colors.black,
                     toggleColor: const Color(0xFF212121),
+                    icon: const Icon(
+                      Icons.keyboard_arrow_right_rounded,
+                      color: Colors.orange, // Orange arrow icon
+                    ),
+                    loadingIcon: const SizedBox(
+                      width: 24.0,
+                      height: 24.0,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.0,
+                        color: Colors.orange, // Orange loading spinner
+                      ),
+                    ),
+                    successIcon: const Icon(
+                      Icons.check_rounded,
+                      color: Colors.orange, // Orange success icon
+                    ),
+                    failureIcon: const Icon(
+                      Icons.close_rounded,
+                      color: Colors.orange, // Orange failure icon
+                    ),
                     action: (sliderController) async {
                       setState(() => isProcessing = true);
                       sliderController.loading();
