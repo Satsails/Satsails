@@ -67,7 +67,7 @@ class PegDetails extends ConsumerWidget {
         case 'Detected':
           statusText = "Detected".i18n; statusIcon = Icons.search_rounded; statusColor = Colors.orange; break;
         case 'Processing':
-          statusText = "Processing".i18n; statusIcon = Icons.hourglass_empty_rounded; statusColor = Colors.yellow; break;
+          statusText = "Processing".i18n; statusIcon = Icons.hourglass_empty_rounded; statusColor = Colors.orange; break;
         case 'Done':
           statusText = "Completed".i18n; statusIcon = Icons.check_circle_rounded; statusColor = Colors.green; break;
         default:
@@ -173,7 +173,7 @@ class PegDetails extends ConsumerWidget {
     switch (status.txState) {
       case 'InsufficientAmount': statusText = "Insufficient".i18n; icon = Icons.error; color = Colors.red; break;
       case 'Detected': statusText = "${"Detected".i18n}: ${status.detectedConfs ?? 0}/${status.totalConfs ?? 0}"; icon = Icons.search; color = Colors.orange; break;
-      case 'Processing': statusText = "Processing".i18n; icon = Icons.hourglass_empty; color = Colors.yellow; break;
+      case 'Processing': statusText = "Processing".i18n; icon = Icons.hourglass_empty; color = Colors.orange; break;
       case 'Done': statusText = "Done".i18n; icon = Icons.check_circle; color = Colors.green; break;
       default: statusText = "Unknown".i18n; icon = Icons.help; color = Colors.grey;
     }

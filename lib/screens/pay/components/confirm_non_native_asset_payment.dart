@@ -53,7 +53,6 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
   Timer? _debounce;
   String _amountToQuote = "";
 
-  // State for the prepared shift and max calculation
   SideShift? _preparedShift;
   bool _isFetchingMax = false;
 
@@ -221,8 +220,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
           child: Card(
             color: const Color(0xFF212121),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24.r),
-                side: BorderSide(color: Colors.white.withOpacity(0.1), width: 1.5)),
+                borderRadius: BorderRadius.circular(24.r), side: BorderSide(color: Colors.white.withOpacity(0.1), width: 1.5)),
             child: Padding(
               padding: EdgeInsets.all(24.w),
               child: Column(
@@ -726,7 +724,7 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                           ref.read(sendTxProvider.notifier).updateDrain(false);
 
                           if (_debounce?.isActive ?? false) _debounce!.cancel();
-                          _debounce = Timer(const Duration(milliseconds: 800), () {
+                          _debounce = Timer(const Duration(milliseconds: 800), () async {
                             if (mounted) {
                               String amountForQuote = value;
                               if (ref.read(inputCurrencyProvider) != 'BTC') {
@@ -735,9 +733,24 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                               setState(() {
                                 _amountToQuote = value.isEmpty ? "" : amountForQuote;
                               });
+
+                              final validAmount = double.tryParse(value.replaceAll(',', '.')) ?? 0;
+                              if (addressController.text.isNotEmpty && validAmount > 0) {
+                                try {
+                                  final shift = await ref.read(createSendSideShiftShiftProvider((shiftPair, addressController.text)).future);
+                                  if (mounted) {
+                                    setState(() => _preparedShift = shift);
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    setState(() => _preparedShift = null);
+                                  }
+                                }
+                              }
                             }
                           });
                         },
+                        // --- END: MODIFIED CODE ---
                       ),
                     ),
                     _buildCurrencySelectorAndMaxButton(),
@@ -867,7 +880,6 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
   }
 }
 
-// NEW: A dedicated widget to display the quote details and limits.
 class _QuoteDisplay extends ConsumerWidget {
   final ShiftPair shiftPair;
   final String amount;

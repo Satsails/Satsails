@@ -33,7 +33,7 @@ class BackgroundSyncService {
 
     _runSync(ref); // initial sync immediately
 
-    _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
+    _timer = Timer.periodic(const Duration(seconds: 8), (timer) async {
       await _runSync(ref);
     });
   }

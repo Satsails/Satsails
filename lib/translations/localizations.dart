@@ -1757,6 +1757,8 @@ extension Localization on String {
           'Nox': 'Nox',
           'Purchases are not paid directly to your wallet but to a smart contract provided by SideShift. The provider, NOX, reports all purchases in USDC. The smart contract does not automatically report transactions. Ensure compliance with your local laws.': 'As compras não são pagas diretamente para sua carteira, mas para um contrato inteligente fornecido pela SideShift. O provedor, NOX, reporta todas as compras em USDC. O contrato inteligente não reporta automaticamente as transações. Certifique-se de estar em conformidade com as leis locais.',
           'Generate Payment': 'Gerar Pagamento',
+          'Generating Payment': 'A Gerar Pagamento',
+          'Generating Sale': 'A Gerar Venda',
           'Note: Purchases from NOX are always in USDC and will be automatically converted via smart contract to the asset you want to purchase. The asset you receive is not reported to the goverment automatically.': 'Nota: As compras da NOX são sempre em USDC e serão automaticamente convertidas via contrato inteligentes para o ativo que você deseja comprar. O ativo que recebe não é automaticamente reportado automaticamente.',
           'Minimum Deposit:': 'Depósito Mínimo:',
           'Maximum Deposit: ': 'Depósito Máximo: ',
