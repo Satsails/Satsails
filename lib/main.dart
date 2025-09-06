@@ -34,9 +34,7 @@ Future<void> main() async {
     systemNavigationBarDividerColor: Colors.transparent,
   ));
 
-  if (Platform.isAndroid){
-    await _initializeApp();
-  }
+  await _initializeApp();
 
   runApp(
     const OverlaySupport.global(
@@ -74,7 +72,9 @@ Future<void> _initializeApp() async {
   await migrateMnemonicStorage();
   await LibLwk.init();
   // only here for internal testing, delete once able
-  await initialize();
+  if (Platform.isAndroid){
+    await initialize();
+  }
 
   try {
     await FlutterBranchSdk.init(
