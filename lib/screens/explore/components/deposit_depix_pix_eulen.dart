@@ -403,7 +403,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
       data: (isPaid) => isPaid
           ? buildRow('Confirmed'.i18n, Icons.check_circle, Colors.green)
           : buildRow('Awaiting Payment'.i18n, Icons.hourglass_bottom, Colors.orange),
-      loading: () => buildRow('Checking...'.i18n, Icons.sync, Colors.blue, showSpinner: true),
+      loading: () => buildRow('Checking...'.i18n, Icons.sync, Colors.orange, showSpinner: true),
       error: (e, st) => buildRow('Unable to Verify'.i18n, Icons.error, Colors.red),
     );
   }
