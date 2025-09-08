@@ -182,12 +182,12 @@ class UserService {
     }
   }
 
-  static Future<Result<double>> feeAmount(String auth) async {
+  static Future<Result<double>> eulenFeeAmount(String auth) async {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
 
       final response = await http.get(
-        Uri.parse('${dotenv.env['BACKEND']!}/users/fee_amount'),
+        Uri.parse('${dotenv.env['BACKEND']!}/users/eulen_fee_amount'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,

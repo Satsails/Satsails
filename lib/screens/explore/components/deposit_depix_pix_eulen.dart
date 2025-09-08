@@ -87,7 +87,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
 
   Future<void> _fetchUserFee() async {
     try {
-      final fee = await ref.read(getUserFeeAmount.future);
+      final fee = await ref.read(getUserEulenFeeAmount.future);
       if (mounted) {
         setState(() {
           _userFeePercentage = fee;
