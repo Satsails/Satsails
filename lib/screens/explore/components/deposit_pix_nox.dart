@@ -187,7 +187,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                         child: Text(
                           'Generating Payment'.i18n,
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 16.sp,
                               fontWeight: FontWeight.bold),
                         ),
@@ -197,7 +197,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
                       onPressed: _handleInput,
                       primaryColor: Colors.green.withOpacity(0.8),
                       secondaryColor: Colors.green.withOpacity(0.6),
-                      textColor: Colors.white,
+                      textColor: Colors.black,
                       text: 'Generate Payment'.i18n,
                     ),
                   ),
