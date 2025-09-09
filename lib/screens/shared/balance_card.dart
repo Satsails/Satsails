@@ -608,6 +608,7 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
             ),
             SizedBox(height: 8.h),
             ...widget.allNativeAssets.map((asset) => _buildNativeAssetTile(context, ref, asset)),
+            SizedBox(height: 10.sp),
           ],
         ),
       ),
@@ -757,25 +758,38 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
     );
   }
 
+// Paste this updated method into your _TransactionOptionsSheetState class
+
   Widget _buildSheetHeader({required String title, Widget? leading, String? assetIcon}) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.h),
+      padding: EdgeInsets.only(bottom: 30.sp),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Ensures space is distributed evenly
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(width: 48.w, child: leading ?? const SizedBox.shrink()),
-          const Spacer(),
-          if (assetIcon != null) ...[
-            Image.asset(assetIcon, width: 24.sp, height: 24.sp),
-            SizedBox(width: 10.w),
-          ],
-          Text(
-            title,
-            style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.white),
-            textAlign: TextAlign.center,
+          // Box for the back button, maintains space even if empty
+          SizedBox(
+            width: 48.w,
+            child: leading ?? const SizedBox.shrink(),
           ),
-          const Spacer(),
-          SizedBox(width: 48.w), // Balance the row for centering
+
+          // Group for the title and its optional icon
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (assetIcon != null) ...[
+                Image.asset(assetIcon, width: 24.sp, height: 24.sp),
+                SizedBox(width: 10.w),
+              ],
+              Text(
+                title,
+                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+            ],
+          ),
+
+          // Empty box on the right to perfectly balance the left one
+          SizedBox(width: 48.w),
         ],
       ),
     );
