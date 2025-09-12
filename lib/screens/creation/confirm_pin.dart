@@ -174,9 +174,9 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
                       }
                     }
                         : () {},
-                    primaryColor: Colors.white.withOpacity(0.2),
-                    secondaryColor: Colors.white.withOpacity(0.15),
-                    textColor: Colors.white,
+                    primaryColor: Colors.green.withOpacity(0.8),
+                    secondaryColor: Colors.green.withOpacity(0.6),
+                    textColor: Colors.black,
                   ),
                 ),
                 SizedBox(height: 40.h),

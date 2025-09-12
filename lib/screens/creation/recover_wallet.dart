@@ -139,18 +139,18 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet>
             title: Text('Recover Account'.i18n,
                 style: TextStyle(
                     color: Colors.white,
-                    fontSize: 20.sp,
+                    fontSize: 22.sp,
                     fontWeight: FontWeight.bold)),
-            backgroundColor: Colors.transparent,
+            backgroundColor: Colors.black,
             elevation: 0,
-            centerTitle: true,
+            centerTitle: false,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
               onPressed: () => context.pop(),
             ),
           ),
           body: SafeArea(
-            bottom: true, // Let the content handle padding
+            bottom: true,
             child: Column(
               children: [
                 Expanded(
@@ -188,9 +188,9 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet>
                   child: CustomButton(
                     text: 'Recover Account'.i18n,
                     onPressed: () => _recoverAccount(context),
-                    primaryColor: Colors.white.withOpacity(0.2),
-                    secondaryColor: Colors.white.withOpacity(0.15),
-                    textColor: Colors.white,
+                    primaryColor: Colors.green.withOpacity(0.8),
+                    secondaryColor: Colors.green.withOpacity(0.6),
+                    textColor: Colors.black,
                   ),
                 ),
               ],
@@ -201,11 +201,12 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet>
     );
   }
 
+  // FIX: This widget is now styled like the _buildSectionPicker from Analytics
   Widget _buildWordCountToggle() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16.r),
+        color: Colors.grey.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       padding: EdgeInsets.all(4.w),
       child: Row(
@@ -218,24 +219,24 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet>
     );
   }
 
+  // FIX: This button is styled to work inside the new toggle design
   Widget _buildToggleButton(String text, int wordCount) {
     bool isSelected = _totalWords == wordCount;
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _totalWords = wordCount),
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 12.h),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.symmetric(vertical: 10.h),
           decoration: BoxDecoration(
-            color: isSelected
-                ? Colors.white.withOpacity(0.25)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12.r),
+            color: isSelected ? Colors.black.withOpacity(0.5) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10.r),
           ),
           child: Center(
             child: Text(
               text,
               style: TextStyle(
-                color: Colors.white,
+                color: isSelected ? Colors.white : Colors.grey.shade400,
                 fontSize: 16.sp,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
@@ -279,6 +280,7 @@ class _RecoverWalletState extends ConsumerState<RecoverWallet>
             children: [
               Positioned(
                 left: 8.w,
+                top: 6.h,
                 child: Text(
                   '${index + 1}',
                   style: TextStyle(

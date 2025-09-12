@@ -146,9 +146,9 @@ class _AffiliateViewState extends ConsumerState<_AffiliateView> {
               : CustomButton(
             text: 'Continue'.i18n,
             onPressed: _handleContinue,
-            primaryColor: const Color(0xFF2E2E2E),
-            secondaryColor: const Color(0xFF1E1E1E),
-            textColor: Colors.white,
+            primaryColor: Colors.green.withOpacity(0.8),
+            secondaryColor: Colors.green.withOpacity(0.6),
+            textColor: Colors.black,
           ),
         ],
       ),
