@@ -1,5 +1,3 @@
-import 'dart:ui';
-import 'package:Satsails/screens/creation/components/logo.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,125 +42,118 @@ class _StartState extends ConsumerState<Start> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // Define the primary orange color for consistency
+    const Color primaryOrange = Color(0xFFF7931A);
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          // --- Static Black Background ---
-          Container(color: Colors.black),
-
-          // --- Gradient and Blur Overlay ---
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.black.withOpacity(0.5),
-                      Colors.black.withOpacity(0.8),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Column(
+          children: [
+            // Top half of the screen is the image, edge-to-edge
+            Image.asset(
+              'lib/assets/satsails_start_screen.png',
+              width: double.infinity,
+              height: screenHeight / 2,
+              fit: BoxFit.cover,
+            ),
+            // Bottom half of the screen for content
+            Expanded(
+              child: SafeArea(
+                top: false, // Only apply safe area to bottom, left, and right
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Column(
+                    children: [
+                      const Spacer(flex: 2),
+                      RichText(
+                        textAlign: TextAlign.center, // Ensure text is centered
+                        text: TextSpan(
+                          style: TextStyle(
+                            fontSize: 36.sp,
+                            fontWeight: FontWeight.bold, // Make the entire headline bold
+                            color: Colors.white,
+                            fontFamily:
+                            Theme.of(context).textTheme.bodyLarge?.fontFamily,
+                          ),
+                          children: [
+                            TextSpan(text: 'Be sovereign with '.i18n),
+                            TextSpan(
+                              text: 'Satsails',
+                              style: TextStyle(
+                                color: primaryOrange,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      Text(
+                        'The wallet that guarantees sovereignty and the freedom to disconnect from the system'
+                            .i18n,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          color: Colors.white70,
+                          height: 1.5,
+                        ),
+                      ),
+                      const Spacer(flex: 3),
+                      CustomButton(
+                        text: 'Create wallet'.i18n,
+                        onPressed: () => context.push('/set_pin'),
+                        primaryColor: primaryOrange,
+                        secondaryColor:
+                        Color.lerp(primaryOrange, Colors.black, 0.2)!,
+                        textColor: Colors.black,
+                      ),
+                      SizedBox(height: 16.h),
+                      // Using an OutlinedButton for the secondary action to easily achieve the bordered look
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56.h,
+                        child: OutlinedButton(
+                          onPressed: () => context.push('/recover_wallet'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side:
+                            BorderSide(color: Colors.white.withOpacity(0.3)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                          child: Text(
+                            'Recover wallet'.i18n,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(8.w, 16.h, 8.w, 8.h),
+                        child: Text(
+                          'By continuing, you agree to our Terms of Use and Privacy Policy'
+                              .i18n,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.white38,
+                          ),
+                        ),
+                      ),
                     ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
                   ),
                 ),
               ),
             ),
-          ),
-
-          // --- Main UI Content ---
-          SafeArea(
-            child: Padding(
-              padding: EdgeInsets.all(24.w),
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Spacer(),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(24.r),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 32.h, horizontal: 24.w),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(24.r),
-                            border: Border.all(
-                                color: Colors.white.withOpacity(0.2)),
-                          ),
-                          child: Column(
-                            children: [
-                              Logo(size: 80.sp, opacity: 0.8),
-                              SizedBox(height: 16.h),
-                              ShaderMask(
-                                blendMode: BlendMode.srcIn,
-                                shaderCallback: (bounds) =>
-                                    const LinearGradient(
-                                      colors: [
-                                        Colors.white,
-                                        Color.fromARGB(255, 200, 200, 200)
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ).createShader(
-                                      Rect.fromLTWH(
-                                          0, 0, bounds.width, bounds.height),
-                                    ),
-                                child: Text('Satsails',
-                                    style: TextStyle(
-                                        fontSize: 48.sp,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1.2,
-                                        shadows: [
-                                          Shadow(
-                                            blurRadius: 10.0,
-                                            color:
-                                            Colors.black.withOpacity(0.3),
-                                            offset: const Offset(2, 2),
-                                          ),
-                                        ])),
-                              ),
-                              SizedBox(height: 8.h),
-                              Text(
-                                'Your gateway to financial freedom.'.i18n,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 18.sp,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    CustomButton(
-                      text: 'Create wallet'.i18n,
-                      onPressed: () => context.push('/set_pin'),
-                      primaryColor: Colors.white.withOpacity(0.2),
-                      secondaryColor: Colors.white.withOpacity(0.15),
-                      textColor: Colors.white,
-                    ),
-                    SizedBox(height: 16.h),
-                    CustomButton(
-                      text: 'Recover wallet'.i18n,
-                      onPressed: () => context.push('/recover_wallet'),
-                      primaryColor: Colors.white.withOpacity(0.1),
-                      secondaryColor: Colors.white.withOpacity(0.1),
-                      textColor: Colors.white,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+

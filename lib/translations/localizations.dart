@@ -2045,6 +2045,9 @@ extension Localization on String {
           "Affiliate Program": "Programa de Afiliados",
           "Generate a sale to see how many BRL you will receive": "Gere uma venda para ver quantos Reais você receberá",
           "The total sent amount will cover bitcoin blockchain transaction fee": "O valor total enviado cobrirá a taxa de transação da blockchain do bitcoin",
+          "Be sovereign with ": "Seja soberano com ",
+          "The wallet that guarantees sovereignty and the freedom to disconnect from the system": "A carteira que garante soberania e a liberdade de se desconectar do sistema",
+          "By continuing, you agree to our Terms of Use and Privacy Policy": "Ao continuar, concorda com nossos Termos de Uso e Política de Privacidade",
         }
       };
 

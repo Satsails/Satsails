@@ -102,6 +102,7 @@ flutter:
   assets:
     - lib/assets/splash_white.png
     - lib/assets/satsails.png
+    - lib/assets/satsails_start_screen.png
     - lib/assets/bitrefill.png
     - lib/assets/arbitrum-logo.png
     - lib/assets/satsails.svg
