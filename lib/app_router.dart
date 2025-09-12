@@ -96,27 +96,12 @@ class AppRouter {
   static GoRouter createRouter(String initialRoute) {
     return GoRouter(
       initialLocation: initialRoute,
-      redirect: (BuildContext context, GoRouterState state) {
-        final uri = state.uri;
-        if (uri.scheme == 'https' && (uri.host == 'satsails.app.link' || uri.host == 'satsails-alternate.app.link')) {
-          String? code;
-          if (uri.pathSegments.isNotEmpty) {
-            code = uri.pathSegments.first;
-          }
-          if (code != null && code.isNotEmpty) {
-            return '/affiliate?code=$code';
-          }
-          return '/affiliate';
-        }
-        return null;
-      },
       routes: [
         GoRoute(
           path: '/affiliate',
           pageBuilder: (context, state) {
-            final code = state.uri.queryParameters['code'];
             return _buildFadeScalePage(
-              child: AffiliateScreen(affiliateCode: code ?? ''),
+              child: AffiliateScreen(),
               state: state,
             );
           },

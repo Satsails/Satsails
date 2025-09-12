@@ -90,6 +90,7 @@ class Settings extends ConsumerWidget {
                 children: [
                   _buildChatWithSupportSection(context, ref),
                   _buildRateAppSection(context, ref),
+                  _buildAffiliateSection(context, ref),
                   _buildSeedSection(context, ref),
                   biometricsAvailable.when(
                     data: (isAvailable) => isAvailable
@@ -102,7 +103,6 @@ class Settings extends ConsumerWidget {
                   _buildCurrencyDenominationSection(ref, context),
                   _buildBitcoinUnitSection(ref, context),
                   _buildElectrumNodeSection(context, ref),
-                  _buildAffiliateSection(context, ref),
                   _buildBlockExplorerSection(context, ref),
                   DeleteWalletSection(ref: ref),
                 ],
@@ -383,8 +383,8 @@ class Settings extends ConsumerWidget {
     return _buildSection(
       context: context,
       ref: ref,
-      title: 'Affiliate Section'.i18n,
-      icon: Icons.account_circle_sharp,
+      title: 'Affiliate Program'.i18n,
+      icon: Icons.group_add_outlined,
       subtitle: Text(
         hasAffiliateCode
             ? "${'Affiliate code inserted'.i18n}: $affiliateCode"

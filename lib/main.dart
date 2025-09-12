@@ -19,7 +19,6 @@ import 'package:Satsails/models/sideswap/sideswap_peg_model.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'models/auth_model.dart';
 
 /// The main entry point for the application.
@@ -74,15 +73,6 @@ Future<void> _initializeApp() async {
   // only here for internal testing, delete once able
   if (Platform.isAndroid){
     await initialize();
-  }
-
-  try {
-    await FlutterBranchSdk.init(
-      enableLogging: false,
-      branchAttributionLevel: BranchAttributionLevel.NONE,
-    );
-  } catch (e) {
-    debugPrint("Branch SDK initialization failed: $e");
   }
 }
 

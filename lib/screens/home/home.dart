@@ -122,7 +122,7 @@ class Home extends ConsumerWidget {
             ),
           ),
           HomeCustomButton(
-            label: 'Deposit'.i18n, // More standard fintech term
+            label: 'Purchase'.i18n, // More standard fintech term
             textColor: Colors.black,
             backgroundColor: Colors.white,
             onPressed: () => context.push('/home/explore/deposit_type'),

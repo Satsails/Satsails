@@ -3,7 +3,6 @@ PODS:
     - Flutter
   - bdk_flutter (0.31.3):
     - Flutter
-  - BranchSDK (3.12.2)
   - Crisp (2.8.2):
     - Crisp/Crisp (= 2.8.2)
   - Crisp/Crisp (2.8.2)
@@ -73,9 +72,6 @@ PODS:
     - nanopb (~> 3.30910.0)
     - PromisesSwift (~> 2.1)
   - Flutter (1.0.0)
-  - flutter_branch_sdk (8.6.0):
-    - BranchSDK (~> 3.12.0)
-    - Flutter
   - flutter_breez_liquid (0.11.2):
     - Flutter
   - flutter_keyboard_visibility (0.0.1):
@@ -162,7 +158,6 @@ DEPENDENCIES:
   - firebase_crashlytics (from `.symlinks/plugins/firebase_crashlytics/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
-  - flutter_branch_sdk (from `.symlinks/plugins/flutter_branch_sdk/ios`)
   - flutter_breez_liquid (from `.symlinks/plugins/flutter_breez_liquid/ios`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
@@ -184,7 +179,6 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - BranchSDK
     - Crisp
     - Firebase
     - FirebaseCore
@@ -218,8 +212,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
     :path: Flutter
-  flutter_branch_sdk:
-    :path: ".symlinks/plugins/flutter_branch_sdk/ios"
   flutter_breez_liquid:
     :path: ".symlinks/plugins/flutter_breez_liquid/ios"
   flutter_keyboard_visibility:
@@ -260,7 +252,6 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   app_settings: 5127ae0678de1dcc19f2293271c51d37c89428b2
   bdk_flutter: cef9180019b4c6b67a3e3dfb74611683fe140107
-  BranchSDK: db2c2ffa5b85ad3e202f73393ca794878afd3c52
   Crisp: 6747c96b2b2c2a81babf1eaecd1688a65d98edd4
   crisp_chat: 7cf4a929f99ea7561ea37d0966621d3a89fe1e97
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
@@ -277,7 +268,6 @@ SPEC CHECKSUMS:
   FirebaseRemoteConfigInterop: bfa0ea72ba3dc5af739777296424e46bd6f42613
   FirebaseSessions: 4e784acda213108aafef536535cdfc03504acc42
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_branch_sdk: a87d7e10a30e891371ed3b464859e7797b07d5f0
   flutter_breez_liquid: 85a9f2ae41d88bac83676958a2b7ecfe97e6ba15
   flutter_keyboard_visibility: 4625131e43015dbbe759d9b20daaf77e0e3f6619
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb

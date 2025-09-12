@@ -54,17 +54,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="satsails.app.link" />
-                <data android:scheme="https" android:host="satsails-alternate.app.link" />
-            </intent-filter>
         </activity>
-        <meta-data
-                android:name="io.branch.sdk.BranchKey"
-                android:value="key_live_mDl7ypAf3rPwbm6ShWPcbaalCqlAF8LM" />
         <meta-data
                 android:name="flutterEmbedding"
                 android:value="2" />

@@ -2039,6 +2039,12 @@ extension Localization on String {
           "Error syncing affiliate code": "Erro ao sincronizar o código de afiliado",
           "Account": "Conta",
           "Amount exceeds available balance": "O valor excede o saldo disponível",
+          "Insert": "Inserir",
+          "Affiliate code applied successfully!": "Código de afiliado aplicado com sucesso!",
+          "Enter a code if you were referred by someone. You can add this later in settings.": "Insira um código se você foi indicado por alguém. Você pode adicioná-lo mais tarde nas configurações.",
+          "Affiliate Program": "Programa de Afiliados",
+          "Generate a sale to see how many BRL you will receive": "Gere uma venda para ver quantos Reais você receberá",
+          "The total sent amount will cover bitcoin blockchain transaction fee": "O valor total enviado cobrirá a taxa de transação da blockchain do bitcoin",
         }
       };
 

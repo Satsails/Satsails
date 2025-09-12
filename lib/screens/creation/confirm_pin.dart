@@ -6,7 +6,7 @@ import 'package:Satsails/screens/creation/set_pin.dart'; // Contains pinProvider
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/custom_keypad.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
-import 'package:Satsails/screens/shared/shimmer_home_screen.dart';
+import 'package:Satsails/screens/shared/shimmer_affiliate_screen.dart';
 import 'package:Satsails/services/background_sync_service.dart';
 import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +47,8 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
       });
   }
 
+// In your confirm_pin.dart file
+
   Future<void> _handleSetPin(String originalPin) async {
     ref.read(confirmPinLoadingProvider.notifier).state = true;
     try {
@@ -61,11 +63,9 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
       if (mounted) {
         ref.invalidate(bitcoinConfigProvider);
         ref.invalidate(liquidConfigProvider);
-        ref.read(addressProvider); // Pre-load address data
+        ref.read(addressProvider);
 
-        if (mounted) {
-          context.go('/home');
-        }
+        context.go('/affiliate');
       }
     } catch (e) {
       if (mounted) {
@@ -74,9 +74,6 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
           error: true,
           context: context,
         );
-      }
-    } finally {
-      if (mounted) {
         ref.read(confirmPinLoadingProvider.notifier).state = false;
       }
     }
@@ -106,7 +103,7 @@ class _ConfirmPinState extends ConsumerState<ConfirmPin>
 
     // Conditionally show the shimmer screen or the PIN entry UI
     if (isLoading) {
-      return const ShimmerHomeScreen();
+      return const ShimmerAffiliateScreen();
     }
 
     return Scaffold(

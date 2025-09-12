@@ -26,7 +26,6 @@ dependencies:
   web_socket_channel: ^3.0.3
   coingecko_api: ^2.0.1
   crisp_chat: ^2.4.0
-  flutter_branch_sdk: ^8.6.0
 
   # Breez SDK
   flutter_breez_liquid:

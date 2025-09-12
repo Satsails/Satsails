@@ -147,9 +147,7 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () {
             if (_url != null) {
-              setState(() {
-                _url = null;
-              });
+              context.go('/home');
             } else {
               context.pop();
             }
@@ -284,7 +282,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
             ),
           ),
           SizedBox(height: 12.h),
-          // =========== NEW MESSAGE ADDED HERE ===========
           _buildInfoRow(
             icon: Icons.info_outline,
             label: Text(
@@ -293,7 +290,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
             ),
           ),
           SizedBox(height: 12.h),
-          // ===========================================
           minimumDepositsAsync.when(
             data: (deposits) {
               final String text = _selectedCurrency == InputCurrency.brl

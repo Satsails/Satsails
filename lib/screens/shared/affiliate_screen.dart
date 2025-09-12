@@ -1,286 +1,157 @@
 import 'package:Satsails/models/user_model.dart';
-import 'package:Satsails/providers/auth_provider.dart';
-import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
-import 'package:Satsails/screens/creation/components/logo.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
-import 'package:Satsails/screens/shared/transaction_modal.dart';
 import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive/hive.dart';
-
-enum AffiliateStatus { codeApplied, alreadyExists, noCodeFound }
 
 class AffiliateScreen extends ConsumerWidget {
-  final String? affiliateCode;
-  const AffiliateScreen({super.key, this.affiliateCode});
-
-  Future<void> _handleAffiliateCodeLogic(WidgetRef ref, User loadedUser) async {
-    final existingCode = loadedUser.affiliateCode;
-    final newCode = affiliateCode;
-
-    if (newCode != null && newCode.isNotEmpty) {
-      if (existingCode == null || existingCode.isEmpty) {
-        final upperCaseCode = newCode.toUpperCase();
-        final box = await Hive.openBox('user');
-        await box.put('affiliateCode', upperCaseCode);
-        ref.read(userProvider.notifier).setAffiliateCode(upperCaseCode);
-      }
-    }
-  }
+  const AffiliateScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final initialUserAsync = ref.watch(initializeUserProvider);
-
-    ref.listen<AsyncValue<User>>(initializeUserProvider, (previous, next) {
-      if (next.hasValue && previous?.hasValue != true) {
-        _handleAffiliateCodeLogic(ref, next.value!);
-        ref.read(sendTxProvider.notifier).resetToDefault();
-      }
-    });
-
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
-          child: initialUserAsync.when(
-            loading: () => Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
-                const CircularProgressIndicator(color: Colors.white),
-                SizedBox(height: 20.h),
-                Text('Loading user data...'.i18n,
-                    style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 16.sp)),
-                const Spacer(),
-              ],
-            ),
-            error: (err, stack) => Center(
-                child: Text('Error loading user data: $err',
-                    style: const TextStyle(color: Colors.red))),
-            data: (_) {
-              return _AffiliateView(routeAffiliateCode: affiliateCode);
-            },
-          ),
+          child: const _AffiliateView(),
         ),
       ),
     );
   }
 }
 
-class _AffiliateView extends ConsumerWidget {
-  final String? routeAffiliateCode;
-  const _AffiliateView({this.routeAffiliateCode});
+class _AffiliateView extends ConsumerStatefulWidget {
+  const _AffiliateView();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider);
-    final userAffiliateCode = user.affiliateCode;
+  ConsumerState<_AffiliateView> createState() => _AffiliateViewState();
+}
 
-    AffiliateStatus status;
-    String displayedCode;
+class _AffiliateViewState extends ConsumerState<_AffiliateView> {
+  final _textController = TextEditingController();
+  bool _isLoading = false;
+  String? _errorMessage;
 
-    final newCode = routeAffiliateCode;
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
 
-    // We then check if `newCode` is valid *once*.
-    if (newCode != null && newCode.isNotEmpty) {
-      if (userAffiliateCode != null &&
-          userAffiliateCode.isNotEmpty &&
-          userAffiliateCode.toUpperCase() != newCode.toUpperCase()) {
-        status = AffiliateStatus.alreadyExists;
-        displayedCode = userAffiliateCode;
-      } else {
-        status = AffiliateStatus.codeApplied;
-        displayedCode = newCode.toUpperCase();
+  Future<void> _handleContinue() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final enteredCode = _textController.text.trim();
+
+    try {
+      if (enteredCode.isNotEmpty) {
+        final upperCaseCode = enteredCode.toUpperCase();
+        await ref.read(userProvider.notifier).setAffiliateCode(upperCaseCode);
+
+        if (mounted) {
+          showMessageSnackBar(
+              message: 'Affiliate code inserted successfully'.i18n,
+              error: false,
+              context: context,
+              top: true);
+        }
       }
-    } else {
-      status = AffiliateStatus.noCodeFound;
-      displayedCode = '';
-    }
 
-    Widget statusContent;
-    switch (status) {
-      case AffiliateStatus.codeApplied:
-        statusContent = Column(
-          children: [
-            AnimatedSlideFade(
-              delay: 100,
-              child: Icon(Icons.check_circle_outline_rounded,
-                  color: const Color(0xFF4CAF50), size: 80.w),
-            ),
-            SizedBox(height: 20.h),
-            AnimatedSlideFade(
-              delay: 200,
-              child: Text('Affiliate Program'.i18n,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26.sp,
-                      fontWeight: FontWeight.bold)),
-            ),
-            SizedBox(height: 12.h),
-            AnimatedSlideFade(
-              delay: 300,
-              child: Text(displayedCode,
-                  style: TextStyle(
-                      fontSize: 42.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
-            ),
-            SizedBox(height: 8.h),
-            AnimatedSlideFade(
-              delay: 400,
-              child: Text('Code applied successfully!'.i18n,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: Colors.white.withOpacity(0.7), fontSize: 16.sp)),
-            ),
-          ],
-        );
-        break;
-      case AffiliateStatus.alreadyExists:
-        statusContent = Column(
-          children: [
-            AnimatedSlideFade(
-              delay: 100,
-              child: Icon(Icons.info_outline_rounded,
-                  color: Colors.orangeAccent, size: 80.w),
-            ),
-            SizedBox(height: 20.h),
-            AnimatedSlideFade(
-              delay: 200,
-              child: Text('Affiliate Code'.i18n,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26.sp,
-                      fontWeight: FontWeight.bold)),
-            ),
-            SizedBox(height: 12.h),
-            AnimatedSlideFade(
-              delay: 300,
-              child: Text(displayedCode,
-                  style: TextStyle(
-                      fontSize: 42.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
-            ),
-            SizedBox(height: 8.h),
-            AnimatedSlideFade(
-              delay: 400,
-              child: Text(
-                  'You already have this affiliate code applied. It cannot be changed.'
-                      .i18n,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
-                      fontSize: 16.sp,
-                      height: 1.5)),
-            ),
-          ],
-        );
-        break;
-      case AffiliateStatus.noCodeFound:
-        statusContent = Column(
-          children: [
-            AnimatedSlideFade(
-              delay: 100,
-              child: Icon(Icons.info_outline_rounded,
-                  color: Colors.orangeAccent, size: 80.w),
-            ),
-            SizedBox(height: 20.h),
-            AnimatedSlideFade(
-              delay: 200,
-              child: Text('Affiliate Program'.i18n,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26.sp,
-                      fontWeight: FontWeight.bold)),
-            ),
-            SizedBox(height: 12.h),
-            AnimatedSlideFade(
-              delay: 300,
-              child: Container(
-                padding:
-                EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(16.r),
-                ),
-                child: Text(
-                    'No new affiliate code was found. You can add one later in your settings.'
-                        .i18n,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 16.sp,
-                        height: 1.5)),
+      ref.invalidate(initializeUserProvider);
+
+      if (mounted) {
+        context.go('/home');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Failed to save affiliate code'.i18n;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyboardDismissOnTap(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Spacer(),
+          Text('Affiliate Program'.i18n,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 26.sp,
+                  fontWeight: FontWeight.bold)),
+          SizedBox(height: 12.h),
+          Text(
+              'Enter a code if you were referred by someone. You can add this later in settings.'
+                  .i18n,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 16.sp,
+                  height: 1.5)),
+          SizedBox(height: 24.h),
+          TextField(
+            controller: _textController,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.black.withOpacity(0.2),
+              labelText: 'Affiliate Code'.i18n,
+              labelStyle: TextStyle(color: Colors.grey[400]),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: const BorderSide(color: Colors.orange),
               ),
             ),
-          ],
-        );
-        break;
-    }
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Spacer(),
-        statusContent,
-        const Spacer(),
-        const BrandingFooter(delay: 500),
-        SizedBox(height: 20.h),
-        AnimatedSlideFade(
-          delay: 600,
-          child: CustomButton(
+          ),
+          if (_errorMessage != null)
+            Padding(
+              padding: EdgeInsets.only(top: 12.h),
+              child: Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.redAccent, fontSize: 14.sp),
+              ),
+            ),
+          const Spacer(),
+          SizedBox(height: 20.h),
+          _isLoading
+              ? const Center(
+              child: CircularProgressIndicator(color: Colors.white))
+              : CustomButton(
             text: 'Continue'.i18n,
-            onPressed: () async {
-              final authModel = ref.read(authModelProvider);
-              final user = ref.read(userProvider);
-              final insertedAffiliateCode = user.affiliateCode ?? '';
-              final hasUploadedAffiliateCode =
-                  user.hasUploadedAffiliateCode ?? false;
-              final mnemonic = await authModel.getMnemonic();
-
-              if (mnemonic != null && mnemonic.isNotEmpty) {
-                if (insertedAffiliateCode.isNotEmpty &&
-                    !hasUploadedAffiliateCode) {
-                  try {
-                    await ref.read(
-                        addAffiliateCodeProvider(insertedAffiliateCode).future);
-                    if (!context.mounted) return;
-                    showMessageSnackBar(
-                        message:
-                        'Affiliate code synced with your account'.i18n,
-                        error: false,
-                        context: context,
-                        top: true);
-                  } catch (e) {
-                    if (!context.mounted) return;
-                    showMessageSnackBar(
-                        message: 'Error syncing affiliate code'.i18n,
-                        error: true,
-                        context: context,
-                        top: true);
-                  }
-                }
-                if (context.mounted) context.pushReplacement('/open_pin');
-              } else {
-                if (context.mounted) context.pushReplacement('/start');
-              }
-            },
+            onPressed: _handleContinue,
             primaryColor: const Color(0xFF2E2E2E),
             secondaryColor: const Color(0xFF1E1E1E),
             textColor: Colors.white,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

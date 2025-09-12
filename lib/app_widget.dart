@@ -1,18 +1,15 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:Satsails/notifications/firebase.dart';
-import 'package:Satsails/providers/auth_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/screens/shared/transaction_notifications_wrapper.dart';
 import 'package:Satsails/services/background_sync_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive/hive.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_extension.dart';
@@ -27,7 +24,6 @@ class AppWidget extends ConsumerStatefulWidget {
 
 class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserver {
   late final GoRouter _router;
-  late final StreamSubscription<Map> _branchSubscription;
 
   DateTime? _pauseTime;
   bool _isFirstResume = true;
@@ -38,7 +34,6 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
     super.initState();
     _router = AppRouter.createRouter('/splash');
     WidgetsBinding.instance.addObserver(this);
-    _initializeDeepLinkListener();
     _setupForegroundMessageListener();
     _setSystemUIOverlayStyle();
   }
@@ -47,20 +42,6 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
   void _setupForegroundMessageListener() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       FirebaseService.handleForegroundMessage(ref, message);
-    });
-  }
-
-  void _initializeDeepLinkListener() {
-    _branchSubscription = FlutterBranchSdk.listSession().listen((data) async {
-      if (data.containsKey('+clicked_branch_link')) {
-        final String link = data['+clicked_branch_link'];
-        final uri = Uri.parse(link);
-
-        if (uri.pathSegments.isNotEmpty) {
-          final String affiliateCode = uri.pathSegments.first;
-          _router.go('/affiliate?code=$affiliateCode');
-        }
-      }
     });
   }
 
@@ -125,7 +106,6 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _branchSubscription.cancel();
     super.dispose();
   }
 
