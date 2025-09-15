@@ -56,6 +56,7 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
     _amountController.removeListener(_onAmountChanged);
     _amountController.dispose();
     _pollingTimer?.cancel();
+    ref.read(sendTxProvider.notifier).resetToDefault();
     super.dispose();
   }
 
@@ -142,7 +143,9 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
           try {
             ref.read(sendTxProvider.notifier).updateAddress(address);
             await ref.read(sendBitcoinTransactionProvider.future);
+            ref.read(sendTxProvider.notifier).resetToDefault();
           } catch (e) {
+            ref.read(sendTxProvider.notifier).resetToDefault();
             if (mounted) {
               showMessageSnackBar(
                   context: context, message: "Transaction failed: ${e.toString()}".i18n, error: true);
@@ -154,6 +157,7 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
           }
         }
       } catch (e) {
+        ref.read(sendTxProvider.notifier).resetToDefault();
         print('Error polling for transfer details: $e');
       }
     });

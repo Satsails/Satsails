@@ -15,7 +15,7 @@ class AffiliateScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: Colors.black,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
@@ -98,7 +98,7 @@ class _AffiliateViewState extends ConsumerState<_AffiliateView> {
           Text('Affiliate Program'.i18n,
               style: TextStyle(
                   color: Colors.white,
-                  fontSize: 26.sp,
+                  fontSize: 30.sp,
                   fontWeight: FontWeight.bold)),
           SizedBox(height: 12.h),
           Text(
@@ -107,7 +107,7 @@ class _AffiliateViewState extends ConsumerState<_AffiliateView> {
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: Colors.white.withOpacity(0.7),
-                  fontSize: 16.sp,
+                  fontSize: 18.sp,
                   height: 1.5)),
           SizedBox(height: 24.h),
           TextField(
@@ -115,9 +115,10 @@ class _AffiliateViewState extends ConsumerState<_AffiliateView> {
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
+              hintText: 'Affiliate Code'.i18n,
               filled: true,
               fillColor: Colors.black.withOpacity(0.2),
-              labelText: 'Affiliate Code'.i18n,
+              hintStyle: TextStyle(color: Colors.grey[400]),
               labelStyle: TextStyle(color: Colors.grey[400]),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
