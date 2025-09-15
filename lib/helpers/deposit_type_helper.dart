@@ -66,7 +66,7 @@ final Map<DepositProvider, ProviderDetails> providerDetails = {
       "Some limitations on purchases due to free nature of depix compared to other assets",
       "Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payers name",
       "Not possible to send documentation and unlock higher purchase amounts.",
-      "Maximum of 5000 BRL per single transaction",
+      "Maximum of 3000 BRL per single transaction",
     ],
   ),
   DepositProvider.Nox: ProviderDetails(

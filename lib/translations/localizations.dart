@@ -1540,7 +1540,7 @@ extension Localization on String {
           'Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payers name': 'Compras de tokens Depix são reportadas e registradas na Receita Federal Brasileira em nome do pagador',
           'Not possible to send documentation and unlock higher purchase amounts.': 'Não é possível enviar documentação e desbloquear valores de compra mais altos.',
           'You will need to convert DEPIX into bitcoin manually': 'Você precisará converter DEPIX em bitcoin manualmente',
-          'Maximum of 5000 BRL per single transaction': 'Máximo de 5000 BRL por transação',
+          'Maximum of 3000 BRL per single transaction': 'Máximo de 3000 BRL por transação',
           'A purchase history is required to gradually unlock the maximum transaction limit: starting at 500 BRL, then increasing to 1000 BRL and 2000 BRL, eventually unlocking up to 5000 BRL per transaction.': 'É necessário um histórico de compras para desbloquear gradualmente o limite máximo de transação: começando em 500 BRL, depois aumentando para 1000 BRL e 2000 BRL, eventualmente desbloqueando até 5000 BRL por transação.',
           'First purchase tax number will be assumed for further purchases. If you pay from another tax number, purchase will be refunded': 'CPF do primeiro pedido será assumido para próximos pedidos. Se pagar de outro cpf, a compra será reembolsada.',
           'Purchases from users that differ from the first purchase cpf will be refunded': 'Compras feita com um cpf diferente da primeira compra, serão reembolsadas',
@@ -2048,6 +2048,10 @@ extension Localization on String {
           "Be sovereign with ": "Seja soberano com ",
           "The wallet that guarantees sovereignty and the freedom to disconnect from the system": "A carteira que garante soberania e a liberdade de se desconectar do sistema",
           "By continuing, you agree to our Terms of Use and Privacy Policy": "Ao continuar, concorda com nossos Termos de Uso e Política de Privacidade",
+          "Maximum per single transaction: R\$ 3000": "Máximo por transação única: R\$ 3000",
+          "Daily limit per CPF/CNPJ: R\$ 5000": "Limite diário por CPF/CNPJ: R\$ 5000",
+          "CPF/CNPJ without purchase history: Max R\$ 500 in first 24h": "CPF/CNPJ sem histórico de compras: Maximo de R\$ 500 nas primeiras 24h",
+          "Transfers that don't follow these rules will be returned": "Transferências que não seguirem estas regras serão devolvidas",
         }
       };
 

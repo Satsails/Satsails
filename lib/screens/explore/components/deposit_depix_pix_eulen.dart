@@ -137,14 +137,16 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
           top: true);
       return;
     }
-    if (amountInDouble > 5000) {
+    // =========== MODIFIED VALIDATION ===========
+    if (amountInDouble > 3000) {
       showMessageSnackBar(
           context: context,
-          message: 'The maximum allowed transfer amount is 5000 BRL'.i18n,
+          message: 'The maximum value per transaction is 3000 BRL'.i18n,
           error: true,
           top: true);
       return;
     }
+    // ===========================================
 
     setState(() {
       _isLoading = true;
@@ -232,7 +234,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     );
   }
 
-  // =========== WIDGET WITH NEW LAYOUT ===========
   Widget _buildAmountInputView() {
     return Padding(
       key: const ValueKey('amountInput'),
@@ -267,7 +268,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
       ),
     );
   }
-  // ===============================================
 
 
   Widget _buildQRCodeView() {
@@ -445,6 +445,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
         ]));
   }
 
+  // =========== WIDGET WITH NEW INFORMATION ===========
   Widget _buildInfoCard() {
     return Container(
         padding: EdgeInsets.all(16.w),
@@ -454,20 +455,34 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
         child: Column(children: [
           _buildInfoRow(
             icon: Icons.info_outline,
-            child: Text('Transfer limit: R\$ 5000 per CPF/CNPJ'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
+            child: Text('Minimum deposit: R\$ 5'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
           ),
           SizedBox(height: 12.h),
           _buildInfoRow(
             icon: Icons.info_outline,
-            child: Text('Minimum deposit: R\$ 5'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
+            child: Text('Daily limit per CPF/CNPJ: R\$ 5000'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
+          ),
+          SizedBox(height: 12.h),
+          _buildInfoRow(
+            icon: Icons.info_outline,
+            child: Text('CPF/CNPJ without purchase history: Max R\$ 500 in first 24h'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
           ),
           SizedBox(height: 12.h),
           _buildInfoRow(
             icon: Icons.attach_money,
             child: Text('Amount Purchased Today:'.i18n + ' R\$ $amountPurchasedToday', style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
-          )
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 12.h),
+            child: Divider(color: Colors.white.withOpacity(0.1)),
+          ),
+          _buildInfoRow(
+            icon: Icons.warning_amber_rounded,
+            child: Text("Transfers that don't follow these rules will be returned".i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w500)),
+          ),
         ]));
   }
+  // ===============================================
 
   Widget _buildInfoRow({required IconData icon, required Widget child}) {
     return Row(children: [
