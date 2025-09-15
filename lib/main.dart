@@ -70,10 +70,7 @@ Future<void> _initializeApp() async {
   // Sequential initializations
   await migrateMnemonicStorage();
   await LibLwk.init();
-  // only here for internal testing, delete once able
-  if (Platform.isAndroid){
-    await initialize();
-  }
+  await initialize();
 }
 
 /// Initializes Hive and registers adapters.
