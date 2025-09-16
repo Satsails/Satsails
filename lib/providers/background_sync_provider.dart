@@ -9,6 +9,7 @@ import 'package:Satsails/providers/currency_conversions_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/sideshift_provider.dart';
 import 'package:Satsails/providers/transactions_provider.dart';
+import 'package:bdk_flutter/bdk_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
@@ -114,14 +115,24 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
   Future<WalletBalance> build() async => WalletBalance.empty();
 
   /// Gathers all transaction data from various sources and updates the UI.
+  /// The async fetches within this method are run in parallel.
   Future<void> _gatherAndUpdateTransactions() async {
+    // Run all async transaction fetches in parallel for speed.
+    final transactionFutures = await Future.wait([
+      ref.refresh(getBitcoinTransactionsProvider.future),
+      ref.refresh(liquidTransactionsProvider.future),
+      ref.read(listLightningPaymentsProvider(const breez.ListPaymentsRequest()).future),
+    ]);
+
+    // Read synchronous providers (local data)
     final sideswapPegTxs = ref.read(sideswapAllPegsProvider);
-    final bitcoinTx = await ref.refresh(getBitcoinTransactionsProvider.future);
-    final liquidTx = await ref.refresh(liquidTransactionsProvider.future);
     final eulenPurchases = ref.read(eulenTransferProvider);
     final noxPurchases = ref.read(noxTransferProvider);
-    final allLightningPayments = await ref.read(listLightningPaymentsProvider(const breez.ListPaymentsRequest()).future);
     final sideShiftShifts = ref.read(sideShiftShiftsProvider);
+
+    final bitcoinTx = transactionFutures[0] as List<TransactionDetails>;
+    final liquidTx = transactionFutures[1] as List<Tx>;
+    final allLightningPayments = transactionFutures[2] as List<breez.Payment>;
 
     final rawData = RawTransactionData(
       bitcoinTxs: bitcoinTx,
@@ -145,54 +156,70 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
       syncOperation: () async {
         final previousBalance = await ref.refresh(balanceFutureProvider.future);
 
-        try {
-          await ref.read(getFiatPurchasesProvider.future);
-        } catch (e) {
-          debugPrint('Fiat purchase fetch failed within background sync: $e');
-        }
         // --- STEP 1: INSTANTLY LOAD LOCAL DATA ---
-        // This provides an immediate UI update with cached/local data.
         debugPrint("Performing initial fast transaction load...");
         await _gatherAndUpdateTransactions();
 
-        // --- STEP 2: RUN SLOW NETWORK SYNCS ---
-        // These run in the background without blocking the UI further.
-        debugPrint("Starting slow network syncs...");
-        try {
-          await ref.read(liquidSyncNotifierProvider.notifier).performSync();
-        } catch (e) {
-          debugPrint('Liquid sync failed within background sync: $e');
-          anySyncFailed = true;
-        }
+        // --- STEP 2: RUN SLOW NETWORK SYNCS IN PARALLEL ---
+        debugPrint("Starting slow network syncs in parallel...");
+        final syncResults = await Future.wait([
+          Future(() async {
+            try {
+              await ref.read(liquidSyncNotifierProvider.notifier).performSync();
+              return true; // Success
+            } catch (e) {
+              debugPrint('Liquid sync failed within background sync: $e');
+              return false; // Failure
+            }
+          }),
+          Future(() async {
+            try {
+              await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
+              return true; // Success
+            } catch (e) {
+              debugPrint('Bitcoin sync failed within background sync: $e');
+              return false; // Failure
+            }
+          }),
+          Future(() async {
+            try {
+              await ref.read(getFiatPurchasesProvider.future);
+              return true; // Success
+            } catch (e) {
+              debugPrint('Fiat purchase fetch failed within background sync: $e');
+              return true; // Not a critical failure
+            }
+          }),
+        ]);
 
-        try {
-          await ref.read(bitcoinSyncNotifierProvider.notifier).performSync();
-        } catch (e) {
-          debugPrint('Bitcoin sync failed within background sync: $e');
-          anySyncFailed = true;
-        }
-
+        // Check the results of the critical syncs
+        anySyncFailed = !syncResults[0] || !syncResults[1];
 
         // --- STEP 3: RE-LOAD DATA AFTER SYNC ---
-        // This updates the UI with the fresh data from the network.
         debugPrint("Performing final transaction load after syncs...");
         await _gatherAndUpdateTransactions();
 
         // --- FINAL STEPS ---
         final latestBalance = ref.read(balanceNotifierProvider);
-        await _updateSideShiftShifts();
         _compareBalances(previousBalance, latestBalance);
 
         final hiveBox = await Hive.openBox<WalletBalance>('balanceBox');
         await hiveBox.put('balance', latestBalance);
 
-        try {
-          await ref.read(setupLnAddressProvider.future);
-        } on NotificationPermissionException catch (e) {
-          debugPrint('Notification permission error: $e');
-        } catch (e) {
-          debugPrint('Error setting up LN address: $e');
-        }
+        // Run final independent tasks in parallel
+        debugPrint("Starting final background tasks in parallel...");
+        await Future.wait([
+          _updateSideShiftShifts(),
+          Future(() async {
+            try {
+              await ref.read(setupLnAddressProvider.future);
+            } on NotificationPermissionException catch (e) {
+              debugPrint('Notification permission error: $e');
+            } catch (e) {
+              debugPrint('Error setting up LN address: $e');
+            }
+          }),
+        ]);
 
         return latestBalance;
       },
@@ -276,3 +303,4 @@ final bitcoinSyncNotifierProvider = AsyncNotifierProvider<BitcoinSyncNotifier, v
 final liquidSyncNotifierProvider = AsyncNotifierProvider<LiquidSyncNotifier, Balances>(LiquidSyncNotifier.new);
 final backgroundSyncNotifierProvider = AsyncNotifierProvider<BackgroundSyncNotifier, WalletBalance>(BackgroundSyncNotifier.new);
 final backgroundSyncInProgressProvider = StateProvider<bool>((ref) => false);
+
