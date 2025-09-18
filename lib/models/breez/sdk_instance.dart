@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:breez_liquid/breez_liquid.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as liquid_sdk;
 import 'package:rxdart/rxdart.dart';
 
@@ -11,9 +10,9 @@ class BreezSDKLiquid {
 
   BreezSDKLiquid._internal();
 
-  liquid_sdk.BindingLiquidSdk? _instance;
+  liquid_sdk.BreezSdkLiquid? _instance;
 
-  liquid_sdk.BindingLiquidSdk? get instance => _instance;
+  liquid_sdk.BreezSdkLiquid? get instance => _instance;
 
   Future<void> connect({
     required liquid_sdk.ConnectRequest req,
@@ -39,19 +38,19 @@ class BreezSDKLiquid {
     _instance = null;
   }
 
-  Future<void> _fetchWalletData(liquid_sdk.BindingLiquidSdk sdk) async {
+  Future<void> _fetchWalletData(liquid_sdk.BreezSdkLiquid sdk) async {
     await _getInfo(sdk);
     await _listPayments(sdk: sdk);
   }
 
-  Future<liquid_sdk.GetInfoResponse> _getInfo(liquid_sdk.BindingLiquidSdk sdk) async {
+  Future<liquid_sdk.GetInfoResponse> _getInfo(liquid_sdk.BreezSdkLiquid sdk) async {
     final walletInfo = await sdk.getInfo();
     _walletInfoController.add(walletInfo);
     return walletInfo;
   }
 
   Future<List<liquid_sdk.Payment>> _listPayments({
-    required liquid_sdk.BindingLiquidSdk sdk,
+    required liquid_sdk.BreezSdkLiquid sdk,
   }) async {
     const req = liquid_sdk.ListPaymentsRequest();
     final paymentsList = await sdk.listPayments(req: req);
@@ -74,12 +73,12 @@ class BreezSDKLiquid {
 
   Stream<liquid_sdk.SdkEvent>? _breezEventsStream;
 
-  void _initializeEventsStream(liquid_sdk.BindingLiquidSdk sdk) {
+  void _initializeEventsStream(liquid_sdk.BreezSdkLiquid sdk) {
     _breezEventsStream ??= sdk.addEventListener().asBroadcastStream();
   }
 
   /// Subscribes to SDK's event & log streams.
-  void _subscribeToSdkStreams(liquid_sdk.BindingLiquidSdk sdk) {
+  void _subscribeToSdkStreams(liquid_sdk.BreezSdkLiquid sdk) {
     _subscribeToEventsStream(sdk);
     _subscribeToLogStream();
   }
@@ -100,7 +99,7 @@ class BreezSDKLiquid {
 
   /* TODO: Liquid - Log statements are added for debugging purposes, should be removed after early development stage is complete & events are behaving as expected.*/
   /// Subscribes to SdkEvent's stream
-  void _subscribeToEventsStream(liquid_sdk.BindingLiquidSdk sdk) {
+  void _subscribeToEventsStream(liquid_sdk.BreezSdkLiquid sdk) {
     _breezEventsSubscription = _breezEventsStream?.listen(
       (event) async {
         if (event is liquid_sdk.SdkEvent_PaymentFailed) {
@@ -177,8 +176,8 @@ class PaymentException {
 
 extension ConfigCopyWith on liquid_sdk.Config {
   liquid_sdk.Config copyWith({
-    BlockchainExplorer? liquidExplorer,
-    BlockchainExplorer? bitcoinExplorer,
+    liquid_sdk.BlockchainExplorer? liquidExplorer,
+    liquid_sdk.BlockchainExplorer? bitcoinExplorer,
     String? mempoolspaceUrl,
     String? workingDir,
     liquid_sdk.LiquidNetwork? network,

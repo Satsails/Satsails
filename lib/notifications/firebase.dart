@@ -26,7 +26,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       debugPrint("Starting background job: ${job.runtimeType}");
       try {
         await dotenv.load(fileName: ".env");
-        await initialize();
+        await FlutterBreezLiquid.init();
         final connectRequest = await getConnectRequestFromStorage();
 
         await breezSDKLiquid.connect(req: connectRequest);

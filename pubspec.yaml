@@ -1,7 +1,7 @@
 name: Satsails
 description: "Sail your wealth to the cloud!"
 publish_to: 'none'
-version: 2.2.1+115
+version: 2.2.1+116
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -31,13 +31,18 @@ dependencies:
   flutter_breez_liquid:
     git:
       url: https://github.com/breez/breez-sdk-liquid-flutter
+      ref: v0.11.3-dev7
 
   # Bitcoin & Liquid Libraries
   bdk_flutter:
     git:
-      url: https://github.com/LtbLightning/bdk-flutter
-      ref: ac8d102240a4242e319e71492d3698828177e97b
-  lwk: ^0.2.1
+      url: https://github.com/StaxoLotl/bdk-flutter.git
+      ref: refactor/cargokit-update
+  lwk:
+    git:
+      url: https://github.com/StaxoLotl/lwk-dart
+      ref: refactor/cargokit-update
+
   bip39: ^1.0.6
   bitcoin_message_signer: ^1.0.2
 

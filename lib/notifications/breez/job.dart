@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 abstract class Job {
   final String payload;
   Job(this.payload);
-  Future<void> start(BindingLiquidSdk sdk);
+  Future<void> start(BreezSdkLiquid sdk);
 
   Future<void> replyToServer(String url, Map<String, dynamic> data, {int maxAge = 0}) async {
     try {
@@ -72,7 +72,7 @@ class LnurlPayInfoJob extends Job {
   LnurlPayInfoJob(super.payload);
 
   @override
-  Future<void> start(BindingLiquidSdk sdk) async {
+  Future<void> start(BreezSdkLiquid sdk) async {
     const String tag = 'LnurlPayInfoJob';
     LnurlPayInfoRequest? request;
     bool success = false;
@@ -114,7 +114,7 @@ class LnurlPayInvoiceJob extends Job {
   LnurlPayInvoiceJob(super.payload);
 
   @override
-  Future<void> start(BindingLiquidSdk sdk) async {
+  Future<void> start(BreezSdkLiquid sdk) async {
     const String tag = 'LnurlPayInvoiceJob';
     LnurlPayInvoiceRequest? request;
     bool success = false;
@@ -180,7 +180,7 @@ class LnurlPayVerifyJob extends Job {
   LnurlPayVerifyJob(super.payload);
 
   @override
-  Future<void> start(BindingLiquidSdk sdk) async {
+  Future<void> start(BreezSdkLiquid sdk) async {
     const String tag = 'LnurlPayVerifyJob';
     LnurlPayVerifyRequest? request;
     bool success = false;
@@ -226,7 +226,7 @@ class SwapUpdatedJob extends Job {
   SwapUpdatedJob(super.payload);
 
   @override
-  Future<void> start(BindingLiquidSdk sdk) async {
+  Future<void> start(BreezSdkLiquid sdk) async {
     const String tag = 'SwapUpdatedJob';
     try {
       final data = jsonDecode(payload);
@@ -285,7 +285,7 @@ class InvoiceRequestJob extends Job {
   InvoiceRequestJob(super.payload);
 
   @override
-  Future<void> start(BindingLiquidSdk sdk) async {
+  Future<void> start(BreezSdkLiquid sdk) async {
     const String tag = 'InvoiceRequestJob';
     InvoiceRequestRequest? request;
     bool success = false;

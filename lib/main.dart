@@ -70,7 +70,7 @@ Future<void> _initializeApp() async {
   // Sequential initializations
   await migrateMnemonicStorage();
   await LibLwk.init();
-  await initialize();
+  await FlutterBreezLiquid.init();
 }
 
 /// Initializes Hive and registers adapters.
