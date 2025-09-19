@@ -49,7 +49,7 @@ class BalanceCard extends ConsumerStatefulWidget {
 class _BalanceCardState extends ConsumerState<BalanceCard> with TickerProviderStateMixin {
   static final List<Map<String, String>> _allAssets = [
     {'name': 'Bitcoin', 'icon': 'lib/assets/bitcoin-logo.png', 'network': 'Bitcoin Network'},
-    {'name': 'Lightning Bitcoin', 'icon': 'lib/assets/Bitcoin_lightning_logo.png', 'network': 'Lightning Network'},
+    {'name': 'Lightning', 'icon': 'lib/assets/Bitcoin_lightning_logo.png', 'network': 'Lightning Network'},
     {'name': 'Liquid Bitcoin', 'icon': 'lib/assets/l-btc.png', 'network': 'Liquid Network'},
     {'name': 'USDT', 'icon': 'lib/assets/tether.png', 'network': 'Liquid Network'},
     {'name': 'EURx', 'icon': 'lib/assets/eurx.png', 'network': 'Liquid Network'},
@@ -886,7 +886,7 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
   void _handleNativeSendNavigation(BuildContext context, WidgetRef ref, String selectedAsset) {
     switch (selectedAsset) {
       case 'Bitcoin': context.push('/home/pay', extra: 'bitcoin'); break;
-      case 'Lightning Bitcoin': context.push('/home/pay', extra: 'lightning'); break;
+      case 'Lightning': context.push('/home/pay', extra: 'lightning'); break;
       case 'Liquid Bitcoin':
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
         context.push('/home/pay', extra: 'liquid');
@@ -1150,7 +1150,7 @@ class _AssetDetailsView extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 2.h),
-                  if (['Bitcoin', 'Liquid Bitcoin', 'Lightning Bitcoin'].contains(selectedAsset))
+                  if (['Bitcoin', 'Liquid Bitcoin', 'Lightning'].contains(selectedAsset))
                     Text(
                       equivalentBalance,
                       style: TextStyle(
@@ -1186,7 +1186,7 @@ class MiniExpensesGraph extends ConsumerWidget {
 
     switch (selectedAsset) {
       case 'Bitcoin':
-      case 'Lightning Bitcoin':
+      case 'Lightning':
         asyncData =
             AsyncValue.data(ref.watch(bitcoinBalanceInFormatByDayProvider));
         break;

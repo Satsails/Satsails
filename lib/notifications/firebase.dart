@@ -8,45 +8,45 @@ import 'package:Satsails/providers/breez_config_provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Add this import
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  debugPrint("Handling a background message: ${message.messageId}");
-
   final type = message.data[NotificationType.type];
-  bool isServiceNeeded = type != NotificationType.swapUpdated;
+  if (type == NotificationType.swapUpdated) {
+    return;
+  }
 
-  if (isServiceNeeded) {
-    final job = getJobFromMessage(message);
-    if (job != null) {
-      debugPrint("Starting background job: ${job.runtimeType}");
+  final job = getJobFromMessage(message);
+  if (job != null) {
+    try {
+      await dotenv.load(fileName: ".env");
+
       try {
-        await dotenv.load(fileName: ".env");
         await FlutterBreezLiquid.init();
-        final connectRequest = await getConnectRequestFromStorage();
-
-        await breezSDKLiquid.connect(req: connectRequest);
-
-        final sdk = breezSDKLiquid.instance;
-
-        if (sdk != null) {
-          await job.start(sdk);
-        } else {
-          throw Exception("SDK instance was null after connecting in background.");
-        }
-
-        breezSDKLiquid.disconnect();
-        debugPrint("Background job finished successfully.");
       } catch (e) {
-        debugPrint("Background job failed: $e");
+        if (!e.toString().contains("Should not initialize flutter_rust_bridge twice")) {
+          throw e;
+        }
       }
+
+      final connectRequest = await getConnectRequestFromStorage();
+      await breezSDKLiquid.connect(req: connectRequest);
+      final sdk = breezSDKLiquid.instance;
+
+      if (sdk != null) {
+        await job.start(sdk);
+      } else {
+        throw Exception("SDK instance was null after connecting in background.");
+      }
+
+      breezSDKLiquid.disconnect();
+    } catch (e) {
+      debugPrint("Background job failed: $e");
     }
-  } else {
-    debugPrint("Ignoring notification type '$type' in background handler.");
   }
 }
 
@@ -60,12 +60,10 @@ Future<ConnectRequest> getConnectRequestFromStorage() async {
   return await createConnectRequest(mnemonic);
 }
 
-
 class FirebaseService {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  // The container is no longer needed here
   static Future<void> initialize() async {
     await NotificationHelper.initialize();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -100,7 +98,6 @@ class FirebaseService {
       if (token != null && token.isNotEmpty) {
         await sendTokenToBackend(jwt, token);
         await storeFCMToken(token);
-        // await subscribeToTopics();
       }
     } catch (e) {
       debugPrint("Error storing token on backend: $e");
@@ -173,7 +170,6 @@ class FirebaseService {
         if (job != null) {
           debugPrint("Handling job in foreground: ${job.runtimeType}");
 
-          // Use the provided 'ref' to read the provider safely
           final breezSDK = await ref.read(breezSDKProvider.future);
           final sdkInstance = breezSDK.instance;
 
