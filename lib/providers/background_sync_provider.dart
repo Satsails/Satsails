@@ -234,6 +234,7 @@ class BackgroundSyncNotifier extends SyncNotifier<WalletBalance> {
       },
       onFailure: () {
         ref.read(settingsProvider.notifier).setOnline(false);
+        setBackgroundSyncInProgress(false);
         debugPrint('Background sync failed critically.');
       },
     );
