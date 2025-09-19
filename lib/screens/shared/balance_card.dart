@@ -151,7 +151,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> with TickerProviderSt
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(child: _buildAssetSelector(context, ref)),
+                Expanded(child: _buildAssetSelector(context, ref, isSmallScreen)),
               ],
             ),
             Expanded(
@@ -356,19 +356,20 @@ class _BalanceCardState extends ConsumerState<BalanceCard> with TickerProviderSt
     );
   }
 
-  Widget _buildAssetSelector(BuildContext context, WidgetRef ref) {
+  Widget _buildAssetSelector(BuildContext context, WidgetRef ref, bool isSmallScreen) {
     final selectedAssetName = ref.watch(selectedAssetProvider);
     final selectedAssetData = _allAssets.firstWhere(
           (a) => a['name'] == selectedAssetName,
       orElse: () => _allAssets.first,
     );
 
+    final assetNameFontSize = isSmallScreen ? 16.sp : 18.sp;
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _togglePopup,
       child: Row(
         children: [
-          // Selected asset on the left
           Image.asset(selectedAssetData['icon']!, width: 28.sp, height: 28.sp),
           SizedBox(width: 12.w),
           Expanded(
@@ -376,7 +377,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> with TickerProviderSt
               selectedAssetData['name']!,
               style: TextStyle(
                   color: Colors.white,
-                  fontSize: 20.sp,
+                  fontSize: assetNameFontSize,
                   fontWeight: FontWeight.bold),
               overflow: TextOverflow.ellipsis,
             ),
@@ -420,7 +421,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> with TickerProviderSt
 
   Widget _buildActionButtons(BuildContext context, WidgetRef ref, bool isSmallScreen) {
     const textColor = Colors.white;
-    final buttonColor = Colors.white.withOpacity(0.15);
+    final buttonColor = Colors.black.withOpacity(0.2);
     final buttonFontSize = isSmallScreen ? 14.sp : 15.sp;
 
     return Row(
@@ -485,9 +486,6 @@ class _BalanceCardState extends ConsumerState<BalanceCard> with TickerProviderSt
   }
 }
 
-// --- The rest of your file (TransactionOptionsSheet, _AssetDetailsView, etc.) remains unchanged. ---
-// --- Paste the classes below this comment. ---
-
 class TransactionOptionsSheet extends ConsumerStatefulWidget {
   final bool isSend;
   final List<Map<String, String>> allNativeAssets;
@@ -508,7 +506,6 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
   final GlobalKey _secondViewKey = GlobalKey();
   double? _sheetHeight;
 
-  // --- Data and constants remain the same ---
   static final List<ShiftPair> _selectablePairs = [
     ShiftPair.btcToLiquidBtc, ShiftPair.usdtArbitrumToLiquidUsdt,
     ShiftPair.usdcEthToLiquidUsdt, ShiftPair.usdcSolToLiquidUsdt, ShiftPair.usdcPolygonToLiquidUsdt,
@@ -555,7 +552,6 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
     }
   }
 
-  // --- Main Build Method ---
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
@@ -592,7 +588,6 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
     );
   }
 
-  // --- View Builders ---
   Widget _buildNativeAssetSelectionView() {
     return SingleChildScrollView(
       key: const ValueKey('NativeSelection'),
@@ -675,7 +670,6 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
     );
   }
 
-  // --- Tile Builders ---
   Widget _buildNativeAssetTile(BuildContext context, WidgetRef ref, Map<String, String> asset, {bool isSecondStep = false}) {
     final assetName = asset['name']!;
     final network = asset['network']!;
@@ -745,7 +739,6 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
     return const SizedBox.shrink();
   }
 
-  // --- Generic UI Components ---
   Widget _buildGrabber() {
     return Container(
       width: 40.w,
@@ -758,22 +751,17 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
     );
   }
 
-// Paste this updated method into your _TransactionOptionsSheetState class
-
   Widget _buildSheetHeader({required String title, Widget? leading, String? assetIcon}) {
     return Padding(
       padding: EdgeInsets.only(bottom: 30.sp),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Ensures space is distributed evenly
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Box for the back button, maintains space even if empty
           SizedBox(
             width: 48.w,
             child: leading ?? const SizedBox.shrink(),
           ),
-
-          // Group for the title and its optional icon
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -787,8 +775,6 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
               ),
             ],
           ),
-
-          // Empty box on the right to perfectly balance the left one
           SizedBox(width: 48.w),
         ],
       ),
@@ -869,11 +855,9 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
     );
   }
 
-
-  // --- Helper and Logic Methods (unchanged, but moved here for organization) ---
   List<BridgeOption> _getFilteredBridgeOptions() {
     final assetName = _selectedNativeAsset!['name']!;
-    if (widget.isSend) { // Sending from our wallet
+    if (widget.isSend) {
       if (assetName == 'Liquid Bitcoin') {
         return _allBridgeOptions.whereType<SideShiftBridgeOption>()
             .where((opt) => _receiveToSendMap[opt.pair]?.name.contains('liquidBtcTo') ?? false)
@@ -884,7 +868,7 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
             .where((opt) => _receiveToSendMap[opt.pair]?.name.contains('liquidUsdtTo') ?? false)
             .toList();
       }
-    } else { // Receiving to our wallet
+    } else {
       if (assetName == 'Liquid Bitcoin') {
         return _allBridgeOptions.whereType<SideShiftBridgeOption>()
             .where((opt) => opt.pair.name.contains('ToLiquidBtc'))
@@ -924,7 +908,7 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
     final info = _getAssetInfo(pair);
     final network = info['network']!;
     final name = info['name']!;
-    if (widget.isSend) { // Display the destination
+    if (widget.isSend) {
       final sendPair = _receiveToSendMap[pair];
       if (sendPair == ShiftPair.liquidBtcToBtc) return 'Bitcoin';
       if (sendPair == ShiftPair.liquidUsdtToUsdcEth) return 'Ethereum USDC';
@@ -935,7 +919,7 @@ class _TransactionOptionsSheetState extends ConsumerState<TransactionOptionsShee
       if (sendPair == ShiftPair.liquidUsdtToUsdtSol) return 'Solana USDT';
       if (sendPair == ShiftPair.liquidUsdtToUsdtPolygon) return 'Polygon USDT';
       if (sendPair == ShiftPair.liquidUsdtToUsdtArbitrum) return 'Arbitrum USDT';
-    } else { // Display the source
+    } else {
       if (network == 'Ethereum' && name == 'ETH') return 'Ethereum';
       if (network == 'Solana' && name == 'SOL') return 'Solana';
       if (network == 'BNB Chain' && name == 'BNB') return 'BNB';

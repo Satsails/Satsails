@@ -11,27 +11,36 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-Future<void> migrateMnemonicStorage() async {
+Future<void> migrateMnemonicToAppGroup() async {
   const migrationBoxName = 'appState';
-  const migrationFlagKey = 'isMnemonicMigratedV2';
-
+  const migrationFlagKey = 'isMnemonicMigratedToAppGroupV1'; // Use a new, specific flag
   final box = await Hive.openBox(migrationBoxName);
 
+  // If already migrated, do nothing.
   if (box.get(migrationFlagKey) == true) {
     return;
   }
 
-  final authModel = AuthModel();
+  const storage = FlutterSecureStorage();
 
-  final existingMnemonic = await authModel.getMnemonic();
+  // 1. Read from the OLD location (default, no group specified)
+  final oldMnemonic = await storage.read(key: 'mnemonic');
 
-  if (existingMnemonic != null && existingMnemonic.isNotEmpty) {
-    await authModel.setMnemonic(existingMnemonic);
+  if (oldMnemonic != null && oldMnemonic.isNotEmpty) {
+    // 2. Write to the NEW location (with App Group and correct accessibility)
+    const newOptions = IOSOptions(
+      groupId: 'group.com.satsailswallet.satsails',
+      accessibility: KeychainAccessibility.unlocked_this_device,
+    );
+    await storage.write(key: 'mnemonic', value: oldMnemonic, iOptions: newOptions);
+
+    // 3. Mark the migration as complete.
+    await box.put(migrationFlagKey, true);
+  } else {
+    // No old mnemonic to migrate, but still set the flag so we don't check again.
+    await box.put(migrationFlagKey, true);
   }
-
-  await box.put(migrationFlagKey, true);
 }
-
 
 class BackendAuth {
   static Future<String?> signChallengeWithPrivateKey(
@@ -94,12 +103,18 @@ class BackendAuth {
 class AuthModel {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  /// Returns the required security options for iOS, including the App Group.
+  /// Returns the required security options for iOS to enable background access.
+  /// This uses the App Group you configured in Xcode.
   IOSOptions _getIOSOptions() => const IOSOptions(
-    accessibility: KeychainAccessibility.first_unlock,
+    // The App Group ID you created in Xcode.
+    groupId: 'group.com.satsailswallet.satsails',
+    // This accessibility level allows access when the device is unlocked,
+    // which is necessary for background tasks that might run before the user
+    // interacts with the app directly after a reboot.
+    accessibility: KeychainAccessibility.unlocked_this_device,
   );
 
-  /// Saves the mnemonic to secure storage with the correct iOS options.
+  /// Saves the mnemonic to secure storage within the shared App Group.
   Future<void> setMnemonic(String mnemonic) async {
     if (!bip39.validateMnemonic(mnemonic)) {
       throw Exception('Invalid mnemonic');
@@ -117,7 +132,7 @@ class AuthModel {
   }
 
   Future<void> setPin(String pin) async {
-    // PIN storage can also be secured with the same options if needed.
+    // Using App Group for the PIN as well ensures consistency.
     await _storage.write(key: 'pin', value: pin, iOptions: _getIOSOptions());
   }
 
@@ -125,23 +140,22 @@ class AuthModel {
     return await getMnemonicWithRetry();
   }
 
-  // New method with retry logic
+  // Retry logic to handle potential brief delays in accessing secure storage.
   Future<String?> getMnemonicWithRetry() async {
     for (int i = 0; i < 3; i++) {
-      // The read operation doesn't need special options, it will find the key
-      // regardless of its accessibility or group.
-      final mnemonic = await _storage.read(key: 'mnemonic');
+      // The read operation on iOS will automatically find the key in the App Group.
+      final mnemonic = await _storage.read(key: 'mnemonic', iOptions: _getIOSOptions());
       if (mnemonic != null) {
         return mnemonic;
       }
-      // Wait 500ms before the next attempt
+      // Wait before the next attempt
       await Future.delayed(const Duration(milliseconds: 500));
     }
     return null;
   }
 
   Future<String?> getPin() async {
-    return await _storage.read(key: 'pin');
+    return await _storage.read(key: 'pin', iOptions: _getIOSOptions());
   }
 
   Future<bool> pinMatches(String incomingPin) async {
@@ -159,6 +173,7 @@ class AuthModel {
   }
 
   Future<void> deleteAuthentication() async {
+    // Ensure all deletions use the correct App Group options.
     await _storage.delete(key: 'mnemonic', iOptions: _getIOSOptions());
     await _storage.delete(key: 'pin', iOptions: _getIOSOptions());
     await _storage.delete(key: 'pixPaymentCode');
@@ -168,6 +183,8 @@ class AuthModel {
     await _storage.delete(key: 'recoveryCode');
     await _storage.delete(key: 'backendJwt');
     await _storage.delete(key: 'fcmToken');
+
+    // Deleting Hive boxes is a separate process.
     await Hive.deleteBoxFromDisk('bitcoin');
     await Hive.deleteBoxFromDisk('liquid');
     await Hive.deleteBoxFromDisk('coinosLn');
@@ -190,9 +207,12 @@ class AuthModel {
     await Hive.deleteBoxFromDisk('coinosPayments');
     await Hive.deleteBoxFromDisk('lightningBox');
     await Hive.deleteBoxFromDisk('appState');
+
     final appDocDir = await getApplicationDocumentsDirectory();
     final bitcoinDBPath = '${appDocDir.path}/bdk_wallet.sqlite';
     final dbFile = File(bitcoinDBPath);
-    await dbFile.delete();
+    if (await dbFile.exists()) {
+      await dbFile.delete();
+    }
   }
 }

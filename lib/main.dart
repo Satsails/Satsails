@@ -68,7 +68,7 @@ Future<void> _initializeApp() async {
   ]);
 
   // Sequential initializations
-  await migrateMnemonicStorage();
+  await migrateMnemonicToAppGroup();
   await LibLwk.init();
   await FlutterBreezLiquid.init();
 }
