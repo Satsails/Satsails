@@ -173,8 +173,8 @@ class AuthModel {
   }
 
   Future<void> deleteAuthentication() async {
-    // Ensure all deletions use the correct App Group options.
     await _storage.delete(key: 'mnemonic', iOptions: _getIOSOptions());
+    await _storage.delete(key: 'mnemonic');
     await _storage.delete(key: 'pin', iOptions: _getIOSOptions());
     await _storage.delete(key: 'pixPaymentCode');
     await _storage.delete(key: 'coinosToken');
