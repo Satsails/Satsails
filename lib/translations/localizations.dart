@@ -2068,6 +2068,7 @@ extension Localization on String {
           "Receive Liquid BTC from BNB": "Receba Liquid BTC de BNB",
           "Receive Liquid BTC from SOL": "Receba Liquid BTC de SOL",
           "Receive Liquid BTC from Bitcoin": "Receba Liquid BTC de Bitcoin",
+          "The maximum value per transaction is 3000 BRL": "O valor máximo por transação é 3000 BRL",
           "Receive Liquid USDT from USDT on Arbitrum": "Receba Liquid USDT de USDT na Arbitrum",
           "Deposits from the same CPF/CNPJ must have 30 minutes between them": "Depósitos do mesmo CPF/CNPJ devem ter 30 minutos de intervalo entre eles",
         }
