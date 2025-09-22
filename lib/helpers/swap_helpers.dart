@@ -249,23 +249,25 @@ class SwapTypeNotifier extends StateNotifier<void> {
         break;
 
       case SwapType.sideswapBtcToLbtc:
-        final peg = await ref.read(sideswapPegProvider.future);
-        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC); // Placeholder
-        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC); // Placeholder
-        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? ''); // Set peg address
-        ref.read(sendBitcoinProvider.notifier).state = true; // This is an on-chain BTC send
-        ref.read(pegInProvider.notifier).state = true;
-        ref.read(fiatToFiatSwap.notifier).state = false;
-        break;
-
-      case SwapType.sideswapLbtcToBtc:
-        final peg = await ref.read(sideswapPegProvider.future);
         ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
         ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
-        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? ''); // Set peg address
-        ref.read(sendBitcoinProvider.notifier).state = false;
+        ref.read(sendBitcoinProvider.notifier).state = true;
+        ref.read(pegInProvider.notifier).state = true;
         ref.read(fiatToFiatSwap.notifier).state = false;
+        final peg = await ref.read(sideswapPegProvider.future);
+        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? ''); // Set peg address
+        break;
+
+      case SwapType.sideswapLbtcToBtc:
+        ref.read(assetToSellProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(assetToPurchaseProvider.notifier).state = AssetMapper.reverseMapTicker(AssetId.LBTC);
+        ref.read(sendTxProvider.notifier).updateAssetId(AssetMapper.reverseMapTicker(AssetId.LBTC));
+        ref.read(sendBitcoinProvider.notifier).state = true;
+        ref.read(pegInProvider.notifier).state = false;
+        ref.read(fiatToFiatSwap.notifier).state = false;
+        final peg = await ref.read(sideswapPegProvider.future);
+        ref.read(sendTxProvider.notifier).updateAddress(peg.pegAddr ?? ''); // Set peg address
         break;
 
       case SwapType.coinosLnToBTC:

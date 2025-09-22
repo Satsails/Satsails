@@ -8,6 +8,7 @@ import 'package:Satsails/providers/breez_config_provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart';
+import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as liquid_sdk;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -15,37 +16,57 @@ import 'package:http/http.dart' as http;
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  debugPrint("Handling a background message: ${message.messageId}");
+
   final type = message.data[NotificationType.type];
   if (type == NotificationType.swapUpdated) {
+    debugPrint("Ignoring notification type '$type' in background handler.");
     return;
   }
 
   final job = getJobFromMessage(message);
-  if (job != null) {
-    try {
-      await dotenv.load(fileName: ".env");
+  if (job == null) {
+    debugPrint("No job found for the received message.");
+    return;
+  }
 
-      try {
-        await FlutterBreezLiquid.init();
-      } catch (e) {
-        if (!e.toString().contains("Should not initialize flutter_rust_bridge twice")) {
-          throw e;
-        }
-      }
+  // Flag to track if we initialized the SDK in this handler
+  bool didInitializeInHandler = false;
 
+  try {
+    debugPrint("Starting background job: ${job.runtimeType}");
+    await dotenv.load(fileName: ".env");
+
+    // Check if the SDK is already running
+    liquid_sdk.BreezSdkLiquid? sdk = breezSDKLiquid.instance;
+
+    // If the instance is null, the app is likely closed. Initialize and connect.
+    if (sdk == null) {
+      debugPrint("SDK not running. Initializing and connecting...");
+      await FlutterBreezLiquid.init();
       final connectRequest = await getConnectRequestFromStorage();
       await breezSDKLiquid.connect(req: connectRequest);
-      final sdk = breezSDKLiquid.instance;
+      sdk = breezSDKLiquid.instance;
+      didInitializeInHandler = true; // Mark that we started it
+    } else {
+      debugPrint("SDK already running. Using existing instance.");
+    }
 
-      if (sdk != null) {
-        await job.start(sdk);
-      } else {
-        throw Exception("SDK instance was null after connecting in background.");
-      }
+    // Now, run the job with the SDK instance
+    if (sdk != null) {
+      await job.start(sdk);
+      debugPrint("Background job finished successfully.");
+    } else {
+      throw Exception("SDK instance was null after attempting to get it.");
+    }
 
+  } catch (e) {
+    debugPrint("Background job failed: $e");
+  } finally {
+    // IMPORTANT: Only disconnect if this background handler was the one to connect.
+    if (didInitializeInHandler) {
+      debugPrint("Disconnecting SDK connection started by handler.");
       breezSDKLiquid.disconnect();
-    } catch (e) {
-      debugPrint("Background job failed: $e");
     }
   }
 }
