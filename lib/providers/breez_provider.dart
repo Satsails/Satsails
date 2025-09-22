@@ -21,7 +21,7 @@ class PrepareLightningPaymentResponse {
 
 /// A new provider that abstracts the entire lightning payment process.
 /// It handles parsing, preparing, and sending payments for BOLT11, BOLT12, and LNURL-Pay.
-final sendLightningPaymentProvider = FutureProvider.family<void,
+final sendLightningPaymentProvider = FutureProvider.autoDispose.family<void,
     ({String address, int amount, String? comment, bool isDraining})>((ref, params) async {
   try {
     final sdk = await ref.watch(breezSDKProvider.future);
@@ -77,7 +77,7 @@ final sendLightningPaymentProvider = FutureProvider.family<void,
 
 /// This provider now only prepares the payment and returns a unified response.
 /// The actual sending is handled by `sendLightningPaymentProvider`.
-final prepareLightningPaymentProvider = FutureProvider.family<PrepareLightningPaymentResponse,
+final prepareLightningPaymentProvider = FutureProvider.autoDispose.family<PrepareLightningPaymentResponse,
     ({String address, int amount, String? comment, bool isDraining})>((ref, params) async {
   try {
     final sdk = await ref.watch(breezSDKProvider.future);

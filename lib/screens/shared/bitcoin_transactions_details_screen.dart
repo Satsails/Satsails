@@ -404,7 +404,7 @@ class _BumpFeeModalSheetState extends ConsumerState<BumpFeeModalSheet> {
                     ),
                     SizedBox(height: 8.h),
                     Text(
-                      "Increase the fee to speed up your transaction.".i18n,
+                      "Increase the fee to speed up your transaction".i18n,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white70,

@@ -197,11 +197,10 @@ Widget buildTransactionDetailsCard(WidgetRef ref) {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Text('Amount:'.i18n, style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold)),
               Text(
-                  'Amount:'.i18n,
-                  style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold)
-              ),
-              Text(currencyFormat(ref.watch(bitcoinValueInCurrencyProvider), ref.watch(settingsProvider).currency), style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                currencyFormat(ref.watch(bitcoinValueInCurrencyProvider), ref.watch(settingsProvider).currency),
+                style: TextStyle(fontSize: 16.sp, color: Colors.white),
               ),
             ],
           ),
@@ -262,9 +261,6 @@ Widget buildTransactionDetailsCard(WidgetRef ref) {
   );
 }
 
-
-
-
 class ConfirmLiquidPayment extends ConsumerStatefulWidget {
   const ConfirmLiquidPayment({super.key});
 
@@ -324,9 +320,8 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
   @override
   Widget build(BuildContext context) {
     final btcBalanceInFormat = ref.read(liquidBalanceInFormatProvider(btcFormat));
-    final valueInBtc = ref.watch(liquidBalanceInFormatProvider('BTC')) == '0.00000000'
-        ? 0
-        : double.parse(ref.watch(liquidBalanceInFormatProvider('BTC')));
+    final valueInBtc =
+    ref.watch(liquidBalanceInFormatProvider('BTC')) == '0.00000000' ? 0 : double.parse(ref.watch(liquidBalanceInFormatProvider('BTC')));
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
 
     return PopScope(
@@ -455,237 +450,139 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 16.h),
+                          SizedBox(height: 24.h),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 8.h),
-                                child: Text(
-                                  'Amount'.i18n,
-                                  style: TextStyle(
-                                    fontSize: 18.sp,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Amount'.i18n,
+                                    style: TextStyle(
+                                      fontSize: 18.sp,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
+                                  DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      dropdownColor: const Color(0xFF212121),
+                                      value: ref.watch(inputCurrencyProvider),
+                                      items: ['BTC', 'USD', 'GBP', 'CHF', 'EUR', 'BRL', 'Sats']
+                                          .map((String value) => DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ))
+                                          .toList(),
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          ref.read(inputCurrencyProvider.notifier).state = value;
+                                          controller.text = '';
+                                          ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
+                                          ref.read(sendTxProvider.notifier).updateDrain(false);
+                                        }
+                                      },
+                                      icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
+                                      borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                                    ),
+                                  ),
+                                ],
                               ),
+                              SizedBox(height: 8.h),
                               Container(
                                 decoration: BoxDecoration(
                                   color: const Color(0x00333333).withOpacity(0.4),
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                                  child: Row(
-                                    children: [
-                                      // Input Field
-                                      Expanded(
-                                        child: TextFormField(
-                                          controller: controller,
-                                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                          inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
-                                              ? [DecimalTextInputFormatter(decimalRange: 0)]
-                                              : ref.watch(inputCurrencyProvider) == 'BTC'
-                                              ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)]
-                                              : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
-                                          style: TextStyle(fontSize: 24.sp, color: Colors.white),
-                                          textAlign: TextAlign.left,
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: '0',
-                                            hintStyle: const TextStyle(color: Colors.white70),
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-                                          ),
-                                          onChanged: (value) async {
-                                            ref.read(inputAmountProvider.notifier).state =
-                                            controller.text.isEmpty ? '0.0' : controller.text;
-                                            if (value.isEmpty) {
-                                              ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                                              ref.read(sendTxProvider.notifier).updateDrain(false);
+                                child: TextFormField(
+                                  controller: controller,
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
+                                      ? [DecimalTextInputFormatter(decimalRange: 0)]
+                                      : ref.watch(inputCurrencyProvider) == 'BTC'
+                                      ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)]
+                                      : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
+                                  style: TextStyle(fontSize: 24.sp, color: Colors.white),
+                                  textAlign: TextAlign.left,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '0',
+                                    hintStyle: const TextStyle(color: Colors.white70),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                                    suffixIcon: Align(
+                                      widthFactor: 1.0,
+                                      heightFactor: 1.0,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(right: 12.w),
+                                        child: GestureDetector(
+                                          onTap: () async {
+                                            try {
+                                              final pset = await ref.watch(liquidDrainWalletProvider.future);
+                                              final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
+                                              final controllerValue = sendingBalance.abs();
+                                              final selectedCurrency = ref.watch(inputCurrencyProvider);
+                                              final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
+                                                  controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
+                                              controller.text = selectedCurrency == 'BTC'
+                                                  ? amountToSetInSelectedCurrency
+                                                  : selectedCurrency == 'Sats'
+                                                  ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
+                                                  : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
+                                              ref
+                                                  .read(sendTxProvider.notifier)
+                                                  .updateAmountFromInput(controllerValue.toString(), 'sats');
+                                              ref.read(sendTxProvider.notifier).updateDrain(true);
+                                            } catch (e) {
+                                              showMessageSnackBar(
+                                                message: e.toString().i18n,
+                                                error: true,
+                                                context: context,
+                                              );
                                             }
-                                            final amountInSats = calculateAmountInSatsToDisplay(
-                                              value,
-                                              ref.watch(inputCurrencyProvider),
-                                              ref.watch(currencyNotifierProvider),
-                                            );
-                                            ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
-                                            ref.read(sendTxProvider.notifier).updateDrain(false);
                                           },
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 80.w, // Updated from 100.w to match AmountInput
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                DropdownButtonHideUnderline(
-                                                  child: DropdownButton<String>(
-                                                    dropdownColor: const Color(0xFF212121), // Updated background color
-                                                    value: ref.watch(inputCurrencyProvider),
-                                                    items: [
-                                                      DropdownMenuItem(
-                                                        value: 'BTC',
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(left: 16.w), // Added padding
-                                                          child: Text(
-                                                            'BTC',
-                                                            style: TextStyle(
-                                                              color: Colors.white, // White text
-                                                              fontSize: 16.sp,
-                                                              fontWeight: FontWeight.bold, // Bold text
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DropdownMenuItem(
-                                                        value: 'USD',
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(left: 16.w),
-                                                          child: Text(
-                                                            'USD',
-                                                            style: TextStyle(
-                                                              color: Colors.white,
-                                                              fontSize: 16.sp,
-                                                              fontWeight: FontWeight.bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DropdownMenuItem(
-                                                        value: 'GBP',
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(left: 16.w),
-                                                          child: Text(
-                                                            'GBP',
-                                                            style: TextStyle(
-                                                              color: Colors.white,
-                                                              fontSize: 16.sp,
-                                                              fontWeight: FontWeight.bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DropdownMenuItem(
-                                                        value: 'CHF',
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(left: 16.w),
-                                                          child: Text(
-                                                            'CHF',
-                                                            style: TextStyle(
-                                                              color: Colors.white,
-                                                              fontSize: 16.sp,
-                                                              fontWeight: FontWeight.bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DropdownMenuItem(
-                                                        value: 'EUR',
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(left: 16.w),
-                                                          child: Text(
-                                                            'EUR',
-                                                            style: TextStyle(
-                                                              color: Colors.white,
-                                                              fontSize: 16.sp,
-                                                              fontWeight: FontWeight.bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DropdownMenuItem(
-                                                        value: 'BRL',
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(left: 16.w),
-                                                          child: Text(
-                                                            'BRL',
-                                                            style: TextStyle(
-                                                              color: Colors.white,
-                                                              fontSize: 16.sp,
-                                                              fontWeight: FontWeight.bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      DropdownMenuItem(
-                                                        value: 'Sats',
-                                                        child: Padding(
-                                                          padding: EdgeInsets.only(left: 16.w),
-                                                          child: Text(
-                                                            'Sats',
-                                                            style: TextStyle(
-                                                              color: Colors.white,
-                                                              fontSize: 16.sp,
-                                                              fontWeight: FontWeight.bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                    onChanged: (value) {
-                                                      ref.read(inputCurrencyProvider.notifier).state = value.toString();
-                                                      controller.text = '';
-                                                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
-                                                      ref.read(sendTxProvider.notifier).updateDrain(false);
-                                                    },
-                                                    icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp), // Added custom icon
-                                                    borderRadius: const BorderRadius.all(Radius.circular(12.0)), // Added border radius
-                                                  ),
-                                                ),
-                                              ],
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(8.r),
                                             ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(right: 8.sp),
-                                            child: GestureDetector(
-                                              onTap: () async {
-                                                try {
-                                                  final pset = await ref.watch(liquidDrainWalletProvider.future);
-                                                  final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
-                                                  final controllerValue = sendingBalance.abs();
-                                                  final selectedCurrency = ref.watch(inputCurrencyProvider);
-                                                  final amountToSetInSelectedCurrency = calculateAmountInSelectedCurrency(
-                                                      controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
-                                                  controller.text = selectedCurrency == 'BTC'
-                                                      ? amountToSetInSelectedCurrency
-                                                      : selectedCurrency == 'Sats'
-                                                      ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
-                                                      : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
-                                                  ref.read(sendTxProvider.notifier).updateAmountFromInput(
-                                                      controllerValue.toString(), 'sats');
-                                                  ref.read(sendTxProvider.notifier).updateDrain(true);
-                                                } catch (e) {
-                                                  showMessageSnackBar(
-                                                    message: e.toString().i18n,
-                                                    error: true,
-                                                    context: context,
-                                                  );
-                                                }
-                                              },
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius: BorderRadius.circular(8.r),
-                                                ),
-                                                child: Text(
-                                                  'Max',
-                                                  style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 16.sp,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
+                                            child: Text(
+                                              'Max',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16.sp,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                           ),
-                                        ],
+                                        ),
                                       ),
-                                    ],
+                                    ),
                                   ),
+                                  onChanged: (value) async {
+                                    ref.read(inputAmountProvider.notifier).state =
+                                    controller.text.isEmpty ? '0.0' : controller.text;
+                                    if (value.isEmpty) {
+                                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                                      ref.read(sendTxProvider.notifier).updateDrain(false);
+                                    }
+                                    final amountInSats = calculateAmountInSatsToDisplay(
+                                      value,
+                                      ref.watch(inputCurrencyProvider),
+                                      ref.watch(currencyNotifierProvider),
+                                    );
+                                    ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
+                                    ref.read(sendTxProvider.notifier).updateDrain(false);
+                                  },
                                 ),
                               ),
                             ],
@@ -733,14 +630,8 @@ class _ConfirmLiquidPaymentState extends ConsumerState<ConfirmLiquidPayment> {
                         final fee = await ref.read(liquidFeeProvider.future);
 
                         // Show confirmation modal
-                        final confirmed = await showConfirmationModal(
-                            context,
-                            btcInDenominationFormatted(sendTxState.amount, btcFormat),
-                            sendTxState.address ?? '',
-                            fee,
-                            btcFormat,
-                            ref
-                        );
+                        final confirmed = await showConfirmationModal(context,
+                            btcInDenominationFormatted(sendTxState.amount, btcFormat), sendTxState.address ?? '', fee, btcFormat, ref);
 
                         if (confirmed) {
                           final tx = await ref.watch(sendLiquidTransactionProvider.future);

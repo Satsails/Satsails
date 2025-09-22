@@ -227,7 +227,9 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(child: Text('Confirm Transaction'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold))),
+                  Center(
+                      child:
+                      Text('Confirm Transaction'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold))),
                   SizedBox(height: 24.h),
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                     Text('Amount'.i18n, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16.sp)),
@@ -393,7 +395,8 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
 
     try {
       if (shiftToExecute == null) {
-        shiftToExecute = await ref.read(createSendSideShiftShiftProvider((ref.read(selectedSendShiftPairProvider), addressController.text)).future);
+        shiftToExecute =
+        await ref.read(createSendSideShiftShiftProvider((ref.read(selectedSendShiftPairProvider), addressController.text)).future);
       }
 
       final shift = shiftToExecute!;
@@ -538,43 +541,34 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-                padding: EdgeInsets.only(bottom: 8.h),
-                child: Text('Amount'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Amount'.i18n,
+                  style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 8.h),
             Container(
               decoration: BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.h),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: amountController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
-                        style: TextStyle(fontSize: 24.sp, color: Colors.white),
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: '0',
-                          hintStyle: const TextStyle(color: Colors.white70),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-                        ),
-                        onChanged: (value) {
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput(value, 'fiat');
-
-                          if (_debounce?.isActive ?? false) _debounce!.cancel();
-                          _debounce = Timer(const Duration(milliseconds: 800), () {
-                            if (mounted) {
-                              setState(() {
-                                _amountToQuote = value.isEmpty ? "" : value;
-                              });
-                            }
-                          });
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(right: 8.sp),
+              child: TextFormField(
+                controller: amountController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
+                style: TextStyle(fontSize: 24.sp, color: Colors.white),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: '0',
+                  hintStyle: const TextStyle(color: Colors.white70),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                  suffixIcon: Align(
+                    widthFactor: 1.0,
+                    heightFactor: 1.0,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 12.w),
                       child: GestureDetector(
                         onTap: () {
                           double dollarValue = balance / 100000000;
@@ -617,8 +611,20 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
+                onChanged: (value) {
+                  ref.read(sendTxProvider.notifier).updateAmountFromInput(value, 'fiat');
+
+                  if (_debounce?.isActive ?? false) _debounce!.cancel();
+                  _debounce = Timer(const Duration(milliseconds: 800), () {
+                    if (mounted) {
+                      setState(() {
+                        _amountToQuote = value.isEmpty ? "" : value;
+                      });
+                    }
+                  });
+                },
               ),
             ),
           ],
@@ -691,71 +697,77 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-                padding: EdgeInsets.only(bottom: 8.h),
-                child: Text('Amount'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Amount'.i18n,
+                  style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                _buildCurrencySelector(),
+              ],
+            ),
+            SizedBox(height: 8.h),
             Container(
               decoration: BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.h),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: amountController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
-                            ? [DecimalTextInputFormatter(decimalRange: 0)]
-                            : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)],
-                        style: TextStyle(fontSize: 24.sp, color: Colors.white),
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: '0',
-                          hintStyle: const TextStyle(color: Colors.white70),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-                        ),
-                        onChanged: (value) {
-                          setState(() => _preparedShift = null);
-                          ref.read(inputAmountProvider.notifier).state = amountController.text.isEmpty ? '0.0' : amountController.text;
-
-                          final amountInSats =
-                          calculateAmountInSatsToDisplay(value, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
-                          ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
-                          ref.read(sendTxProvider.notifier).updateDrain(false);
-
-                          if (_debounce?.isActive ?? false) _debounce!.cancel();
-                          _debounce = Timer(const Duration(milliseconds: 800), () async {
-                            if (mounted) {
-                              String amountForQuote = value;
-                              if (ref.read(inputCurrencyProvider) != 'BTC') {
-                                amountForQuote = btcInDenominationFormatted(amountInSats, 'BTC');
-                              }
-                              setState(() {
-                                _amountToQuote = value.isEmpty ? "" : amountForQuote;
-                              });
-
-                              final validAmount = double.tryParse(value.replaceAll(',', '.')) ?? 0;
-                              if (addressController.text.isNotEmpty && validAmount > 0) {
-                                try {
-                                  final shift = await ref.read(createSendSideShiftShiftProvider((shiftPair, addressController.text)).future);
-                                  if (mounted) {
-                                    setState(() => _preparedShift = shift);
-                                  }
-                                } catch (e) {
-                                  if (mounted) {
-                                    setState(() => _preparedShift = null);
-                                  }
-                                }
-                              }
-                            }
-                          });
-                        },
-                        // --- END: MODIFIED CODE ---
-                      ),
+              child: TextFormField(
+                controller: amountController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
+                    ? [DecimalTextInputFormatter(decimalRange: 0)]
+                    : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)],
+                style: TextStyle(fontSize: 24.sp, color: Colors.white),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: '0',
+                  hintStyle: const TextStyle(color: Colors.white70),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                  suffixIcon: Align(
+                    widthFactor: 1.0,
+                    heightFactor: 1.0,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 12.w),
+                      child: _buildMaxButton(),
                     ),
-                    _buildCurrencySelectorAndMaxButton(),
-                  ],
+                  ),
                 ),
+                onChanged: (value) {
+                  setState(() => _preparedShift = null);
+                  ref.read(inputAmountProvider.notifier).state = amountController.text.isEmpty ? '0.0' : amountController.text;
+
+                  final amountInSats =
+                  calculateAmountInSatsToDisplay(value, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
+                  ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
+                  ref.read(sendTxProvider.notifier).updateDrain(false);
+
+                  if (_debounce?.isActive ?? false) _debounce!.cancel();
+                  _debounce = Timer(const Duration(milliseconds: 800), () async {
+                    if (mounted) {
+                      String amountForQuote = value;
+                      if (ref.read(inputCurrencyProvider) != 'BTC') {
+                        amountForQuote = btcInDenominationFormatted(amountInSats, 'BTC');
+                      }
+                      setState(() {
+                        _amountToQuote = value.isEmpty ? "" : amountForQuote;
+                      });
+
+                      final validAmount = double.tryParse(value.replaceAll(',', '.')) ?? 0;
+                      if (addressController.text.isNotEmpty && validAmount > 0) {
+                        try {
+                          final shift = await ref.read(createSendSideShiftShiftProvider((shiftPair, addressController.text)).future);
+                          if (mounted) {
+                            setState(() => _preparedShift = shift);
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            setState(() => _preparedShift = null);
+                          }
+                        }
+                      }
+                    }
+                  });
+                },
               ),
             ),
           ],
@@ -771,111 +783,101 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
     );
   }
 
-  Widget _buildCurrencySelectorAndMaxButton() {
-    return Row(
-      children: [
-        SizedBox(
-          width: 80.w,
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              dropdownColor: const Color(0xFF212121),
-              value: ref.watch(inputCurrencyProvider),
-              items: ['BTC', 'USD', 'EUR', 'BRL', 'GBP', 'CHF', 'Sats'].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 16.w),
-                    child: Text(value, style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold)),
-                  ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                ref.read(inputCurrencyProvider.notifier).state = value.toString();
-                amountController.text = '';
-                ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
-                ref.read(sendTxProvider.notifier).updateDrain(false);
-              },
-              icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
-              borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-            ),
+  Widget _buildCurrencySelector() {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<String>(
+        dropdownColor: const Color(0xFF212121),
+        value: ref.watch(inputCurrencyProvider),
+        items: ['BTC', 'USD', 'EUR', 'BRL', 'GBP', 'CHF', 'Sats'].map((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value, style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold)),
+          );
+        }).toList(),
+        onChanged: (value) {
+          ref.read(inputCurrencyProvider.notifier).state = value.toString();
+          amountController.text = '';
+          ref.read(sendTxProvider.notifier).updateAmountFromInput('0', 'sats');
+          ref.read(sendTxProvider.notifier).updateDrain(false);
+        },
+        icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
+        borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+      ),
+    );
+  }
+
+  Widget _buildMaxButton() {
+    return GestureDetector(
+      onTap: () async {
+        if (addressController.text.isEmpty) {
+          showMessageSnackBar(message: "Please enter a recipient address first".i18n, error: true, context: context);
+          return;
+        }
+        setState(() => _isFetchingMax = true);
+        try {
+          final shift = await ref.read(createSendSideShiftShiftProvider((shiftPair, addressController.text)).future);
+          setState(() => _preparedShift = shift);
+
+          ref.read(sendTxProvider.notifier).updateAddress(shift.depositAddress);
+
+          final pset = await ref.read(liquidDrainWalletProvider.future);
+          final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
+          final controllerValue = sendingBalance.abs();
+          final selectedCurrency = ref.watch(inputCurrencyProvider);
+          final amountToSetInSelectedCurrency =
+          calculateAmountInSelectedCurrency(controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
+
+          amountController.text = selectedCurrency == 'BTC'
+              ? amountToSetInSelectedCurrency
+              : selectedCurrency == 'Sats'
+              ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
+              : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
+
+          ref.read(sendTxProvider.notifier).updateAmountFromInput(controllerValue.toString(), 'sats');
+          ref.read(sendTxProvider.notifier).updateDrain(true);
+
+          if (_debounce?.isActive ?? false) _debounce!.cancel();
+          _debounce = Timer(const Duration(milliseconds: 100), () {
+            if (mounted) {
+              setState(() {
+                _amountToQuote = btcInDenominationFormatted(controllerValue, 'BTC');
+              });
+            }
+          });
+        } catch (e) {
+          showMessageSnackBar(
+            message: e.toString().i18n,
+            error: true,
+            context: context,
+          );
+        } finally {
+          setState(() => _isFetchingMax = false);
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: _isFetchingMax
+            ? SizedBox(
+          width: 24.w,
+          height: 24.w,
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+          ),
+        )
+            : Text(
+          'Max',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        Padding(
-          padding: EdgeInsets.only(right: 8.sp),
-          child: GestureDetector(
-            onTap: () async {
-              if (addressController.text.isEmpty) {
-                showMessageSnackBar(message: "Please enter a recipient address first".i18n, error: true, context: context);
-                return;
-              }
-              setState(() => _isFetchingMax = true);
-              try {
-                final shift = await ref.read(createSendSideShiftShiftProvider((shiftPair, addressController.text)).future);
-                setState(() => _preparedShift = shift);
-
-                ref.read(sendTxProvider.notifier).updateAddress(shift.depositAddress);
-
-                final pset = await ref.read(liquidDrainWalletProvider.future);
-                final sendingBalance = pset.balances[0].value + pset.absoluteFees.toInt();
-                final controllerValue = sendingBalance.abs();
-                final selectedCurrency = ref.watch(inputCurrencyProvider);
-                final amountToSetInSelectedCurrency =
-                calculateAmountInSelectedCurrency(controllerValue, selectedCurrency, ref.watch(currencyNotifierProvider));
-
-                amountController.text = selectedCurrency == 'BTC'
-                    ? amountToSetInSelectedCurrency
-                    : selectedCurrency == 'Sats'
-                    ? double.parse(amountToSetInSelectedCurrency).toStringAsFixed(0)
-                    : double.parse(amountToSetInSelectedCurrency).toStringAsFixed(2);
-
-                ref.read(sendTxProvider.notifier).updateAmountFromInput(controllerValue.toString(), 'sats');
-                ref.read(sendTxProvider.notifier).updateDrain(true);
-
-                if (_debounce?.isActive ?? false) _debounce!.cancel();
-                _debounce = Timer(const Duration(milliseconds: 100), () {
-                  if (mounted) {
-                    setState(() {
-                      _amountToQuote = btcInDenominationFormatted(controllerValue, 'BTC');
-                    });
-                  }
-                });
-              } catch (e) {
-                showMessageSnackBar(
-                  message: e.toString().i18n,
-                  error: true,
-                  context: context,
-                );
-              } finally {
-                setState(() => _isFetchingMax = false);
-              }
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: _isFetchingMax
-                  ? SizedBox(
-                width: 24.w,
-                height: 24.w,
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
-                ),
-              )
-                  : Text(
-                'Max',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

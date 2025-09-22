@@ -490,58 +490,49 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                               ),
                             ],
                           ),
-                          SizedBox(height: 16.h),
+                          SizedBox(height: 24.h),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 8.h),
-                                child: Text(
-                                  'Amount'.i18n,
-                                  style: TextStyle(
-                                    fontSize: 18.sp,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Amount'.i18n,
+                                    style: TextStyle(
+                                      fontSize: 18.sp,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
+                              SizedBox(height: 8.h),
                               Container(
                                 decoration: BoxDecoration(
                                   color: const Color(0x00333333).withOpacity(0.4),
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: TextFormField(
-                                          controller: controller,
-                                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                          inputFormatters: [
-                                            CommaTextInputFormatter(),
-                                            DecimalTextInputFormatter(decimalRange: 2)
-                                          ],
-                                          validator: (value) {
-                                            return null;
-                                          },
-                                          style: TextStyle(fontSize: 24.sp, color: Colors.white),
-                                          textAlign: TextAlign.left,
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: '0',
-                                            hintStyle: const TextStyle(color: Colors.white70),
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-                                          ),
-                                          onChanged: (value) async {
-                                            ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
-                                            ref.read(sendTxProvider.notifier).updateDrain(false);
-                                          },
-                                        ),
-                                      ),
-                                      // Always display the "Max" button, with logic dependent on isPayjoinTx
-                                      Padding(
-                                        padding: EdgeInsets.only(right: 8.sp),
+                                child: TextFormField(
+                                  controller: controller,
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  inputFormatters: [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
+                                  validator: (value) {
+                                    return null;
+                                  },
+                                  style: TextStyle(fontSize: 24.sp, color: Colors.white),
+                                  textAlign: TextAlign.left,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '0',
+                                    hintStyle: const TextStyle(color: Colors.white70),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                                    suffixIcon: Align(
+                                      widthFactor: 1.0,
+                                      heightFactor: 1.0,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(right: 12.w),
                                         child: GestureDetector(
                                           onTap: () async {
                                             try {
@@ -589,8 +580,12 @@ class _ConfirmLiquidAssetPaymentState extends ConsumerState<ConfirmLiquidAssetPa
                                           ),
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
+                                  onChanged: (value) async {
+                                    ref.read(sendTxProvider.notifier).updateAmountFromInput(value, btcFormat);
+                                    ref.read(sendTxProvider.notifier).updateDrain(false);
+                                  },
                                 ),
                               ),
                             ],

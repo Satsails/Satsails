@@ -18,53 +18,58 @@ import 'package:http/http.dart' as http;
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint("Handling a background message: ${message.messageId}");
 
-  final type = message.data[NotificationType.type];
-  if (type == NotificationType.swapUpdated) {
-    debugPrint("Ignoring notification type '$type' in background handler.");
-    return;
-  }
-
   final job = getJobFromMessage(message);
   if (job == null) {
     debugPrint("No job found for the received message.");
     return;
   }
 
-  // Flag to track if we initialized the SDK in this handler
-  bool didInitializeInHandler = false;
+  bool didConnectInHandler = false;
 
   try {
     debugPrint("Starting background job: ${job.runtimeType}");
     await dotenv.load(fileName: ".env");
 
-    // Check if the SDK is already running
+    // First, attempt to initialize the native Rust bridge.
+    try {
+      await FlutterBreezLiquid.init();
+      debugPrint("Bridge initialized successfully.");
+    } catch (e) {
+      // If we get this specific error, it means the main app's isolate
+      // already initialized the bridge. We can safely ignore it.
+      if (e.toString().contains("Should not initialize flutter_rust_bridge twice")) {
+        debugPrint("Bridge already initialized, continuing.");
+      } else {
+        // If it's any other error, it's a real problem.
+        rethrow;
+      }
+    }
+
+    // Now, we can safely check for the Dart-side SDK instance.
     liquid_sdk.BreezSdkLiquid? sdk = breezSDKLiquid.instance;
 
-    // If the instance is null, the app is likely closed. Initialize and connect.
+    // If the instance is null, we need to connect.
     if (sdk == null) {
-      debugPrint("SDK not running. Initializing and connecting...");
-      await FlutterBreezLiquid.init();
+      debugPrint("SDK not connected. Connecting...");
       final connectRequest = await getConnectRequestFromStorage();
       await breezSDKLiquid.connect(req: connectRequest);
       sdk = breezSDKLiquid.instance;
-      didInitializeInHandler = true; // Mark that we started it
+      didConnectInHandler = true; // Mark that we started the connection
     } else {
-      debugPrint("SDK already running. Using existing instance.");
+      debugPrint("SDK already connected. Using existing instance.");
     }
 
-    // Now, run the job with the SDK instance
     if (sdk != null) {
       await job.start(sdk);
       debugPrint("Background job finished successfully.");
     } else {
-      throw Exception("SDK instance was null after attempting to get it.");
+      throw Exception("SDK instance was null after attempting to connect.");
     }
 
   } catch (e) {
     debugPrint("Background job failed: $e");
   } finally {
-    // IMPORTANT: Only disconnect if this background handler was the one to connect.
-    if (didInitializeInHandler) {
+    if (didConnectInHandler) {
       debugPrint("Disconnecting SDK connection started by handler.");
       breezSDKLiquid.disconnect();
     }
@@ -185,21 +190,18 @@ class FirebaseService {
     try {
       debugPrint('Got a message whilst in the foreground!');
 
-      final type = message.data[NotificationType.type];
-      if (type != NotificationType.swapUpdated) {
-        final job = getJobFromMessage(message);
-        if (job != null) {
-          debugPrint("Handling job in foreground: ${job.runtimeType}");
+      final job = getJobFromMessage(message);
+      if (job != null) {
+        debugPrint("Handling job in foreground: ${job.runtimeType}");
 
-          final breezSDK = await ref.read(breezSDKProvider.future);
-          final sdkInstance = breezSDK.instance;
+        final breezSDK = await ref.read(breezSDKProvider.future);
+        final sdkInstance = breezSDK.instance;
 
-          if (sdkInstance != null) {
-            await job.start(sdkInstance);
-            debugPrint("Foreground job finished successfully.");
-          } else {
-            debugPrint("Foreground job failed: SDK instance was null.");
-          }
+        if (sdkInstance != null) {
+          await job.start(sdkInstance);
+          debugPrint("Foreground job finished successfully.");
+        } else {
+          debugPrint("Foreground job failed: SDK instance was null.");
         }
       }
 

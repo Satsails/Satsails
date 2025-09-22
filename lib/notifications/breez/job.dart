@@ -234,7 +234,7 @@ class SwapUpdatedJob extends Job {
       final swapIdHash = request.id;
 
       // Poll for payment status
-      for (int i = 0; i < 5; i++) { // Poll a few times
+      for (int i = 0; i < 10; i++) { // Poll a few times
         final payment = await sdk.getPayment(req: GetPaymentRequest_SwapId(swapId: swapIdHash));
         if (payment != null) {
           if (payment.status == PaymentState.complete) {

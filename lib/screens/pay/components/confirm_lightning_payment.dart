@@ -230,8 +230,6 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
             newAmount = amount;
             newIsFixedInvoice = true;
           } else {
-            // This is an invoice with no amount, which is not supported.
-            // Set the flag to display the message instead of the slider.
             newIsAmountlessInvoice = true;
           }
         } else if (parsedInput is breez.InputType_Bolt12Offer) {
@@ -278,7 +276,8 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
     ref.watch(sendTxProvider);
 
     final btcBalanceInFormat = ref.read(liquidBalanceInFormatProvider(btcFormat));
-    final valueInBtc = ref.watch(liquidBalanceInFormatProvider('BTC')) == '0.00000000' ? 0 : double.parse(ref.watch(liquidBalanceInFormatProvider('BTC')));
+    final valueInBtc =
+    ref.watch(liquidBalanceInFormatProvider('BTC')) == '0.00000000' ? 0 : double.parse(ref.watch(liquidBalanceInFormatProvider('BTC')));
     final balanceInSelectedCurrency = (valueInBtc * currencyRate).toStringAsFixed(2);
 
     return PopScope(
@@ -325,11 +324,13 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                           Container(
                             padding: EdgeInsets.all(16.sp),
                             width: double.infinity,
-                            decoration: BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
+                            decoration:
+                            BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
                             child: Column(
                               children: [
                                 Text('Lightning Balance'.i18n, style: TextStyle(color: Colors.white, fontSize: 16.sp)),
-                                Text('$btcBalanceInFormat $btcFormat', style: TextStyle(color: Colors.white, fontSize: 32.sp, fontWeight: FontWeight.bold)),
+                                Text('$btcBalanceInFormat $btcFormat',
+                                    style: TextStyle(color: Colors.white, fontSize: 32.sp, fontWeight: FontWeight.bold)),
                                 Text('$balanceInSelectedCurrency $currency', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
                               ],
                             ),
@@ -340,11 +341,13 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                             children: [
                               Padding(
                                 padding: EdgeInsets.only(bottom: 8.h),
-                                child: Text('Recipient Address'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                                child: Text('Recipient Address'.i18n,
+                                    style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
                               ),
                               Container(
                                 padding: EdgeInsets.symmetric(vertical: 8.h),
-                                decoration: BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
+                                decoration:
+                                BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
                                 child: TextFormField(
                                   controller: addressController,
                                   style: TextStyle(color: Colors.white, fontSize: 16.sp),
@@ -371,81 +374,72 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 8.h),
-                                child: Text('Amount'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Amount'.i18n,
+                                    style: TextStyle(
+                                      fontSize: 18.sp,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      dropdownColor: const Color(0xFF212121),
+                                      value: ref.watch(inputCurrencyProvider),
+                                      items: ['BTC', 'USD', 'GBP', 'CHF', 'EUR', 'BRL', 'Sats']
+                                          .map((String value) => DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ))
+                                          .toList(),
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          ref.read(inputCurrencyProvider.notifier).state = value;
+                                          updateControllerText(ref.read(sendTxProvider).amount);
+                                        }
+                                      },
+                                      icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
+                                      borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                                    ),
+                                  ),
+                                ],
                               ),
+                              SizedBox(height: 8.h),
                               Container(
-                                decoration: BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: TextFormField(
-                                          controller: controller,
-                                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                          inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
-                                              ? [DecimalTextInputFormatter(decimalRange: 0)]
-                                              : ref.watch(inputCurrencyProvider) == 'BTC'
-                                              ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)]
-                                              : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
-                                          style: TextStyle(fontSize: 24.sp, color: Colors.white),
-                                          textAlign: TextAlign.left,
-                                          readOnly: isInvoice,
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: '0',
-                                            hintStyle: const TextStyle(color: Colors.white70),
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-                                          ),
-                                          onChanged: (value) {
-                                            if (isInvoice) return;
-                                            if (_isDraining) {
-                                              setState(() {
-                                                _isDraining = false;
-                                              });
-                                            }
-                                            ref.read(inputAmountProvider.notifier).state = controller.text.isEmpty ? '0.0' : controller.text;
-                                            if (value.isEmpty) {
-                                              ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
-                                            } else {
-                                              final amountInSats =
-                                              calculateAmountInSatsToDisplay(value, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
-                                              ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 80.w,
-                                        child: DropdownButtonHideUnderline(
-                                          child: DropdownButton<String>(
-                                            dropdownColor: const Color(0xFF212121),
-                                            value: ref.watch(inputCurrencyProvider),
-                                            items: ['BTC', 'USD', 'EUR', 'BRL', 'CHF', 'GBP', 'Sats']
-                                                .map((currency) => DropdownMenuItem(
-                                              value: currency,
-                                              child: Padding(
-                                                padding: EdgeInsets.only(left: 16.w),
-                                                child:
-                                                Text(currency, style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold)),
-                                              ),
-                                            ))
-                                                .toList(),
-                                            onChanged: (value) {
-                                              if (value != null) {
-                                                ref.read(inputCurrencyProvider.notifier).state = value;
-                                                updateControllerText(ref.read(sendTxProvider).amount);
-                                              }
-                                            },
-                                            icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 24.sp),
-                                            borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(right: 8.sp),
+                                decoration:
+                                BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
+                                child: TextFormField(
+                                  controller: controller,
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  inputFormatters: ref.watch(inputCurrencyProvider) == 'Sats'
+                                      ? [DecimalTextInputFormatter(decimalRange: 0)]
+                                      : ref.watch(inputCurrencyProvider) == 'BTC'
+                                      ? [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 8)]
+                                      : [CommaTextInputFormatter(), DecimalTextInputFormatter(decimalRange: 2)],
+                                  style: TextStyle(fontSize: 24.sp, color: Colors.white),
+                                  textAlign: TextAlign.left,
+                                  readOnly: isInvoice,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '0',
+                                    hintStyle: const TextStyle(color: Colors.white70),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                                    suffixIcon: Align(
+                                      widthFactor: 1.0,
+                                      heightFactor: 1.0,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(right: 12.w),
                                         child: GestureDetector(
                                           onTap: isInvoice
                                               ? null
@@ -453,7 +447,10 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                             try {
                                               final input = addressController.text;
                                               if (input.isEmpty) {
-                                                showMessageSnackBar(message: "Please enter a recipient address first".i18n, error: true, context: context);
+                                                showMessageSnackBar(
+                                                    message: "Please enter a recipient address first".i18n,
+                                                    error: true,
+                                                    context: context);
                                                 return;
                                               }
                                               final parsedInput = await ref.read(parseInputProvider(input).future);
@@ -472,15 +469,36 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                                           },
                                           child: Container(
                                             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                                            decoration:
-                                            BoxDecoration(color: isInvoice ? Colors.grey[700] : Colors.white, borderRadius: BorderRadius.circular(8.r)),
+                                            decoration: BoxDecoration(
+                                              color: isInvoice ? Colors.grey[700] : Colors.white,
+                                              borderRadius: BorderRadius.circular(8.r),
+                                            ),
                                             child: Text('Max',
-                                                style: TextStyle(color: isInvoice ? Colors.white54 : Colors.black, fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                                                style: TextStyle(
+                                                    color: isInvoice ? Colors.white54 : Colors.black,
+                                                    fontSize: 16.sp,
+                                                    fontWeight: FontWeight.bold)),
                                           ),
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
+                                  onChanged: (value) {
+                                    if (isInvoice) return;
+                                    if (_isDraining) {
+                                      setState(() {
+                                        _isDraining = false;
+                                      });
+                                    }
+                                    ref.read(inputAmountProvider.notifier).state = controller.text.isEmpty ? '0.0' : controller.text;
+                                    if (value.isEmpty) {
+                                      ref.read(sendTxProvider.notifier).updateAmountFromInput('0', btcFormat);
+                                    } else {
+                                      final amountInSats = calculateAmountInSatsToDisplay(
+                                          value, ref.watch(inputCurrencyProvider), ref.watch(currencyNotifierProvider));
+                                      ref.read(sendTxProvider.notifier).updateAmountFromInput(amountInSats.toString(), 'sats');
+                                    }
+                                  },
                                 ),
                               ),
                               _buildAmountLimitsInfo(),
@@ -493,11 +511,13 @@ class _ConfirmLightningPaymentState extends ConsumerState<ConfirmLightningPaymen
                               children: [
                                 Padding(
                                   padding: EdgeInsets.only(bottom: 8.h),
-                                  child: Text('Comment (Optional)'.i18n, style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+                                  child: Text('Comment (Optional)'.i18n,
+                                      style: TextStyle(fontSize: 18.sp, color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                                 Container(
                                   padding: EdgeInsets.symmetric(vertical: 8.h),
-                                  decoration: BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
+                                  decoration:
+                                  BoxDecoration(color: const Color(0x00333333).withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
                                   child: TextFormField(
                                     controller: commentController,
                                     style: TextStyle(color: Colors.white, fontSize: 16.sp),
