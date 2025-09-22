@@ -2067,6 +2067,7 @@ extension Localization on String {
           "Receive Liquid BTC from TRX": "Receba Liquid BTC de TRX",
           "Receive Liquid BTC from BNB": "Receba Liquid BTC de BNB",
           "Receive Liquid BTC from SOL": "Receba Liquid BTC de SOL",
+          "From your R\$": "De R\$",
           "Receive Liquid BTC from Bitcoin": "Receba Liquid BTC de Bitcoin",
           "The maximum value per transaction is 3000 BRL": "O valor máximo por transação é 3000 BRL",
           "Receive Liquid USDT from USDT on Arbitrum": "Receba Liquid USDT de USDT na Arbitrum",

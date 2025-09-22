@@ -133,7 +133,7 @@ class AuthModel {
 
   Future<void> setPin(String pin) async {
     // Using App Group for the PIN as well ensures consistency.
-    await _storage.write(key: 'pin', value: pin, iOptions: _getIOSOptions());
+    await _storage.write(key: 'pin', value: pin);
   }
 
   Future<String?> getMnemonic() async {
@@ -155,7 +155,7 @@ class AuthModel {
   }
 
   Future<String?> getPin() async {
-    return await _storage.read(key: 'pin', iOptions: _getIOSOptions());
+    return await _storage.read(key: 'pin');
   }
 
   Future<bool> pinMatches(String incomingPin) async {
@@ -175,7 +175,7 @@ class AuthModel {
   Future<void> deleteAuthentication() async {
     await _storage.delete(key: 'mnemonic', iOptions: _getIOSOptions());
     await _storage.delete(key: 'mnemonic');
-    await _storage.delete(key: 'pin', iOptions: _getIOSOptions());
+    await _storage.delete(key: 'pin');
     await _storage.delete(key: 'pixPaymentCode');
     await _storage.delete(key: 'coinosToken');
     await _storage.delete(key: 'coinosUsername');

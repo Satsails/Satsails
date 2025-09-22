@@ -352,7 +352,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
               style:
               TextStyle(fontSize: 28.sp, color: Colors.white, fontWeight: FontWeight.bold)),
           SizedBox(height: 4.h),
-          Text('from your R\$ $originalAmount Pix transfer',
+          Text('From your R\$'.i18n + '$originalAmount',
               style: TextStyle(
                   fontSize: 15.sp,
                   color: Colors.white.withOpacity(0.5),
