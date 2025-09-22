@@ -244,11 +244,13 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
 
     return PopScope(
       canPop: true,
-      onPopInvoked: (bool didPop) {},
+      onPopInvoked: (bool didPop) {
+        ref.read(sendTxProvider.notifier).resetToDefault();
+      },
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
-          centerTitle: true,
+        centerTitle: false,
           title: Text(
             _url == null ? 'Sell via Pix'.i18n : 'Sell'.i18n,
             style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
@@ -258,9 +260,11 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
             onPressed: () {
               if (_url == null) {
+                ref.read(sendTxProvider.notifier).resetToDefault();
                 context.pop();
               } else {
                 _pollingTimer?.cancel();
+                ref.read(sendTxProvider.notifier).resetToDefault();
                 context.go('/home');
               }
             },

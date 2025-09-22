@@ -208,7 +208,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
       // resizeToAvoidBottomInset: true is the default and is required for this to work.
       backgroundColor: Colors.black,
       appBar: AppBar(
-        centerTitle: true,
+        centerTitle: false,
         title: Text('Deposit via Pix'.i18n,
             style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
@@ -460,7 +460,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
           SizedBox(height: 12.h),
           _buildInfoRow(
             icon: Icons.info_outline,
-            child: Text('Daily limit per CPF/CNPJ: R\$ 5000'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
+            child: Text('Limit per 24h per CPF/CNPJ: R\$ 6000'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
           ),
           SizedBox(height: 12.h),
           _buildInfoRow(

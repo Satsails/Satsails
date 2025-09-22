@@ -1534,7 +1534,7 @@ extension Localization on String {
           'Maximum purchase: 6000 BRL per day': 'Compra máxima: 6000 BRL por dia',
           'Near-instant deposits': 'Depósitos quase instantâneos',
           'No documentation required': 'Sem documentação necessária',
-          'Minimum purchase: 1 BRL': 'Compra mínima: 1 BRL',
+          'Minimum purchase: 5 BRL': 'Compra mínima: 5 BRL',
           'Disadvantages:': 'Desvantagens:',
           'If a user sends more than 6000 BRL per day, refunds are not automatic and may take several hours': 'Se um usuário enviar mais de 6000 BRL por dia, os reembolsos não são automáticos e podem levar várias horas',
           'Depix token purchases are reported and registered with the Brazilian federal revenue agency under the payers name': 'Compras de tokens Depix são reportadas e registradas na Receita Federal Brasileira em nome do pagador',
@@ -2049,7 +2049,7 @@ extension Localization on String {
           "By continuing, you agree to our ": "Ao continuar, concorda com nossos ",
           "Terms of Use and Privacy Policy": "Termos de Uso e Política de Privacidade",
           "Maximum per single transaction: R\$ 3000": "Máximo por transação única: R\$ 3000",
-          "Daily limit per CPF/CNPJ: R\$ 5000": "Limite diário por CPF/CNPJ: R\$ 5000",
+          "Limit per 24h per CPF/CNPJ: R\$ 6000": "Limite por 24h por CPF/CNPJ: R\$ 6000",
           "CPF/CNPJ without purchase history: Max R\$ 500 in first 24h": "CPF/CNPJ sem histórico de compras: Maximo de R\$ 500 nas primeiras 24h",
           "Transfers that don't follow these rules will be returned": "Transferências que não seguirem estas regras serão devolvidas",
           "Become sovereign\nwith ": "Seja soberano\ncom ",
@@ -2069,6 +2069,7 @@ extension Localization on String {
           "Receive Liquid BTC from SOL": "Receba Liquid BTC de SOL",
           "Receive Liquid BTC from Bitcoin": "Receba Liquid BTC de Bitcoin",
           "Receive Liquid USDT from USDT on Arbitrum": "Receba Liquid USDT de USDT na Arbitrum",
+          "Deposits from the same CPF/CNPJ must have 30 minutes between them": "Depósitos do mesmo CPF/CNPJ devem ter 30 minutos de intervalo entre eles",
         }
       };
 
