@@ -35,6 +35,7 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
       appBar: AppBar(
         title: Text('Transaction Details'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
+        centerTitle: false,
         leading: IconButton(icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w), onPressed: () => context.pop()),
       ),
       backgroundColor: Colors.black,
