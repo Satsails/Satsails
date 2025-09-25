@@ -167,7 +167,7 @@ Widget _buildMonthGroup(BuildContext context, WidgetRef ref, DateTime month,
           color: const Color(0xFF333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(15.r),
         ),
-        child: ListView.separated(
+        child: ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: transactions.length,
@@ -175,11 +175,6 @@ Widget _buildMonthGroup(BuildContext context, WidgetRef ref, DateTime month,
             final tx = transactions[txIndex];
             return _buildUnifiedTransactionItem(tx, context, ref);
           },
-          separatorBuilder: (context, index) => Divider(
-            color: Colors.white.withOpacity(0.1),
-            height: 1.h,
-            indent: 60.w,
-          ),
         ),
       ),
     ],
@@ -264,7 +259,7 @@ class _TransactionListState extends ConsumerState<TransactionList> {
                   idleText: 'Pull down to refresh'.i18n),
               controller: _refreshController,
               onRefresh: _onRefresh,
-              child: ListView.separated(
+              child: ListView.builder(
                 padding: EdgeInsets.zero,
                 physics: const AlwaysScrollableScrollPhysics(),
                 itemCount: settledTransactions.length,
@@ -274,11 +269,6 @@ class _TransactionListState extends ConsumerState<TransactionList> {
                       context,
                       ref,
                     ),
-                separatorBuilder: (context, index) => Divider(
-                  color: Colors.white.withOpacity(0.1),
-                  height: 1.h,
-                  indent: 60.w,
-                ),
               ),
             ),
           ),

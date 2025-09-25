@@ -230,7 +230,7 @@ class Settings extends ConsumerWidget {
       context: context,
       ref: ref,
       title: 'View Seed Words'.i18n,
-      icon: Icons.currency_bitcoin,
+      icon: Icons.key_rounded,
       subtitle: Text(
         'Write them down and keep them safe!'.i18n,
         style: TextStyle(color: Colors.grey, fontSize: 14.sp),
@@ -388,7 +388,7 @@ class Settings extends ConsumerWidget {
       subtitle: Text(
         hasAffiliateCode
             ? "${'Affiliate code inserted'.i18n}: $affiliateCode"
-            : 'Insert an affiliate code to get up to 16,67% discount on the fees'.i18n,
+            : 'Insert an affiliate code to get up to 6,67% discount on the fees'.i18n,
         style: TextStyle(color: Colors.grey, fontSize: 14.sp),
       ),
       onTap: hasAffiliateCode

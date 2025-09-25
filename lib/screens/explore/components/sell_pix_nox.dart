@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:Satsails/helpers/bitcoin_formart_converter.dart';
+import 'package:Satsails/helpers/input_formatters/comma_text_input_formatter.dart';
 import 'package:Satsails/helpers/input_formatters/decimal_text_input_formatter.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
@@ -56,7 +57,6 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
     _amountController.removeListener(_onAmountChanged);
     _amountController.dispose();
     _pollingTimer?.cancel();
-    ref.read(sendTxProvider.notifier).resetToDefault();
     super.dispose();
   }
 
@@ -245,12 +245,16 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
     return PopScope(
       canPop: true,
       onPopInvoked: (bool didPop) {
-        ref.read(sendTxProvider.notifier).resetToDefault();
+        if (didPop) {
+          Future(() {
+            ref.read(sendTxProvider.notifier).resetToDefault();
+          });
+        }
       },
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
-        centerTitle: false,
+          centerTitle: false,
           title: Text(
             _url == null ? 'Sell via Pix'.i18n : 'Sell'.i18n,
             style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
@@ -260,11 +264,12 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
             onPressed: () {
               if (_url == null) {
-                ref.read(sendTxProvider.notifier).resetToDefault();
                 context.pop();
               } else {
                 _pollingTimer?.cancel();
-                ref.read(sendTxProvider.notifier).resetToDefault();
+                Future(() {
+                  ref.read(sendTxProvider.notifier).resetToDefault();
+                });
                 context.go('/home');
               }
             },
@@ -465,7 +470,7 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
                   controller: _amountController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                    CommaTextInputFormatter(),
                     DecimalTextInputFormatter(decimalRange: 8),
                   ],
                   style: TextStyle(fontSize: 40.sp, fontWeight: FontWeight.bold, color: Colors.white),

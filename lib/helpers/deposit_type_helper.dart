@@ -11,7 +11,7 @@ enum CurrencyDeposit { USD, EUR, BRL, CHF, GBP }
 
 final selectedCurrencyProvider = StateProvider<CurrencyDeposit>((ref) => CurrencyDeposit.BRL);
 final selectedPaymentMethodProvider = StateProvider<DepositMethod?>((ref) => DepositMethod.PIX);
-final selectedCryptoTypeProvider = StateProvider<DepositType>((ref) => DepositType.Bitcoin);
+final selectedCryptoTypeProvider = StateProvider<DepositType>((ref) => DepositType.Depix);
 
 final computedDepositProvider = Provider<DepositProvider?>((ref) {
   final paymentMethod = ref.watch(selectedPaymentMethodProvider);

@@ -935,40 +935,43 @@ Widget buildExchangeCard(BuildContext context, WidgetRef ref, TextEditingControl
             ],
           ),
           SizedBox(height: 24.h),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Expanded(
-                child: Divider(
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
-              ),
-              SizedBox(width: 16.w),
-              GestureDetector(
-                onTap: () {
-                  controller.text = '';
-                  ref.read(sendTxProvider.notifier).resetToDefault();
-                  ref.read(sendBlocksProvider.notifier).state = 1;
-                  final temp = ref.read(fromAssetProvider);
-                  ref.read(fromAssetProvider.notifier).state = ref.read(toAssetProvider);
-                  ref.read(toAssetProvider.notifier).state = temp;
-                  ref.read(swapTypeNotifierProvider.notifier).updateProviders(ref.watch(swapTypeProvider));
-                },
-                child: Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade800,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.swap_vert,
-                    color: Colors.white,
-                    size: 24.sp,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.sp),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Expanded(
+                  child: Divider(
+                    color: Colors.grey,
+                    thickness: 1,
                   ),
                 ),
-              ),
-            ],
+                SizedBox(width: 16.w),
+                GestureDetector(
+                  onTap: () {
+                    controller.text = '';
+                    ref.read(sendTxProvider.notifier).resetToDefault();
+                    ref.read(sendBlocksProvider.notifier).state = 1;
+                    final temp = ref.read(fromAssetProvider);
+                    ref.read(fromAssetProvider.notifier).state = ref.read(toAssetProvider);
+                    ref.read(toAssetProvider.notifier).state = temp;
+                    ref.read(swapTypeNotifierProvider.notifier).updateProviders(ref.watch(swapTypeProvider));
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade800,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.swap_vert,
+                      color: Colors.white,
+                      size: 24.sp,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           SizedBox(height: 24.h),
           Row(

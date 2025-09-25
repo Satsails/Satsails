@@ -52,7 +52,7 @@ Widget transactionTypeIcon(bdk.TransactionDetails transaction) {
         child: Icon(
           icon,
           color: color,
-          size: 24,
+          size: 20,
         ),
       ),
     );
@@ -105,7 +105,7 @@ Widget transactionTypeLiquidIcon(String kind) {
         child: Icon(
           icon,
           color: color,
-          size: 24,
+          size: 20,
         ),
       ),
     );
@@ -244,7 +244,7 @@ Widget pegTransactionTypeIcon() {
         child: Icon(
           icon,
           color: color,
-          size: 24.w,
+          size: 20,
         ),
       ),
     );
@@ -265,7 +265,7 @@ Widget pixTransactionTypeIcon() {
         child: Icon(
           icon,
           color: color,
-          size: 24.w,
+          size: 20,
         ),
       ),
     );
@@ -286,7 +286,7 @@ Widget sideshiftTransactionTypeIcon() {
         child: Icon(
           icon,
           color: color,
-          size: 24.w,
+          size: 20,
         ),
       ),
     );
@@ -308,7 +308,7 @@ Widget lightningTransactionTypeIcon() {
         child: Icon(
           icon,
           color: color,
-          size: 24.w,
+          size: 20,
         ),
       ),
     );
@@ -396,5 +396,5 @@ Widget paymentStatusIcon(breez.PaymentState status) {
       iconData = Icons.help;
       color = Colors.grey;
   }
-  return Icon(iconData, color: color, size: 30.w);
+  return Icon(iconData, color: color, size: 20);
 }

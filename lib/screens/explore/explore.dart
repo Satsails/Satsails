@@ -200,7 +200,7 @@ class _ActionCards extends ConsumerWidget {
                   // REFACTORED: The onTap now simply navigates. All logic is moved.
                   onTap: () => context.push('/home/explore/deposit_type'),
                   child: Container(
-                    height: 80.h,
+                    height: 70.h,
                     alignment: Alignment.center,
                     child: Text('Buy'.i18n, style: TextStyle(fontSize: 20.sp, color: Colors.black, fontWeight: FontWeight.bold)),
                   ),
@@ -216,7 +216,7 @@ class _ActionCards extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(10),
                   onTap: () => context.push('/home/explore/sell_type'),
                   child: Container(
-                    height: 80.h,
+                    height: 70.h,
                     alignment: Alignment.center,
                     child: Text('Sell'.i18n, style: TextStyle(fontSize: 20.sp, color: Colors.black, fontWeight: FontWeight.bold)),
                   ),

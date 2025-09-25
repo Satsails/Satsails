@@ -2026,7 +2026,7 @@ extension Localization on String {
           'Available Bitcoin Balance': 'Saldo Bitcoin Disponível',
           "Generate Sale": "Gerar venda",
           "Minimum deposit:": "Depósito mínimo:",
-          "Insert an affiliate code to get up to 16,67% discount on the fees": "Insira um código de afiliado para obter até 16,67% de desconto nas taxas",
+          "Insert an affiliate code to get up to 6,67% discount on the fees": "Insira um código de afiliado para obter até 6,67% de desconto nas taxas",
           "Bitcoin unit": "Denominação Bitcoin",
           "Available Balance": "Saldo Disponível",
           "Affiliate Program": "Programa de Afiliados",

@@ -237,7 +237,7 @@ class SwapUpdatedJob extends Job {
       for (int i = 0; i < 10; i++) { // Poll a few times
         final payment = await sdk.getPayment(req: GetPaymentRequest_SwapId(swapId: swapIdHash));
         if (payment != null) {
-          if (payment.status == PaymentState.complete) {
+          if (payment.status == PaymentState.created) {
             _handlePaymentSuccess(payment);
             return;
           }

@@ -46,7 +46,7 @@ class _SplashState extends ConsumerState<Splash> {
       backgroundColor: Colors.black,
       body: Center(
         child: Logo(
-          size: 150.sp, // Made the logo larger for the splash screen
+          size: 200.sp, // Made the logo larger for the splash screen
           opacity: 0.8,
           animated: true,
         ),
