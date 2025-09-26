@@ -81,7 +81,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
     }
   }
 
-  void _handleIncorrectPin() {
+  Future<void> _handleIncorrectPin() async {
     _animationController.forward(from: 0.0);
     HapticFeedback.heavyImpact();
     setState(() {
@@ -90,7 +90,12 @@ class _OpenPinState extends ConsumerState<OpenPin>
     });
 
     if (_attempts >= 6) {
-      _showForgotPinConfirmation(context, ref);
+      BackgroundSyncService().stop();
+      final authModel = ref.read(authModelProvider);
+      await authModel.deleteAuthentication();
+      ref.invalidate(bitcoinConfigProvider);
+      ref.invalidate(liquidConfigProvider);
+      RestartWidget.restartApp(context);
     }
   }
 
@@ -179,7 +184,7 @@ class _OpenPinState extends ConsumerState<OpenPin>
       if (remainingAttempts == 1) {
         attemptsMessage = 'Last attempt. If incorrect, the wallet will be deleted.'.i18n;
       } else {
-        attemptsMessage = '$remainingAttempts attempts remaining'.i18n;
+        attemptsMessage = '$remainingAttempts '+ 'attempts remaining'.i18n;
       }
     }
 
