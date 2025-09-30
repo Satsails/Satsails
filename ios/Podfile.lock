@@ -72,7 +72,7 @@ PODS:
     - nanopb (~> 3.30910.0)
     - PromisesSwift (~> 2.1)
   - Flutter (1.0.0)
-  - flutter_breez_liquid (0.11.3-dev7):
+  - flutter_breez_liquid (0.11.4):
     - Flutter
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
@@ -261,8 +261,8 @@ SPEC CHECKSUMS:
   FirebaseMessaging: af49f8d7c0a3d2a017d9302c80946f45a7777dde
   FirebaseRemoteConfigInterop: bfa0ea72ba3dc5af739777296424e46bd6f42613
   FirebaseSessions: 4e784acda213108aafef536535cdfc03504acc42
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_breez_liquid: 1a25003acca814253e4c12d7a0774a1fb751088d
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_breez_liquid: fffe1b4f10ba466ee3ebf06157070a66b6d4ce44
   flutter_keyboard_visibility: 4625131e43015dbbe759d9b20daaf77e0e3f6619
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
