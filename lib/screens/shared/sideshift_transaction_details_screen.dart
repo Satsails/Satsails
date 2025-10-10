@@ -1,4 +1,4 @@
-import 'package:Satsails/helpers/common_operation_methods.dart'; // Import the common helpers
+import 'package:Satsails/helpers/common_operation_methods.dart';
 import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/models/sideshift_model.dart';
 import 'package:Satsails/models/transactions_model.dart';
@@ -12,8 +12,36 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:intl/intl.dart';
+
+// Helper function for conditional amount formatting
+String _formatSideshiftAmount(String? amountStr, String coin, String btcFormat) {
+  if (amountStr == null || amountStr.isEmpty) {
+    return '...';
+  }
+
+  // Only format if the coin is BTC
+  if (coin.toUpperCase() == 'BTC') {
+    final double amount = double.tryParse(amountStr) ?? 0.0;
+    if (btcFormat == 'sats') {
+      final satsAmount = (amount * 100000000).toInt();
+      return NumberFormat('#,##0').format(satsAmount);
+    } else {
+      return amount.toStringAsFixed(8);
+    }
+  }
+
+  // For all other coins, return the original string
+  return amountStr;
+}
+
+String _getDisplayUnit(String coin, String btcFormat) {
+  if (coin.toUpperCase() == 'BTC' && btcFormat == 'sats') {
+    return 'sats';
+  }
+  return coin.toUpperCase();
+}
+
 
 String shortenAddress(String address, [int start = 6, int end = 6]) {
   if (address.length <= start + end) {
@@ -63,29 +91,36 @@ class SideShiftTransactionDetailsScreen extends ConsumerWidget {
   }
 
   Widget _buildHeader(BuildContext context, WidgetRef ref, SideShift details) {
+    final btcFormat = ref.watch(settingsProvider).btcFormat;
+
+    final formattedDepositAmount = _formatSideshiftAmount(details.depositAmount, details.depositCoin, btcFormat);
+    final depositUnit = _getDisplayUnit(details.depositCoin, btcFormat);
+
+    final formattedSettleAmount = _formatSideshiftAmount(details.settleAmount, details.settleCoin, btcFormat);
+    final settleUnit = _getDisplayUnit(details.settleCoin, btcFormat);
+
     return Container(
-      width: double.infinity, // Ensures the container spans the full width
+      width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
       decoration: BoxDecoration(
           color: const Color(0x00333333).withOpacity(0.4),
           borderRadius: BorderRadius.circular(20.r)),
       child: SizedBox(
-        height: 160.h, // Enforces a consistent height for the header card
+        height: 160.h,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                sideshiftTransactionTypeIcon(), // Using helper from common_operation_methods.dart
+                sideshiftTransactionTypeIcon(),
                 SizedBox(width: 8.w),
-                _shiftStatusIcon(
-                    details.status), // Using local helper for SideShift-specific status
+                _shiftStatusIcon(details.status),
               ],
             ),
             const Spacer(),
             Text(
-              "${details.depositAmount ?? '...'} ${details.depositNetwork.capitalize()} ${details.depositCoin}",
+              "$formattedDepositAmount ${details.depositNetwork.capitalize()} $depositUnit",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 32.sp,
@@ -94,7 +129,7 @@ class SideShiftTransactionDetailsScreen extends ConsumerWidget {
             ),
             SizedBox(height: 4.h),
             Text(
-              "${details.settleAmount ?? '...'} ${details.settleNetwork.capitalize()} ${details.settleCoin}",
+              "$formattedSettleAmount ${details.settleNetwork.capitalize()} $settleUnit",
               style: TextStyle(
                   color: Colors.white.withOpacity(0.7),
                   fontSize: 18.sp,
@@ -110,9 +145,14 @@ class SideShiftTransactionDetailsScreen extends ConsumerWidget {
 
   Widget _buildDetailsCard(
       BuildContext context, WidgetRef ref, SideShift details) {
-    final locale = ref.watch(settingsProvider).language;
+    final settings = ref.watch(settingsProvider);
+    final btcFormat = settings.btcFormat;
+    final locale = settings.language;
     final formattedDate = DateFormat('d MMMM, HH:mm', locale)
         .format(DateTime.fromMillisecondsSinceEpoch(details.timestamp * 1000));
+
+    final depositUnit = _getDisplayUnit(details.depositCoin, btcFormat);
+    final settleUnit = _getDisplayUnit(details.settleCoin, btcFormat);
 
     return Container(
       padding: EdgeInsets.all(16.w),
@@ -128,7 +168,6 @@ class SideShiftTransactionDetailsScreen extends ConsumerWidget {
               label: 'Status'.i18n,
               value: getStatusText(details.status),
               valueColor: _getStatusColor(details.status)),
-          // Using the new onCopy parameter for the ID row to show a specific message.
           TransactionDetailRow(
             label: 'ID'.i18n,
             value: details.id,
@@ -156,10 +195,10 @@ class SideShiftTransactionDetailsScreen extends ConsumerWidget {
             TransactionDetailRow(label: 'Memo'.i18n, value: details.depositMemo!),
           TransactionDetailRow(
               label: 'Min'.i18n,
-              value: "${details.depositMin} ${details.depositCoin}"),
+              value: "${_formatSideshiftAmount(details.depositMin, details.depositCoin, btcFormat)} $depositUnit"),
           TransactionDetailRow(
               label: 'Max'.i18n,
-              value: "${details.depositMax} ${details.depositCoin}"),
+              value: "${_formatSideshiftAmount(details.depositMax, details.depositCoin, btcFormat)} $depositUnit"),
           Divider(color: Colors.white.withOpacity(0.1), height: 32.h),
           _buildSectionHeader('Settle Details'.i18n),
           TransactionDetailRow(
@@ -169,7 +208,7 @@ class SideShiftTransactionDetailsScreen extends ConsumerWidget {
               isAddress: true),
           TransactionDetailRow(
               label: 'Network Fee'.i18n,
-              value: "${details.settleCoinNetworkFee} ${details.settleCoin}"),
+              value: "${_formatSideshiftAmount(details.settleCoinNetworkFee, details.settleCoin, btcFormat)} $settleUnit"),
           Divider(color: Colors.white.withOpacity(0.1), height: 32.h),
           _buildSectionHeader('Additional Info'.i18n),
           TransactionDetailRow(
@@ -193,7 +232,6 @@ class SideShiftTransactionDetailsScreen extends ConsumerWidget {
               color: Colors.white,
               fontSize: 18.sp,
               fontWeight: FontWeight.bold)));
-
 
   Color _getStatusColor(String status) {
     switch (status) {
@@ -266,7 +304,7 @@ class TransactionDetailRow extends StatelessWidget {
   final bool isCopiable;
   final bool isAddress;
   final Color? valueColor;
-  final VoidCallback? onCopy; // Allows a custom onCopy callback
+  final VoidCallback? onCopy;
 
   const TransactionDetailRow({
     super.key,
@@ -275,7 +313,7 @@ class TransactionDetailRow extends StatelessWidget {
     this.isCopiable = false,
     this.isAddress = false,
     this.valueColor,
-    this.onCopy, // Added to the constructor
+    this.onCopy,
   });
 
   @override
@@ -294,7 +332,6 @@ class TransactionDetailRow extends StatelessWidget {
           SizedBox(width: 16.w),
           Expanded(
             child: GestureDetector(
-              // Use the custom onCopy if it exists, otherwise use the default logic.
               onTap: onCopy ??
                   (copyValue != null
                       ? () {
@@ -448,7 +485,6 @@ class _ReturnAddressSectionState extends ConsumerState<ReturnAddressSection> {
       style: TextStyle(
           color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold));
 }
-
 
 String getStatusText(String status) {
   switch (status) {

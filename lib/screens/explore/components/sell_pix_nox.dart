@@ -8,7 +8,6 @@ import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart'; // Using your provider context
-import 'package:Satsails/providers/settings_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
@@ -63,11 +62,15 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
   void _syncControllerWithProvider(int amountInSats) {
     _isSyncingController = true;
     if (amountInSats == 0) {
-      _amountController.clear();
+      if (_amountController.text.isNotEmpty) {
+        _amountController.clear();
+      }
     } else {
-      final formattedAmount = btcInDenominationFormatted(amountInSats.toDouble(), 'BTC');
-      if (_amountController.text != formattedAmount) {
-        _amountController.text = formattedAmount;
+      // Convert sats to a string with a period, removing trailing zeros.
+      final btcString = (amountInSats / 100000000.0).toString();
+
+      if (_amountController.text != btcString) {
+        _amountController.text = btcString;
       }
     }
     _isSyncingController = false;

@@ -9,8 +9,8 @@ import 'package:bdk_flutter/bdk_flutter.dart' as bdk;
 import 'package:flutter/material.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lwk/lwk.dart' as lwk;
+import 'package:intl/intl.dart';
 
 // General utility function
 String shortenValue(String value, [int start = 8, int end = 8]) {
@@ -148,9 +148,39 @@ String liquidTransactionType(lwk.Tx transaction) {
   }
 }
 
+String formatSideshiftAmount(String? amountStr, String coin, String btcFormat) {
+  if (amountStr == null || amountStr.isEmpty) {
+    return '0.00';
+  }
+
+  final double amount = double.tryParse(amountStr) ?? 0.0;
+
+  // Handle Bitcoin formatting
+  if (coin.toUpperCase() == 'BTC') {
+    if (btcFormat == 'sats') {
+      final satsAmount = (amount * 100000000).toInt();
+      // Format as an integer with thousand separators
+      return NumberFormat('#,##0').format(satsAmount);
+    } else {
+      // Format as BTC with 8 decimal places
+      return amount.toStringAsFixed(8);
+    }
+  }
+
+  // Handle all other currencies
+  return amount.toStringAsFixed(2);
+}
+
+String getSideshiftDisplayUnit(String coin, String btcFormat) {
+  if (coin.toUpperCase() == 'BTC' && btcFormat == 'sats') {
+    return 'sats';
+  }
+  return coin.toUpperCase();
+}
+
 String timestampToDateTime(int? timestamp) {
   if (timestamp == 0 || timestamp == null) {
-    return 'Unconfirmed';
+    return 'Unconfirmed'.i18n;
   }
   final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
   return "${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute}";

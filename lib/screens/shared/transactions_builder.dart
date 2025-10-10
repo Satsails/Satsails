@@ -470,6 +470,7 @@ Widget _buildLightningConversionTransactionItem(
 Widget _buildSideshiftTransactionItem(
     SideShiftTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.details;
+  final btcFormat = ref.watch(settingsProvider).btcFormat; // Get user setting
   final isPending =
   !['settled', 'expired', 'failed', 'refunded'].contains(details.status);
   final title =
@@ -479,6 +480,8 @@ Widget _buildSideshiftTransactionItem(
   DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
   final statusText =
   isPending ? sideshift.getStatusText(details.status) : formattedDate;
+  final depositUnit = getSideshiftDisplayUnit(details.depositCoin, btcFormat);
+  final settleUnit = getSideshiftDisplayUnit(details.settleCoin, btcFormat);
 
   return _buildTransactionItemLayout(
     context: context,
@@ -495,7 +498,7 @@ Widget _buildSideshiftTransactionItem(
       children: [
         if (details.depositAmount != null)
           Text(
-            "- ${details.depositAmount} ${details.depositCoin.toUpperCase()}",
+            "- ${formatSideshiftAmount(details.depositAmount, details.depositCoin, btcFormat)} $depositUnit",
             style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.normal,
@@ -504,7 +507,7 @@ Widget _buildSideshiftTransactionItem(
         SizedBox(height: 2.h),
         if (details.settleAmount != null)
           Text(
-            "${double.parse(details.settleAmount!).toStringAsFixed(2)} ${details.settleCoin.toUpperCase()}",
+            "+ ${formatSideshiftAmount(details.settleAmount, details.settleCoin, btcFormat)} $settleUnit",
             style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.bold,
@@ -522,11 +525,6 @@ Widget _buildSideswapPegTransactionItem(
   final title = details.pegIn == true
       ? 'Bitcoin → Liquid Bitcoin'
       : 'Liquid Bitcoin → Bitcoin';
-  final date = details.list?.firstOrNull?.createdAt != null
-      ? DateTime.fromMillisecondsSinceEpoch(details.list!.first.createdAt!)
-      : transaction.timestamp;
-  final locale = I18n.locale.languageCode;
-  final formattedDate = DateFormat('d MMM, HH:mm', locale).format(date);
 
   return _buildTransactionItemLayout(
     context: context,
@@ -538,7 +536,7 @@ Widget _buildSideswapPegTransactionItem(
     },
     icon: pegTransactionTypeIcon(),
     title: title,
-    subtitle: formattedDate,
+    subtitle: 'Check if it is completed'.i18n,
     amountContent: Text(
       "See status".i18n,
       style: TextStyle(

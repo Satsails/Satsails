@@ -78,13 +78,24 @@ final sideshiftAssetPairProvider = Provider.family<SideshiftAssetPair, ShiftPair
 final selectedShiftPairProvider = StateProvider<ShiftPair?>((ref) => null);
 
 final updateSideShiftShiftsProvider = FutureProvider.family.autoDispose<void, List<String>>((ref, shiftIds) async {
-  final result = await SideShiftService.getShiftsByIds(shiftIds);
+  const batchSize = 10;
 
-  if (result.data != null) {
-    final shifts = result.data!;
-    await ref.read(sideShiftShiftsProvider.notifier).mergeShifts(shifts);
-  } else {
-    throw result.error ?? 'Unknown error';
+  // Process the list in batches of 10
+  for (var i = 0; i < shiftIds.length; i += batchSize) {
+    // Determine the end index for the current batch
+    final end = (i + batchSize > shiftIds.length) ? shiftIds.length : i + batchSize;
+    final batch = shiftIds.sublist(i, end);
+
+    // Fetch and process the current batch
+    final result = await SideShiftService.getShiftsByIds(batch);
+
+    if (result.data != null) {
+      final shifts = result.data!;
+      await ref.read(sideShiftShiftsProvider.notifier).mergeShifts(shifts);
+    } else {
+      // If any batch fails, the whole operation fails
+      throw result.error ?? 'An unknown error occurred while updating shifts.';
+    }
   }
 });
 

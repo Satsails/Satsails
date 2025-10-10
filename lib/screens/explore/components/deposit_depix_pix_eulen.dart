@@ -31,6 +31,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     with TickerProviderStateMixin {
   // Input and transaction state
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _cpfCnpjController = TextEditingController();
   String _pixQRCode = '';
   String? _transactionId;
   Timer? _pollingTimer;
@@ -42,7 +43,10 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   // Data from transaction
   double _amountToReceive = 0;
   double feePercentage = 0;
-  String amountPurchasedToday = '0';
+
+  bool isMerchantModeActive = false;
+  double _currentAmountPurchasedInUSD = 0.0;
+  double? _merchantModeThreshold;
 
   double? _userFeePercentage;
 
@@ -59,29 +63,59 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
         AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
     _successScaleAnimation =
         CurvedAnimation(parent: _successAnimationController, curve: Curves.easeOutBack);
+
+    _cpfCnpjController.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _amountController.dispose();
+    _cpfCnpjController.dispose();
     _pollingTimer?.cancel();
     _successAnimationController.dispose();
     super.dispose();
   }
 
   Future<void> _fetchInitialData() async {
+    await _fetchMerchantModeThreshold();
     await Future.wait([
-      _fetchAmountPurchasedToday(),
+      _fetchAmountPurchasedByAccount(),
       _fetchUserFee(),
     ]);
   }
 
-  Future<void> _fetchAmountPurchasedToday() async {
+  Future<void> _fetchMerchantModeThreshold() async {
     try {
-      final result = await ref.read(getAmountPurchasedProvider.future);
-      if (mounted) setState(() => amountPurchasedToday = result);
+      final result = await ref.read(getWhitelistAmountProvider.future);
+      final double threshold = (result as num).toDouble();
+      if (mounted) {
+        setState(() {
+          _merchantModeThreshold = threshold;
+        });
+      }
     } catch (e) {
-      if (mounted) setState(() => amountPurchasedToday = '0');
+      print("Could not fetch merchant mode threshold: $e");
+    }
+  }
+
+  Future<void> _fetchAmountPurchasedByAccount() async {
+    if (_merchantModeThreshold == null) return;
+    try {
+      final resultInUSD = await ref.read(getAmountPurchasedProvider.future);
+      final amountValue = double.tryParse(resultInUSD.toString().replaceAll(',', '.')) ?? 0.0;
+      if (mounted) {
+        setState(() {
+          _currentAmountPurchasedInUSD = amountValue;
+          isMerchantModeActive = amountValue > _merchantModeThreshold!;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _currentAmountPurchasedInUSD = 0;
+          isMerchantModeActive = false;
+        });
+      }
     }
   }
 
@@ -90,7 +124,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
       final fee = await ref.read(getUserEulenFeeAmount.future);
       if (mounted) {
         setState(() {
-          _userFeePercentage = fee;
+          _userFeePercentage = (fee as num).toDouble();
         });
       }
     } catch (e) {
@@ -113,11 +147,14 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
       _isPaid = false;
       _isLoading = false;
       _amountController.clear();
+      _cpfCnpjController.clear();
     });
   }
 
   Future<void> _generateQRCode() async {
     final amount = _amountController.text.replaceAll(',', '.');
+    final cpfCnpj = _cpfCnpjController.text;
+
     if (amount.isEmpty) {
       showMessageSnackBar(
           context: context, message: 'Amount cannot be empty'.i18n, error: true, top: true);
@@ -137,16 +174,18 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
           top: true);
       return;
     }
-    // =========== MODIFIED VALIDATION ===========
-    if (amountInDouble > 3000) {
+
+    final maxAmount = cpfCnpj.isNotEmpty ? 6000 : 3000;
+    final maxAmountString = cpfCnpj.isNotEmpty ? '6000' : '3000';
+
+    if (amountInDouble > maxAmount) {
       showMessageSnackBar(
           context: context,
-          message: 'The maximum value per transaction is 3000 BRL'.i18n,
+          message: 'The maximum value per transaction is $maxAmountString BRL'.i18n,
           error: true,
           top: true);
       return;
     }
-    // ===========================================
 
     setState(() {
       _isLoading = true;
@@ -158,8 +197,13 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     try {
       await FirebaseService.requestNotificationPermissions();
       await ref.read(depositInitializerProvider.future);
-      final purchase =
-      await ref.read(createEulenTransferRequestProvider(amountInDouble).future);
+
+      final purchaseRequestData = {
+        'amount': amountInDouble,
+        'taxId': cpfCnpj.isNotEmpty ? cpfCnpj : null,
+      };
+
+      final purchase = await ref.read(createEulenTransferRequestProvider(purchaseRequestData).future);
 
       if (mounted) {
         setState(() {
@@ -205,7 +249,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     }
 
     return Scaffold(
-      // resizeToAvoidBottomInset: true is the default and is required for this to work.
       backgroundColor: Colors.black,
       appBar: AppBar(
         centerTitle: false,
@@ -238,10 +281,8 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     return Padding(
       key: const ValueKey('amountInput'),
       padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
-      // Use a Column to separate the scrollable content from the fixed button.
       child: Column(
         children: [
-          // Expanded widget makes the SingleChildScrollView fill all available space.
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -254,9 +295,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
               ),
             ),
           ),
-          // This SizedBox provides spacing between the scrollable area and the button.
           SizedBox(height: 16.h),
-          // The button is now a direct child of the Column, so it stays at the bottom.
           CustomButton(
             onPressed: _generateQRCode,
             primaryColor: Colors.green.withOpacity(0.8),
@@ -269,6 +308,272 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     );
   }
 
+  // MODIFIED: Uses a Shimmer effect while the Merchant Mode status is loading
+  Widget _buildMerchantModeInfoSection() {
+    if (_merchantModeThreshold == null) {
+      return Shimmer.fromColors(
+        baseColor: Colors.grey[900]!,
+        highlightColor: Colors.grey[800]!,
+        child: Container(
+          height: 70.h,
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          decoration: BoxDecoration(
+            color: const Color(0xFF333333).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 22.sp,
+                height: 22.sp,
+                decoration: const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
+              ),
+              SizedBox(width: 12.w),
+              Container(
+                height: 18.h,
+                width: 120.w,
+                decoration:
+                BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(4.r)),
+              ),
+              const Spacer(),
+              Container(
+                height: 18.h,
+                width: 60.w,
+                decoration:
+                BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(4.r)),
+              ),
+              SizedBox(width: 8.w),
+              Container(
+                width: 24.sp,
+                height: 24.sp,
+                decoration: const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final statusText = isMerchantModeActive ? 'Active'.i18n : 'Inactive'.i18n;
+    final progress = _merchantModeThreshold! > 0
+        ? _currentAmountPurchasedInUSD / _merchantModeThreshold!
+        : 0;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF333333).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          iconColor: Colors.white.withOpacity(0.7),
+          collapsedIconColor: Colors.white.withOpacity(0.7),
+          tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+          title: Row(
+            children: [
+              Text(
+                'Merchant Mode'.i18n,
+                style: TextStyle(
+                    color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              Text(
+                statusText,
+                style: TextStyle(
+                    color: Colors.white, fontSize: 15.sp, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(width: 8.w),
+            ],
+          ),
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Divider(color: Colors.white.withOpacity(0.1), height: 16.h),
+                  Text(
+                    'What is Merchant Mode?'.i18n,
+                    style: TextStyle(
+                        color: Colors.white, fontSize: 15.sp, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'When active, you can receive payments up to R\$6000 per transaction from any CPF/CNPJ, even those with no prior history.'
+                        .i18n,
+                    style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14.sp),
+                  ),
+                  SizedBox(height: 16.h),
+               if (!isMerchantModeActive) ...[
+                  Text(
+                    'How to activate it:'.i18n,
+                    style: TextStyle(
+                        color: Colors.white, fontSize: 15.sp, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8.h),
+                 RichText(
+                   text: TextSpan(
+                     style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14.sp),
+                     children: <TextSpan>[
+                       TextSpan(
+                         text: 'Merchant Mode is activated automatically once your total deposit volume exceeds '.i18n,
+                       ),
+                       TextSpan(
+                         // This part is not translated as it contains the dynamic value
+                         text: 'R\$${_merchantModeThreshold!.toStringAsFixed(0)}',
+                         style: TextStyle(fontWeight: FontWeight.bold), // Optional: style the amount
+                       ),
+                     ],
+                   ),
+                 ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      'Your Progress:'.i18n,
+                      style: TextStyle(
+                          color: Colors.white, fontSize: 15.sp, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 10.h),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10.r),
+                      child: LinearProgressIndicator(
+                        value: progress.toDouble(),
+                        backgroundColor: Colors.grey.withOpacity(0.3),
+                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                        minHeight: 6.h,
+                      ),
+                    ),
+                    SizedBox(height: 6.h),
+                    Text(
+                      '\$${_currentAmountPurchasedInUSD.toStringAsFixed(2)} / \$${_merchantModeThreshold!.toStringAsFixed(0)}',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Colors.white.withOpacity(0.7),
+                      ),
+                    ),
+                  ]
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard() {
+    return Column(
+      children: [
+        _buildMerchantModeInfoSection(),
+        SizedBox(height: 24.h),
+        Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+              color: const Color(0xFF333333).withOpacity(0.4),
+              borderRadius: BorderRadius.circular(16.r)),
+          child: Column(
+            children: [
+              if (!isMerchantModeActive) ...[
+                SizedBox(height: 12.h),
+                _buildInfoRow(
+                  icon: Icons.info_outline,
+                  child: Text('CPF/CNPJ without purchase history: Max R\$ 500 in first 24h'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
+                ),
+              ],
+              SizedBox(height: 12.h),
+              _buildInfoRow(
+                icon: Icons.calendar_today,
+                child: Text('Limit per 24h per CPF/CNPJ: R\$ 6000'.i18n,
+                    style: TextStyle(
+                        fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
+              ),
+              SizedBox(height: 12.h),
+              _buildInfoRow(
+                icon: Icons.history_toggle_off,
+                child: Text(
+                    'Sending more than 2 transactions in 30 mins from the same CPF/CNPJ can result in chargebacks'
+                        .i18n,
+                    style: TextStyle(
+                        fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 12.h),
+                child: Divider(color: Colors.white.withOpacity(0.1)),
+              ),
+              _buildInfoRow(
+                icon: Icons.warning_amber_rounded,
+                child: Text("Transfers that don't follow these rules will be returned".i18n,
+                    style: TextStyle(
+                        fontSize: 15.sp,
+                        color: Colors.white.withOpacity(0.8),
+                        fontWeight: FontWeight.w500)),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAmountEntryCard() {
+    return Container(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+        decoration: BoxDecoration(
+            color: const Color(0xFF333333).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(20.r)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Amount to deposit in BRL'.i18n,
+              style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w500)),
+          SizedBox(height: 12.h),
+          Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            Text('R\$',
+                style: TextStyle(
+                    fontSize: 32.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white.withOpacity(0.5))),
+            SizedBox(width: 10.w),
+            Expanded(
+                child: TextField(
+                    controller: _amountController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      CommaTextInputFormatter(),
+                      DecimalTextInputFormatter(decimalRange: 2)
+                    ],
+                    style: TextStyle(
+                        fontSize: 40.sp, fontWeight: FontWeight.bold, color: Colors.white),
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: '0,00',
+                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)))))
+          ]),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 12.h),
+            child: Divider(color: Colors.white.withOpacity(0.1)),
+          ),
+          Text('Payee CPF/CNPJ (Optional)'.i18n,
+              style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w500)),
+          SizedBox(height: 8.h),
+          TextField(
+            controller: _cpfCnpjController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+            style: TextStyle(fontSize: 18.sp, color: Colors.white),
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Enter to raise limit to R\$ 6000 per transaction'.i18n,
+                hintStyle: TextStyle(fontSize: 15.sp, color: Colors.white.withOpacity(0.3))),
+          ),
+        ]));
+  }
 
   Widget _buildQRCodeView() {
     final paymentStatus = ref.watch(getEulenPixPaymentStateProvider(_transactionId!));
@@ -352,7 +657,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
               style:
               TextStyle(fontSize: 28.sp, color: Colors.white, fontWeight: FontWeight.bold)),
           SizedBox(height: 4.h),
-          Text('From your R\$'.i18n + '$originalAmount',
+          Text('From your R\$'.i18n + originalAmount,
               style: TextStyle(
                   fontSize: 15.sp,
                   color: Colors.white.withOpacity(0.5),
@@ -408,106 +713,12 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     );
   }
 
-  Widget _buildAmountEntryCard() {
-    return Container(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
-        decoration: BoxDecoration(
-            color: const Color(0xFF333333).withOpacity(0.4),
-            borderRadius: BorderRadius.circular(20.r)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Amount to deposit in BRL'.i18n,
-              style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w500)),
-          SizedBox(height: 12.h),
-          Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            Text('R\$',
-                style: TextStyle(
-                    fontSize: 32.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white.withOpacity(0.5))),
-            SizedBox(width: 10.w),
-            Expanded(
-                child: TextField(
-                    controller: _amountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      CommaTextInputFormatter(),
-                      DecimalTextInputFormatter(decimalRange: 2)
-                    ],
-                    style: TextStyle(fontSize: 40.sp, fontWeight: FontWeight.bold, color: Colors.white),
-                    decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: '0,00',
-                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)))))
-          ])
-        ]));
-  }
-
-  // =========== WIDGET WITH NEW INFORMATION ===========
-  Widget _buildInfoCard() {
-    return Container(
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-            color: const Color(0xFF333333).withOpacity(0.4),
-            borderRadius: BorderRadius.circular(16.r)),
-        child: Column(children: [
-          _buildInfoRow(
-            icon: Icons.info_outline,
-            child: Text('Minimum deposit: R\$ 5'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
-          ),
-          SizedBox(height: 12.h),
-          _buildInfoRow(
-            icon: Icons.info_outline,
-            child: Text('Limit per 24h per CPF/CNPJ: R\$ 6000'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
-          ),
-          SizedBox(height: 12.h),
-          _buildInfoRow(
-            icon: Icons.info_outline,
-            child: Text('CPF/CNPJ without purchase history: Max R\$ 500 in first 24h'.i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
-          ),
-          SizedBox(height: 12.h),
-          _buildInfoRow(
-            icon: Icons.attach_money,
-            child: Text('Amount Purchased Today:'.i18n + ' R\$ $amountPurchasedToday', style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.h),
-            child: Divider(color: Colors.white.withOpacity(0.1)),
-          ),
-          _buildInfoRow(
-            icon: Icons.warning_amber_rounded,
-            child: Text("Transfers that don't follow these rules will be returned".i18n, style: TextStyle(fontSize: 15.sp, color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w500)),
-          ),
-        ]));
-  }
-  // ===============================================
-
   Widget _buildInfoRow({required IconData icon, required Widget child}) {
     return Row(children: [
       Icon(icon, color: Colors.white.withOpacity(0.7), size: 20.sp),
       SizedBox(width: 12.w),
       Expanded(child: child),
     ]);
-  }
-
-  Widget _buildShimmerInfoRow() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[850]!,
-      highlightColor: Colors.grey[700]!,
-      child: _buildInfoRow(
-        icon: Icons.receipt_long,
-        child: Container(
-          height: 18.h,
-          width: 150.w,
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(4.r),
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildDetailRow(String label, String value, {Color? valueColor}) {

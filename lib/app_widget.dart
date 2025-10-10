@@ -34,7 +34,13 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
     super.initState();
     _router = AppRouter.createRouter('/splash');
     WidgetsBinding.instance.addObserver(this);
-    _setupForegroundMessageListener();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _setupForegroundMessageListener();
+      }
+    });
+
     _setSystemUIOverlayStyle();
   }
 
@@ -179,3 +185,4 @@ class _AppWidgetState extends ConsumerState<AppWidget> with WidgetsBindingObserv
     );
   }
 }
+

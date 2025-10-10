@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NoxTransactionDetails extends ConsumerWidget {
   const NoxTransactionDetails({super.key});
@@ -70,7 +71,6 @@ class NoxTransactionDetails extends ConsumerWidget {
     final statusIcon = transaction.failed ? Icons.error_rounded : transaction.completed ? Icons.check_circle_rounded : Icons.access_time_rounded;
     final statusColor = transaction.failed ? Colors.red : transaction.completed ? Colors.green : Colors.orange;
 
-    // Use the helper to format amounts, which will handle BTC/sats conversion.
     final sentAmount = _formatCurrencyAmount(transaction.originalAmount, transaction.from_currency ?? 'N/A', ref);
     final receivedAmount = _formatCurrencyAmount(transaction.receivedAmount, transaction.to_currency ?? 'N/A', ref);
 
@@ -104,13 +104,65 @@ class NoxTransactionDetails extends ConsumerWidget {
         children: [
           _buildSectionHeader("Transaction Info".i18n),
           _buildTransactionDetails(context, ref, transaction),
-
-          if (transaction.completed) ...[
-            Divider(color: Colors.white.withOpacity(0.1), height: 32.h),
-            _buildSectionHeader("Fees & Rate".i18n),
-            _buildFeeAndRateDetails(ref, transaction),
-          ],
+          Divider(color: Colors.white.withOpacity(0.1), height: 32.h),
+          _buildStatusButton(context, transaction),
         ],
+      ),
+    );
+  }
+
+  /// Builds the "See Current Status" button.
+  Widget _buildStatusButton(BuildContext context, NoxTransfer transaction) {
+    return _buildActionButton(
+      icon: Icons.travel_explore,
+      label: 'See Current Status'.i18n,
+      onPressed: () async {
+        final url = Uri.parse('https://checkout.noxpay.io/e2e/${transaction.transactionId}');
+        try {
+          await launchUrl(
+            url,
+            mode: LaunchMode.inAppWebView,
+          );
+        } catch (e) {
+          showMessageSnackBar(context: context, message: 'Could not open status page'.i18n, error: true);
+        }
+      },
+      buttonColor: Colors.white.withOpacity(0.15),
+      textColor: Colors.white,
+    );
+  }
+
+  // Helper widget for creating the button.
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+    required Color buttonColor,
+    required Color textColor,
+  }) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: buttonColor,
+          borderRadius: BorderRadius.circular(14.r),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: textColor, size: 20.w),
+            SizedBox(width: 8.w),
+            Text(
+              label,
+              style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 15.sp,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -132,21 +184,28 @@ class NoxTransactionDetails extends ConsumerWidget {
       children: [
         TransactionDetailRow(label: "Type".i18n, value: transaction.transactionType?.i18n ?? 'Unknown'.i18n),
         TransactionDetailRow(label: "Status".i18n, value: statusText, valueColor: statusColor),
-
         if (transaction.subStatus != null && transaction.subStatus!.isNotEmpty)
           TransactionDetailRow(label: "Sub-Status".i18n, value: subStatusText, valueColor: statusColor),
-
         TransactionDetailRow(label: "Provider".i18n, value: transaction.provider ?? "N/A"),
         TransactionDetailRow(label: "Payment Method".i18n, value: transaction.paymentMethod ?? "N/A".i18n),
         TransactionDetailRow(label: "Created At".i18n, value: dateFormat.format(transaction.createdAt)),
         TransactionDetailRow(label: "Last Updated".i18n, value: dateFormat.format(transaction.updatedAt)),
-
         TransactionDetailRow(
           label: "Transaction ID".i18n,
           value: transaction.transactionId,
           onCopy: () {
             Clipboard.setData(ClipboardData(text: transaction.transactionId));
             showMessageSnackBar(context: context, message: 'Transaction ID copied'.i18n, error: false);
+          },
+        ),
+        // New "Copy Confirmation Link" row
+        TransactionDetailRow(
+          label: 'Confirmation Link'.i18n,
+          value: 'Tap to copy'.i18n,
+          onCopy: () {
+            final url = 'https://checkout.noxpay.io/e2e/${transaction.transactionId}';
+            Clipboard.setData(ClipboardData(text: url));
+            showMessageSnackBar(context: context, message: 'Confirmation Link Copied'.i18n, error: false);
           },
         ),
       ],
@@ -166,13 +225,11 @@ class NoxTransactionDetails extends ConsumerWidget {
     String rateString;
     if (price > 0) {
       String toPart;
-      // If the rate is in BTC, format it according to user settings (BTC or sats).
       if (toCurrency.toUpperCase() == 'BTC') {
         final denomination = ref.read(settingsProvider).btcFormat;
         final satsAmount = (price * 100000000).toInt();
         toPart = "${btcInDenominationFormatted(satsAmount, denomination)} $denomination";
       } else {
-        // Format other currencies with appropriate precision.
         toPart = "${NumberFormat('#,##0.00########').format(price)} $toCurrency";
       }
       rateString = "1 $fromCurrency ≈ $toPart";
@@ -191,8 +248,18 @@ class NoxTransactionDetails extends ConsumerWidget {
 }
 
 class TransactionDetailRow extends StatelessWidget {
-  final String label; final String value; final VoidCallback? onCopy; final Color? valueColor;
-  const TransactionDetailRow({super.key, required this.label, required this.value, this.onCopy, this.valueColor});
+  final String label;
+  final String value;
+  final VoidCallback? onCopy;
+  final Color? valueColor;
+
+  const TransactionDetailRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.onCopy,
+    this.valueColor,
+  });
 
   String shortenString(String input) {
     if (input.length <= 12) return input;
@@ -216,8 +283,21 @@ class TransactionDetailRow extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Flexible(child: Text(isLongValue ? shortenString(value) : value, textAlign: TextAlign.right, style: TextStyle(color: valueColor ?? Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w500))),
-                  if (onCopy != null) ...[SizedBox(width: 8.w), Icon(Icons.copy, color: Colors.orange, size: 16.w)],
+                  Flexible(
+                    child: Text(
+                      isLongValue ? shortenString(value) : value,
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        color: valueColor ?? Colors.white,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  if (onCopy != null) ...[
+                    SizedBox(width: 8.w),
+                    Icon(Icons.copy, color: Colors.orange, size: 16.w),
+                  ],
                 ],
               ),
             ),

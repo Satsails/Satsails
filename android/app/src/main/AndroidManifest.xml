@@ -5,7 +5,8 @@
             android:label="Satsails"
             android:name="${applicationName}"
             android:icon="@mipmap/ic_launcher"
-            android:enableOnBackInvokedCallback="true">
+            android:enableOnBackInvokedCallback="true"
+            android:fullBackupOnly="true">
         <receiver
                 android:exported="false"
                 android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />

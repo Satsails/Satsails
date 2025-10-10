@@ -1665,7 +1665,8 @@ extension Localization on String {
           'Payment successfully received': 'Pagamento recebido com sucesso',
           'Sync': 'Sincronizar',
           'KYC Assessment': 'Análise de KYC',
-          'See status': 'Ver status',
+          'See status': 'Ver Estado',
+          'Check if it is completed': 'Verificar se está finalizada',
           'Receive non native asset': 'Receber ativo não nativo',
           'Deposit Limits': 'Limites de depósito',
           'Min': 'Mín',
@@ -2078,6 +2079,23 @@ extension Localization on String {
           "The maximum value per transaction is 3000 BRL": "O valor máximo por transação é 3000 BRL",
           "Receive Liquid USDT from USDT on Arbitrum": "Receba Liquid USDT de USDT na Arbitrum",
           "Deposits from the same CPF/CNPJ must have 30 minutes between them": "Depósitos do mesmo CPF/CNPJ devem ter 30 minutos de intervalo entre eles",
+          "See Current Status": "Ver Status da transação",
+          "Preimage Copied": "Preimage Copiado",
+          "Confirmation Link": "Link de Confirmação",
+          "Tap to copy": "Toque para copiar",
+          "Confirmation Link Copied": "Link de Confirmação Copiado",
+          "Check payment completion": "Verificar conclusão do pagamento",
+          "What is Merchant Mode?": "O que é o Modo Comerciante?",
+          "When active, you can receive payments up to R\$6000 per transaction from any CPF/CNPJ, even those with no prior history.": "Quando ativo, você pode receber pagamentos de até R\$6000 por transação de qualquer CPF/CNPJ, mesmo daqueles sem histórico prévio.",
+          "How to activate it:": "Como ativar:",
+          "Merchant Mode is activated automatically once your total deposit volume exceeds ": "O Modo Comerciante é ativado automaticamente assim que seu volume total de depósitos exceder ",
+          "Your Progress:": "Seu Progresso:",
+          "Sending more than 2 transactions in 30 mins from the same CPF/CNPJ can result in chargebacks": "Enviar mais de 2 transações em 30 minutos do mesmo CPF/CNPJ pode resultar em estornos.",
+          "Active": "Ativo",
+          "Inactive": "Inativo",
+          "Payee CPF/CNPJ (Optional)": "CPF/CNPJ do Comprador (Opcional)",
+          "Enter to raise limit to R\$ 6000 per transaction": "Insira para aumentar o limite para R\$ 6000 por transação",
+          "Merchant Mode": "Modo Comerciante"
         }
       };
 
