@@ -404,6 +404,12 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
                         .i18n,
                     style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14.sp),
                   ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Any MED or bank request for transaction refunds will cancel the Merchant mode'.i18n
+                        .i18n,
+                    style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14.sp),
+                  ),
                   SizedBox(height: 16.h),
                if (!isMerchantModeActive) ...[
                   Text(
@@ -421,7 +427,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
                        ),
                        TextSpan(
                          // This part is not translated as it contains the dynamic value
-                         text: 'R\$${_merchantModeThreshold!.toStringAsFixed(0)}',
+                         text: '\$${_merchantModeThreshold!.toStringAsFixed(0)} USD',
                          style: TextStyle(fontWeight: FontWeight.bold), // Optional: style the amount
                        ),
                      ],

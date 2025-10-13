@@ -2092,10 +2092,13 @@ extension Localization on String {
           "Your Progress:": "Seu Progresso:",
           "Sending more than 2 transactions in 30 mins from the same CPF/CNPJ can result in chargebacks": "Enviar mais de 2 transações em 30 minutos do mesmo CPF/CNPJ pode resultar em estornos.",
           "Active": "Ativo",
+          "Takes ~2+ minutes to complete": "Leva ~2+ minutos para ser concluída",
+          "Takes ~20+ minutes to complete": "Leva ~20+ minutos para ser concluída",
           "Inactive": "Inativo",
-          "Payee CPF/CNPJ (Optional)": "CPF/CNPJ do Comprador (Opcional)",
+          "Payee CPF/CNPJ (Optional)": "CPF/CNPJ do  (Opcional)",
           "Enter to raise limit to R\$ 6000 per transaction": "Insira para aumentar o limite para R\$ 6000 por transação",
-          "Merchant Mode": "Modo Comerciante"
+          "Merchant Mode": "Modo Comerciante",
+          "Any MED or bank request for transaction refunds will cancel the Merchant mode": "Qualquer solicitação de MED ou pedido de reembolso cancelará o modo comerciante",
         }
       };
 
