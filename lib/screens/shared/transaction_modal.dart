@@ -185,8 +185,6 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
   bool _isChecked = false;
   late final AnimationController _animationController;
   late final Animation<double> _scaleAnimation;
-  final String _timestamp =
-  DateFormat('MMM d, yyyy HH:mm').format(DateTime.now());
 
   @override
   void initState() {
@@ -330,13 +328,6 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
                                 ),
                               ),
                             ],
-                          ),
-                          Text(
-                            _timestamp,
-                            style: TextStyle(
-                              fontSize: 15.sp,
-                              color: Colors.white.withOpacity(0.6),
-                            ),
                           ),
                         ],
                       ),
