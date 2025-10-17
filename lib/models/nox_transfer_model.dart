@@ -76,6 +76,7 @@ class NoxTransferNotifier extends StateNotifier<List<NoxTransfer>> {
       price: serverData.price,
       cashback: serverData.cashback,
       cashbackPayed: serverData.cashbackPayed,
+      exactDepositAmount: serverData.exactDepositAmount ?? existingPurchase.exactDepositAmount,
     );
 
     if (existingPurchase == updatedPurchase) {
@@ -111,6 +112,7 @@ class NoxTransferNotifier extends StateNotifier<List<NoxTransfer>> {
         price: serverData.price,
         cashback: serverData.cashback,
         cashbackPayed: serverData.cashbackPayed,
+        exactDepositAmount: serverData.exactDepositAmount ?? existingPurchase.exactDepositAmount,
       ) ?? serverData;
 
       if (existingPurchase == null || existingPurchase != updatedPurchase) {
@@ -184,6 +186,9 @@ class NoxTransfer extends HiveObject {
   @HiveField(20)
   final String? depositAddress;
 
+  @HiveField(21)
+  final String? exactDepositAmount;
+
   NoxTransfer({
     required this.id,
     required this.transactionId,
@@ -205,6 +210,7 @@ class NoxTransfer extends HiveObject {
     this.cashbackPayed = false,
     this.subStatus,
     this.depositAddress,
+    this.exactDepositAmount,
   });
 
   factory NoxTransfer.fromJson(Map<String, dynamic> json) {
@@ -230,6 +236,7 @@ class NoxTransfer extends HiveObject {
       price: double.tryParse(data['price']?.toString() ?? '') ?? 0.0,
       cashback: double.tryParse(data['cashback_to_pay_user']?.toString() ?? '') ?? 0.0,
       cashbackPayed: data['cashback_payed'] ?? false,
+      exactDepositAmount: data['exact_deposit_amount']?.toString(),
     );
   }
 
@@ -253,6 +260,7 @@ class NoxTransfer extends HiveObject {
     double? price,
     double? cashback,
     bool? cashbackPayed,
+    String? exactDepositAmount,
   }) {
     return NoxTransfer(
       id: id,
@@ -275,6 +283,7 @@ class NoxTransfer extends HiveObject {
       price: price ?? this.price,
       cashback: cashback ?? this.cashback,
       cashbackPayed: cashbackPayed ?? this.cashbackPayed,
+      exactDepositAmount: exactDepositAmount ?? this.exactDepositAmount,
     );
   }
 
@@ -299,6 +308,7 @@ class NoxTransfer extends HiveObject {
     price: 0.0,
     cashback: 0.0,
     cashbackPayed: false,
+    exactDepositAmount: null,
   );
 
   String get statusText {
@@ -309,6 +319,8 @@ class NoxTransfer extends HiveObject {
         return "Pix Withdrawal".i18n;
       case "kyc_validation":
         return "KYC Validation".i18n;
+      case "id_validation":
+        return "Additional KYC Required".i18n;
       case "quoting":
         return "Quoting".i18n;
       case "crypto_deposit":
@@ -329,6 +341,7 @@ class NoxTransfer extends HiveObject {
   bool get shouldShowInMainTransaction {
     const userInteractionStartedStatuses = [
       'kyc_validation',
+      'id_validation',
       'pix_deposit',
       'pix_withdrawal',
       'crypto_deposit',
@@ -362,6 +375,16 @@ class NoxTransfer extends HiveObject {
           case "INVALID": return "Invalid KYC data".i18n;
           case "TIER_LIMIT": return "Transaction exceeds client's transactional limit".i18n;
           case "DONE": return "KYC filled and accepted".i18n;
+        }
+        break;
+      case "id_validation":
+        switch (subStatus) {
+          case "INITIAL": return "Processing initiated".i18n;
+          case "PENDING": return "Awaiting Identification".i18n;
+          case "CNPJ_VALIDATION": return "Awaiting UBO picking".i18n;
+          case "IRREGULAR": return "Information is invalid or irregular".i18n;
+          case "CANCELLED": return "Cancelled by the user, by expiration or by irregularities".i18n;
+          case "DONE": return "Validation OK".i18n;
         }
         break;
       case "pix_deposit":
@@ -412,7 +435,6 @@ class NoxTransfer extends HiveObject {
     }
     return subStatus?.replaceAll('_', ' ').i18n.capitalize() ?? '';
   }
-
 }
 
 class NoxService {

@@ -7,7 +7,7 @@ import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
-import 'package:Satsails/providers/send_tx_provider.dart'; // Using your provider context
+import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
@@ -114,7 +114,7 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
       }
 
       ref.read(sendTxProvider.notifier).updateAmount(amountToSet);
-      ref.read(sendTxProvider.notifier).updateDrain(true);
+      ref.read(sendTxProvider.notifier).updateDrain(false);
     } catch (e) {
       if (mounted) {
         showMessageSnackBar(context: context, message: e.toString().i18n, error: true);
@@ -175,6 +175,8 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
       return;
     }
 
+    // This check now works correctly for both manual input and "Max" amounts.
+    // Since `drain` is always false, it correctly verifies if the manually entered amount is spendable.
     if (!sendTxState.drain && sendTxState.amount > availableBalance) {
       showMessageSnackBar(context: context, message: 'Amount exceeds available balance'.i18n, error: true);
       return;
