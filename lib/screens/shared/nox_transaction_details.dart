@@ -46,22 +46,24 @@ class NoxTransactionDetails extends ConsumerWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        title: Text('Transaction Details'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          title: Text('Transaction Details'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
+          backgroundColor: Colors.black,
+          leading: IconButton(icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w), onPressed: () => context.pop()),
+        ),
         backgroundColor: Colors.black,
-        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w), onPressed: () => context.pop()),
-      ),
-      backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        child: Column(
-          children: [
-            _buildHeader(context, ref, transaction),
-            SizedBox(height: 24.h),
-            _buildDetailsCard(context, ref, transaction),
-          ],
+        body: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          child: Column(
+            children: [
+              _buildHeader(context, ref, transaction),
+              SizedBox(height: 24.h),
+              _buildDetailsCard(context, ref, transaction),
+            ],
+          ),
         ),
       ),
     );

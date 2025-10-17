@@ -599,20 +599,16 @@ Widget _buildEulenTransactionItem(
   );
 }
 
-Widget _buildNoxTransactionItem(
-    NoxTransaction transaction, BuildContext context, WidgetRef ref) {
+Widget _buildNoxTransactionItem(NoxTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.details;
   final isPending = !details.completed && !details.failed;
-  final type =
-  details.transactionType.toString() == "BUY" ? "Purchase" : "Withdrawal";
-  final title = details.transactionType.toString() == "BUY"
-      ? "${details.to_currency} $type".i18n
-      : "${details.from_currency} $type".i18n;
+  final type = details.transactionType.toString() == "BUY" ? "Purchase" : "Withdrawal";
+  final title = "${details.to_currency} $type".i18n;
   final locale = I18n.locale.languageCode;
-  final formattedDate =
-  DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
+  final formattedDate = DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
   final statusText = isPending ? (details.statusText).capitalize() : formattedDate;
   final isBuy = details.transactionType.toString() == "BUY";
+  String receivedAmountText = details.receivedAmount.toString();
 
   return _buildTransactionItemLayout(
     context: context,
@@ -631,7 +627,7 @@ Widget _buildNoxTransactionItem(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          "${isBuy ? '-' : ''}${details.price} USD",
+          "${details.price} USD",
           style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.normal,
@@ -639,7 +635,7 @@ Widget _buildNoxTransactionItem(
         ),
         SizedBox(height: 2.h),
         Text(
-          "${isBuy ? '' : '-'}${details.receivedAmount} ${details.from_currency}",
+          "$receivedAmountText ${details.to_currency}",
           style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,

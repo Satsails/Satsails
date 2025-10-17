@@ -34,124 +34,132 @@ class DepositTypeScreen extends ConsumerWidget {
       });
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        title: Text(
-          "Deposit Type".i18n,
-          style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
+    return SafeArea(
+      bottom: true,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          title: Text(
+            "Deposit Type".i18n,
+            style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: Colors.black,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+            onPressed: () => context.pop(),
+          ),
         ),
         backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-          onPressed: () => context.pop(),
-        ),
-      ),
-      backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Card(
-                color: const Color(0x00333333).withOpacity(0.4),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                elevation: 4,
-                child: Padding(
-                  padding: EdgeInsets.all(16.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildDropdown(
-                        label: 'Pay in'.i18n,
-                        value: selectedCurrency,
-                        items: CurrencyDeposit.values,
-                        getImage: (currency) =>
-                        currencyFlags[currency] ??
-                            Icon(Icons.flag, color: Colors.white, size: 28.sp),
-                        getText: (currency) => currency.name,
-                        onChanged: (value) {
-                          if (value != null) {
-                            ref.read(selectedCurrencyProvider.notifier).state = value;
-                          }
-                        },
-                      ),
-                      SizedBox(height: 14.h),
-                      _buildDropdown(
-                        label: 'Method of payment'.i18n,
-                        value: availablePaymentMethods.contains(selectedPaymentMethod)
-                            ? selectedPaymentMethod
-                            : null,
-                        items: availablePaymentMethods,
-                        getImage: (method) => Icon(
-                          paymentMethodIcons[method] ?? Icons.help_outline,
-                          color: Colors.white,
-                          size: 28.sp,
-                        ),
-                        getText: (method) => formatEnumName(method.name),
-                        onChanged: (value) {
-                          ref.read(selectedPaymentMethodProvider.notifier).state = value;
-                        },
-                      ),
-                      SizedBox(height: 14.h),
-                      _buildDropdown(
-                        label: 'Asset to receive'.i18n,
-                        value: availableDepositTypes.contains(selectedAsset)
-                            ? selectedAsset
-                            : null,
-                        items: availableDepositTypes,
-                        getImage: getAssetImage,
-                        getText: (asset) => formatEnumName(asset.name),
-                        onChanged: (value) {
-                          if (value != null) {
-                            ref.read(selectedCryptoTypeProvider.notifier).state = value;
-                          }
-                        },
-                      ),
-                      SizedBox(height: 32.h),
-                      Builder(
-                        builder: (context) {
-                          final selectedProvider = ref.watch(computedDepositProvider);
-                          final isButtonEnabled = selectedProvider == DepositProvider.Eulen ||
-                              selectedProvider == DepositProvider.Nox;
-                          final buttonText = isButtonEnabled ? 'Buy'.i18n : 'Coming soon'.i18n;
-
-                          return CustomButton(
-                            text: buttonText,
-                            onPressed: isButtonEnabled
-                                ? () {
-                              final route =
-                              selectedProvider == DepositProvider.Eulen
-                                  ? 'DepositPixEulen'
-                                  : 'DepositPixNox';
-                              context.pushNamed(route);
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Card(
+                  color: const Color(0x00333333).withOpacity(0.4),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                  elevation: 4,
+                  child: Padding(
+                    padding: EdgeInsets.all(16.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildDropdown(
+                          label: 'Pay in'.i18n,
+                          value: selectedCurrency,
+                          items: CurrencyDeposit.values,
+                          getImage: (currency) =>
+                          currencyFlags[currency] ??
+                              Icon(Icons.flag, color: Colors.white, size: 28.sp),
+                          getText: (currency) => currency.name,
+                          onChanged: (value) {
+                            if (value != null) {
+                              ref.read(selectedCurrencyProvider.notifier).state = value;
                             }
-                                : () {}, // Provide an empty function for disabled state
-                            primaryColor: isButtonEnabled
-                                ? Colors.green.shade700
-                                : Colors.red.withOpacity(0.8),
-                            secondaryColor: isButtonEnabled
-                                ? Colors.green.shade700
-                                : Colors.red.withOpacity(0.6),
-                            textColor: Colors.black,
-                          );
-                        },
-                      ),
-                    ],
+                          },
+                        ),
+                        SizedBox(height: 14.h),
+                        _buildDropdown(
+                          label: 'Method of payment'.i18n,
+                          value: availablePaymentMethods.contains(selectedPaymentMethod)
+                              ? selectedPaymentMethod
+                              : null,
+                          items: availablePaymentMethods,
+                          getImage: (method) => Icon(
+                            paymentMethodIcons[method] ?? Icons.help_outline,
+                            color: Colors.white,
+                            size: 28.sp,
+                          ),
+                          getText: (method) => formatEnumName(method.name),
+                          onChanged: (value) {
+                            ref.read(selectedPaymentMethodProvider.notifier).state = value;
+                          },
+                        ),
+                        SizedBox(height: 14.h),
+                        _buildDropdown(
+                          label: 'Asset to receive'.i18n,
+                          value: availableDepositTypes.contains(selectedAsset)
+                              ? selectedAsset
+                              : null,
+                          items: availableDepositTypes,
+                          getImage: getAssetImage,
+                          getText: (asset) => formatEnumName(asset.name),
+                          onChanged: (value) {
+                            if (value != null) {
+                              ref.read(selectedCryptoTypeProvider.notifier).state = value;
+                            }
+                          },
+                        ),
+                        SizedBox(height: 32.h),
+                        Builder(
+                          builder: (context) {
+                            final selectedProvider = ref.watch(computedDepositProvider);
+                            final isButtonEnabled = selectedProvider == DepositProvider.Eulen ||
+                                selectedProvider == DepositProvider.Nox;
+                            final buttonText = isButtonEnabled ? 'Buy'.i18n : 'Coming soon'.i18n;
+
+                            return CustomButton(
+                              text: buttonText,
+                              onPressed: isButtonEnabled
+                                  ? () {
+                                final route =
+                                selectedProvider == DepositProvider.Eulen
+                                    ? 'DepositPixEulen'
+                                    : 'DepositPixNox';
+                                context.pushNamed(route);
+                              }
+                                  : () {}, // Provide an empty function for disabled state
+                              primaryColor: isButtonEnabled
+                                  ? Colors.green.shade700
+                                  : Colors.red.withOpacity(0.8),
+                              secondaryColor: isButtonEnabled
+                                  ? Colors.green.shade700
+                                  : Colors.red.withOpacity(0.6),
+                              textColor: Colors.black,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Builder(
-                builder: (context) {
-                  final selectedProvider = ref.watch(computedDepositProvider);
-                  if (selectedProvider != null) {
-                    return ProviderDetails(provider: selectedProvider);
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-            ],
+                Builder(
+                  builder: (context) {
+                    final selectedProvider = ref.watch(computedDepositProvider);
+                    if (selectedProvider != null) {
+                      return Column(
+                        children: [
+                          ProviderDetails(provider: selectedProvider),
+                          FeesInformation(provider: selectedProvider),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -229,146 +237,143 @@ class ProviderDetails extends ConsumerWidget {
       height: 1.4,
     );
 
-    return SafeArea(
-      bottom: true,
-      child: Card(
-        color: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        elevation: 8,
-        margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16.r),
-          child: ExpansionTile(
-            title: Text(
-              'Provider: ${formatEnumName(provider.name)}'.i18n,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
+    return Card(
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      elevation: 8,
+      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.r),
+        child: ExpansionTile(
+          title: Text(
+            'Provider: ${formatEnumName(provider.name)}'.i18n,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white,
+          backgroundColor: const Color(0xFF333333).withOpacity(0.4),
+          collapsedBackgroundColor: const Color(0xFF333333).withOpacity(0.4),
+          children: [
+            Padding(
+              padding: EdgeInsets.all(20.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'KYC Assessment'.i18n,
+                    style: sectionTitleStyle,
+                  ),
+                  SizedBox(height: 12.h),
+                  Row(
+                    children: [
+                      for (int i = 1; i <= 5; i++)
+                        Icon(
+                          _getStarIcon(i, kyc.rating),
+                          color: Colors.amber,
+                          size: 20.sp,
+                        ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        '${kyc.rating}/5',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                  ...kyc.details.map(
+                        (detail) => Padding(
+                      padding: EdgeInsets.only(bottom: 8.h),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.fiber_manual_record, color: Colors.white, size: 12.sp),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: Text(
+                              detail.i18n,
+                              style: listItemStyle,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Divider(
+                    color: Colors.grey.shade700,
+                    thickness: 0.5,
+                    indent: 12.w,
+                    endIndent: 12.w,
+                  ),
+                  SizedBox(height: 20.h),
+                  Text(
+                    'Advantages'.i18n,
+                    style: sectionTitleStyle,
+                  ),
+                  SizedBox(height: 12.h),
+                  ...providerDetail.advantages.map(
+                        (advantage) => Padding(
+                      padding: EdgeInsets.only(bottom: 8.h),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.greenAccent, size: 16.sp),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: Text(
+                              advantage.i18n,
+                              style: listItemStyle,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Divider(
+                    color: Colors.grey.shade700,
+                    thickness: 0.5,
+                    indent: 12.w,
+                    endIndent: 12.w,
+                  ),
+                  SizedBox(height: 20.h),
+                  Text(
+                    'Disadvantages'.i18n,
+                    style: sectionTitleStyle,
+                  ),
+                  SizedBox(height: 12.h),
+                  ...providerDetail.disadvantages.map(
+                        (disadvantage) => Padding(
+                      padding: EdgeInsets.only(bottom: 8.h),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.remove_circle, color: Colors.orangeAccent, size: 16.sp),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: Text(
+                              disadvantage.i18n,
+                              style: listItemStyle,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            iconColor: Colors.white,
-            collapsedIconColor: Colors.white,
-            backgroundColor: const Color(0xFF333333).withOpacity(0.4),
-            collapsedBackgroundColor: const Color(0xFF333333).withOpacity(0.4),
-            children: [
-              Padding(
-                padding: EdgeInsets.all(20.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'KYC Assessment'.i18n,
-                      style: sectionTitleStyle,
-                    ),
-                    SizedBox(height: 12.h),
-                    Row(
-                      children: [
-                        for (int i = 1; i <= 5; i++)
-                          Icon(
-                            _getStarIcon(i, kyc.rating),
-                            color: Colors.amber,
-                            size: 20.sp,
-                          ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          '${kyc.rating}/5',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8.h),
-                    ...kyc.details.map(
-                          (detail) => Padding(
-                        padding: EdgeInsets.only(bottom: 8.h),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(Icons.fiber_manual_record, color: Colors.white, size: 12.sp),
-                            SizedBox(width: 8.w),
-                            Expanded(
-                              child: Text(
-                                detail.i18n,
-                                style: listItemStyle,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20.h),
-                    Divider(
-                      color: Colors.grey.shade700,
-                      thickness: 0.5,
-                      indent: 12.w,
-                      endIndent: 12.w,
-                    ),
-                    SizedBox(height: 20.h),
-                    Text(
-                      'Advantages'.i18n,
-                      style: sectionTitleStyle,
-                    ),
-                    SizedBox(height: 12.h),
-                    ...providerDetail.advantages.map(
-                          (advantage) => Padding(
-                        padding: EdgeInsets.only(bottom: 8.h),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(Icons.check_circle, color: Colors.greenAccent, size: 16.sp),
-                            SizedBox(width: 8.w),
-                            Expanded(
-                              child: Text(
-                                advantage.i18n,
-                                style: listItemStyle,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20.h),
-                    Divider(
-                      color: Colors.grey.shade700,
-                      thickness: 0.5,
-                      indent: 12.w,
-                      endIndent: 12.w,
-                    ),
-                    SizedBox(height: 20.h),
-                    Text(
-                      'Disadvantages'.i18n,
-                      style: sectionTitleStyle,
-                    ),
-                    SizedBox(height: 12.h),
-                    ...providerDetail.disadvantages.map(
-                          (disadvantage) => Padding(
-                        padding: EdgeInsets.only(bottom: 8.h),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(Icons.remove_circle, color: Colors.orangeAccent, size: 16.sp),
-                            SizedBox(width: 8.w),
-                            Expanded(
-                              child: Text(
-                                disadvantage.i18n,
-                                style: listItemStyle,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );
@@ -382,5 +387,98 @@ class ProviderDetails extends ConsumerWidget {
     } else {
       return Icons.star_border;
     }
+  }
+}
+
+class FeesInformation extends ConsumerWidget {
+  final DepositProvider provider;
+
+  const FeesInformation({super.key, required this.provider});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final feeInfo = feesInformation[provider];
+    if (feeInfo == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      elevation: 8,
+      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.r),
+        child: ExpansionTile(
+          title: Text(
+            'Fees Information'.i18n,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white,
+          backgroundColor: const Color(0xFF333333).withOpacity(0.4),
+          collapsedBackgroundColor: const Color(0xFF333333).withOpacity(0.4),
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+              child: feeInfo.isEmpty
+                  ? Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20.h),
+                  child: Text(
+                    "Fee information to be defined.".i18n,
+                    style: TextStyle(color: Colors.white70, fontSize: 14.sp),
+                  ),
+                ),
+              )
+                  : Column(
+                children: feeInfo.map((detail) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(detail.icon, color: Colors.white, size: 24.sp),
+                        SizedBox(width: 16.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                detail.title.i18n,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(
+                                detail.details.i18n,
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14.sp,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

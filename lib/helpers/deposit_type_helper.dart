@@ -134,6 +134,51 @@ final Map<DepositProvider, KYCAassessment> kycAssessment = {
   ),
 };
 
+
+class FeeDetail {
+  final IconData icon;
+  final String title;
+  final String details;
+
+  FeeDetail({required this.icon, required this.title, required this.details});
+}
+
+// MODIFIED: Fee descriptions for Eulen have been updated for clarity.
+final Map<DepositProvider, List<FeeDetail>> feesInformation = {
+  DepositProvider.Nox: [
+    FeeDetail(
+      icon: Icons.percent_rounded,
+      title: "Total Fee: 2%",
+      details: "A competitive rate combining our 1% fee with the provider's 1%.",
+    ),
+    FeeDetail(
+      icon: Icons.sell_rounded,
+      title: "Affiliate Discount",
+      details: "Use an affiliate code to reduce the total fee to 1.8%.",
+    ),
+  ],
+  DepositProvider.Eulen: [
+    FeeDetail(
+      icon: Icons.stairs_rounded,
+      title: "Standard Tier",
+      details: "A 3% fee (or 2.8% with a code) plus a 1 BRL fixed fee applies until your account's total purchase history exceeds 3,500 USD.",
+    ),
+    FeeDetail(
+      icon: Icons.workspace_premium_rounded,
+      title: "Merchant Tier",
+      details: "Once your lifetime purchase history surpasses 3,500 USD, you are automatically upgraded, and fees drop to just 1% (or 0.8% with a code).",
+    ),
+    FeeDetail(
+      icon: Icons.swap_horiz_rounded,
+      title: "Crypto Swaps",
+      details: "Fees are dynamic. We recommend simulating the transaction on the 'Swap' screen to see the exact cost before confirming.",
+    ),
+  ],
+  DepositProvider.Chimera: [], // Empty list signifies "To be defined"
+  DepositProvider.Meld: [],
+};
+
+
 final Map<CurrencyDeposit, Widget> currencyFlags = {
   CurrencyDeposit.EUR: Flag(Flags.european_union),
   CurrencyDeposit.BRL: Flag(Flags.brazil),

@@ -46,7 +46,6 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(sendTxProvider.notifier).resetToDefault();
-      _syncControllerWithProvider(ref.read(sendTxProvider).amount);
     });
     _amountController.addListener(_onAmountChanged);
   }
