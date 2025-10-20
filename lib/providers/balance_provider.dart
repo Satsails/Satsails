@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/balance_model.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 final balanceNotifierProvider = StateNotifierProvider<BalanceNotifier, WalletBalance>((ref) {
   return BalanceNotifier(ref);

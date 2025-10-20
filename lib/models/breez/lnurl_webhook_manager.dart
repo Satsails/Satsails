@@ -1,7 +1,7 @@
 import 'package:Satsails/models/breez/lnurl_model.dart';
 import 'package:Satsails/models/breez/lnurl_service.dart';
 import 'package:Satsails/models/breez/username_utilities.dart';
-import 'package:hive/hive.dart'; // Mocked/Placeholder
+import 'package:hive_ce/hive.dart'; // Mocked/Placeholder
 
 class LnUrlRegistrationManager {
   static const int maxRetries = 3;

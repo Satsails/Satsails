@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/models/settings_model.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 final initialSettingsProvider = FutureProvider<Settings>((ref) async {

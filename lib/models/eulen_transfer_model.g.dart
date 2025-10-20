@@ -8,7 +8,7 @@ part of 'eulen_transfer_model.dart';
 
 class EulenTransferAdapter extends TypeAdapter<EulenTransfer> {
   @override
-  final int typeId = 28;
+  final typeId = 28;
 
   @override
   EulenTransfer read(BinaryReader reader) {
@@ -17,25 +17,25 @@ class EulenTransferAdapter extends TypeAdapter<EulenTransfer> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return EulenTransfer(
-      id: fields[0] as int,
+      id: (fields[0] as num).toInt(),
       transactionId: fields[1] as String,
-      originalAmount: fields[2] as double,
+      originalAmount: (fields[2] as num).toDouble(),
       completed: fields[3] as bool,
       failed: fields[4] as bool,
-      userId: fields[5] as int?,
+      userId: (fields[5] as num?)?.toInt(),
       createdAt: fields[6] as DateTime,
       updatedAt: fields[7] as DateTime,
-      receivedAmount: fields[8] as double,
-      pixKey: fields[9] as String,
-      status: fields[10] as String?,
-      paymentMethod: fields[11] as String?,
-      to_currency: fields[12] as String?,
-      from_currency: fields[13] as String?,
-      transactionType: fields[14] as String?,
-      provider: fields[15] as String?,
-      price: fields[16] as double?,
-      cashback: fields[17] as double?,
-      cashbackPayed: fields[18] as bool?,
+      receivedAmount: (fields[8] as num).toDouble(),
+      pixKey: fields[9] == null ? '' : fields[9] as String,
+      status: fields[10] == null ? 'unknown' : fields[10] as String?,
+      paymentMethod: fields[11] == null ? 'unknown' : fields[11] as String?,
+      to_currency: fields[12] == null ? 'unknown' : fields[12] as String?,
+      from_currency: fields[13] == null ? 'unknown' : fields[13] as String?,
+      transactionType: fields[14] == null ? 'BUY' : fields[14] as String?,
+      provider: fields[15] == null ? 'Eulen' : fields[15] as String?,
+      price: fields[16] == null ? 0.0 : (fields[16] as num?)?.toDouble(),
+      cashback: fields[17] == null ? 0.0 : (fields[17] as num?)?.toDouble(),
+      cashbackPayed: fields[18] == null ? false : fields[18] as bool?,
     );
   }
 

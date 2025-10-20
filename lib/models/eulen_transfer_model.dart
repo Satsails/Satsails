@@ -5,7 +5,7 @@ import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:http/http.dart' as http;
 
 part 'eulen_transfer_model.g.dart';

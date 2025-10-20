@@ -140,17 +140,47 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
         final transferDetails = await ref.read(getNoxTransferDetailsProvider(transferId).future);
         final address = transferDetails.depositAddress;
 
-        if (address != null && address.isNotEmpty) {
+        final exactDepositAmountString = transferDetails.exactDepositAmount;
+
+        if (address != null && address.isNotEmpty && exactDepositAmountString != null && exactDepositAmountString.isNotEmpty) {
+
           timer.cancel();
+
+          final btcValue = double.tryParse(exactDepositAmountString) ?? 0.0;
+
+          final newAmountInSats = (btcValue * 100000000).round();
+
+          if (newAmountInSats <= 0) {
+            if (mounted) {
+              showMessageSnackBar(
+                  context: context, message: "Server returned an invalid deposit amount.".i18n, error: true);
+              setState(() { _url = null; _activeTransferId = null; });
+            }
+            return;
+          }
+
+          final availableBalance = ref.read(balanceNotifierProvider).onChainBtcBalance;
+          if (newAmountInSats > availableBalance) {
+            if (mounted) {
+              showMessageSnackBar(
+                  context: context, message: "Insufficient balance for the required deposit amount.".i18n, error: true);
+              setState(() { _url = null; _activeTransferId = null; });
+            }
+            return;
+          }
+
           try {
+            ref.read(sendTxProvider.notifier).updateAmount(newAmountInSats);
             ref.read(sendTxProvider.notifier).updateAddress(address);
+            ref.read(sendTxProvider.notifier).updateDrain(false);
+
             await ref.read(sendBitcoinTransactionProvider.future);
             ref.read(sendTxProvider.notifier).resetToDefault();
           } catch (e) {
             ref.read(sendTxProvider.notifier).resetToDefault();
             if (mounted) {
               showMessageSnackBar(
-                  context: context, message: "Transaction failed: ${e.toString()}".i18n, error: true);
+                  context: context, message: "Transaction failed, not sufficient to cover network fees".i18n, error: true);
               setState(() {
                 _url = null;
                 _activeTransferId = null;
@@ -175,8 +205,6 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
       return;
     }
 
-    // This check now works correctly for both manual input and "Max" amounts.
-    // Since `drain` is always false, it correctly verifies if the manually entered amount is spendable.
     if (!sendTxState.drain && sendTxState.amount > availableBalance) {
       showMessageSnackBar(context: context, message: 'Amount exceeds available balance'.i18n, error: true);
       return;

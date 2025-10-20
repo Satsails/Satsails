@@ -2082,6 +2082,7 @@ extension Localization on String {
           "attempts remaining": "tentativas restantes",
           "Receive Liquid BTC from Bitcoin": "Receba Liquid BTC de Bitcoin",
           "The maximum value per transaction is 3000 BRL": "O valor máximo por transação é 3000 BRL",
+          "The maximum value per transaction is 6000 BRL": "O valor máximo por transação é 6000 BRL",
           "Receive Liquid USDT from USDT on Arbitrum": "Receba Liquid USDT de USDT na Arbitrum",
           "Deposits from the same CPF/CNPJ must have 30 minutes between them": "Depósitos do mesmo CPF/CNPJ devem ter 30 minutos de intervalo entre eles",
           "See Current Status": "Ver Status da transação",
@@ -2102,8 +2103,10 @@ extension Localization on String {
           "Takes ~20+ minutes to complete": "Leva ~20+ minutos para ser concluída",
           "Inactive": "Inativo",
           "Payee CPF/CNPJ (Optional)": "CPF/CNPJ do Beneficiário (Opcional)",
+          "Payee CPF/CNPJ (Mandatory)": "CPF/CNPJ do Beneficiário (Obrigatório)",
           "Enter to raise limit to R\$ 6000 per transaction": "Insira para aumentar o limite para R\$ 6000 por transação",
           "Merchant Mode": "Modo Comerciante",
+          "Required for amounts over R\$ 3000": "Obrigatório para valores acima de R\$ 3000",
           "Any MED or bank request for transaction refunds will cancel the Merchant mode": "Qualquer solicitação de MED ou pedido de reembolso cancelará o modo comerciante",
           "Total Fee: 2%": "Taxa Total: 2%",
           "A competitive rate combining our 1% fee with the provider's 1%.": "Uma taxa competitiva que combina a nossa taxa de 1% com a do provedor de 1%.",
@@ -2119,6 +2122,7 @@ extension Localization on String {
           "Crypto Swaps": "Trocas de Cripto",
           "Gift cards, phone refills, and more!": "Cartões-presente, recargas de telefone e muito mais!",
           "Become an affiliate": "Torne-se um afiliado",
+          "Transaction failed, not sufficient to cover network fees": "Transação falhou, valor insuficiente para cobrir as taxas de rede",
           "Recommend friends and earn up to 50% of our revenue": "Recomende amigos e ganhe até 50% da nossa receita",
           "Fees are dynamic. We recommend simulating the transaction on the 'Swap' screen to see the exact cost before confirming.": "As taxas são dinâmicas. Recomendamos simular a transação na tela 'Trocas' para ver o custo exato antes de confirmar."
         }

@@ -8,7 +8,7 @@ part of 'nox_transfer_model.dart';
 
 class NoxTransferAdapter extends TypeAdapter<NoxTransfer> {
   @override
-  final int typeId = 29;
+  final typeId = 29;
 
   @override
   NoxTransfer read(BinaryReader reader) {
@@ -17,33 +17,34 @@ class NoxTransferAdapter extends TypeAdapter<NoxTransfer> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return NoxTransfer(
-      id: fields[0] as int,
+      id: (fields[0] as num).toInt(),
       transactionId: fields[1] as String,
-      originalAmount: fields[2] as double,
+      originalAmount: (fields[2] as num).toDouble(),
       completed: fields[3] as bool,
       failed: fields[4] as bool,
-      userId: fields[5] as int?,
+      userId: (fields[5] as num?)?.toInt(),
       createdAt: fields[6] as DateTime,
       updatedAt: fields[7] as DateTime,
-      receivedAmount: fields[8] as double,
-      status: fields[10] as String?,
-      paymentMethod: fields[11] as String?,
-      to_currency: fields[12] as String?,
-      from_currency: fields[13] as String?,
-      transactionType: fields[14] as String?,
-      provider: fields[15] as String?,
-      price: fields[16] as double?,
-      cashback: fields[17] as double?,
-      cashbackPayed: fields[18] as bool?,
+      receivedAmount: (fields[8] as num).toDouble(),
+      status: fields[10] == null ? 'unknown' : fields[10] as String?,
+      paymentMethod: fields[11] == null ? 'unknown' : fields[11] as String?,
+      to_currency: fields[12] == null ? 'unknown' : fields[12] as String?,
+      from_currency: fields[13] == null ? 'unknown' : fields[13] as String?,
+      transactionType: fields[14] == null ? 'BUY' : fields[14] as String?,
+      provider: fields[15] == null ? 'Nox' : fields[15] as String?,
+      price: fields[16] == null ? 0.0 : (fields[16] as num?)?.toDouble(),
+      cashback: fields[17] == null ? 0.0 : (fields[17] as num?)?.toDouble(),
+      cashbackPayed: fields[18] == null ? false : fields[18] as bool?,
       subStatus: fields[19] as String?,
       depositAddress: fields[20] as String?,
+      exactDepositAmount: fields[21] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, NoxTransfer obj) {
     writer
-      ..writeByte(20)
+      ..writeByte(21)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -83,7 +84,9 @@ class NoxTransferAdapter extends TypeAdapter<NoxTransfer> {
       ..writeByte(19)
       ..write(obj.subStatus)
       ..writeByte(20)
-      ..write(obj.depositAddress);
+      ..write(obj.depositAddress)
+      ..writeByte(21)
+      ..write(obj.exactDepositAmount);
   }
 
   @override

@@ -8,7 +8,7 @@ part of 'sideswap_exchange_model.dart';
 
 class SideswapCompletedSwapAdapter extends TypeAdapter<SideswapCompletedSwap> {
   @override
-  final int typeId = 11;
+  final typeId = 11;
 
   @override
   SideswapCompletedSwap read(BinaryReader reader) {
@@ -22,8 +22,8 @@ class SideswapCompletedSwapAdapter extends TypeAdapter<SideswapCompletedSwap> {
       sendAmount: fields[2] as num,
       recvAsset: fields[3] as String,
       recvAmount: fields[4] as num,
-      quoteId: fields[5] as int,
-      timestamp: fields[6] as int,
+      quoteId: (fields[5] as num).toInt(),
+      timestamp: (fields[6] as num).toInt(),
     );
   }
 
