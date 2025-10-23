@@ -77,7 +77,7 @@ final Map<SellProvider, ProviderDetails> sellProviderDetails = {
       "Fast settlement".i18n,
     ],
     disadvantages: [
-      "You have to KYC with the provider".i18n,
+      "You have to KYC with the provider for big amounts".i18n,
       "Sales reported to the Brazilian federal revenue agency under the seller's name".i18n,
     ],
   ),
@@ -128,6 +128,48 @@ final Map<SellProvider, KYCAassessment> sellKycAssessment = {
     rating: 0.0,
   ),
 };
+
+class FeeDetail {
+  final IconData icon;
+  final String title;
+  final String details;
+
+  FeeDetail({required this.icon, required this.title, required this.details});
+}
+
+final Map<SellProvider, List<FeeDetail>> sellFeesInformation = {
+  SellProvider.Nox: [
+    FeeDetail(
+      icon: Icons.percent_rounded,
+      title: "Total Fee: 2%",
+      details: "A competitive rate combining our 1% fee with the provider's 1%.",
+    ),
+  ],
+  SellProvider.Eulen: [
+    FeeDetail(
+      icon: Icons.stairs_rounded,
+      title: "Standard Tier",
+      // Note: Adapted text to "sale" instead of "purchase"
+      details: "A 3% fee plus a 1 BRL fixed fee applies until your account's total sale history exceeds 3,500 USD.",
+    ),
+    FeeDetail(
+      icon: Icons.workspace_premium_rounded,
+      title: "Merchant Tier",
+      // Note: Adapted text to "sale" instead of "purchase"
+      details: "Once your lifetime sale history surpasses 3,500 USD, you are automatically upgraded, and fees drop to just 1%.",
+    ),
+    FeeDetail(
+      icon: Icons.swap_horiz_rounded,
+      title: "Crypto Swaps",
+      details: "Fees are dynamic. We recommend simulating the transaction on the 'Swap' screen to see the exact cost before confirming.",
+    ),
+  ],
+  SellProvider.Chimera: [], // Empty list signifies "To be defined"
+  SellProvider.Meld: [],
+};
+
+// --- END ADDED FEE INFORMATION ---
+
 
 // UI Helper Maps
 final Map<CurrencySell, Widget> currencySellFlags = {

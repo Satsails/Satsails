@@ -407,6 +407,26 @@ class EulenService {
     }
   }
 
+  static Future<Result<bool>> getWhitelistStatus() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers/whitelist_status'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return  Result(data: jsonDecode(response.body)['whitelist_enabled']);
+      } else {
+        String errorMsg = jsonDecode(response.body)['error'] ?? 'Failed to add affiliate code';
+        return Result(error: errorMsg);
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please try again later');
+    }
+  }
+
   static Future<Result<bool>> getTransactionPaymentState(String transactionId, String auth) async {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();

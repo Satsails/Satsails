@@ -13,6 +13,7 @@ import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/localizations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:decimal/decimal.dart'; // Import the decimal package
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -41,6 +42,9 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
   Timer? _pollingTimer;
   String? _activeTransferId;
 
+  // Add this constant for calculations
+  final _satsInBtc = Decimal.fromInt(100000000);
+
   @override
   void initState() {
     super.initState();
@@ -60,17 +64,25 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
 
   void _syncControllerWithProvider(int amountInSats) {
     _isSyncingController = true;
+
     if (amountInSats == 0) {
       if (_amountController.text.isNotEmpty) {
         _amountController.clear();
       }
-    } else {
-      // Convert sats to a string with a period, removing trailing zeros.
-      final btcString = (amountInSats / 100000000.0).toString();
+      _isSyncingController = false;
+      return;
+    }
 
-      if (_amountController.text != btcString) {
-        _amountController.text = btcString;
-      }
+    final amountRational = Decimal.fromInt(amountInSats) / _satsInBtc;
+
+    final amountDecimal = amountRational.toDecimal(
+      scaleOnInfinitePrecision: 8, // Use 8 decimals for BTC
+    );
+
+    final btcString = amountDecimal.toString();
+
+    if (_amountController.text != btcString) {
+      _amountController.text = btcString;
     }
     _isSyncingController = false;
   }
@@ -79,14 +91,17 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
     if (_isSyncingController) return;
 
     ref.read(sendTxProvider.notifier).updateDrain(false);
-    final text = _amountController.text;
+    final text = _amountController.text.replaceAll(',', '.');
 
     if (text.isEmpty) {
       ref.read(sendTxProvider.notifier).updateAmount(0);
       return;
     }
-    final btcValue = double.tryParse(text) ?? 0.0;
-    final newAmountInSats = (btcValue * 100000000).round();
+
+    final amountDecimal = Decimal.tryParse(text) ?? Decimal.zero;
+
+    final newAmountInSats = (amountDecimal * _satsInBtc).toBigInt().toInt();
+
     ref.read(sendTxProvider.notifier).updateAmount(newAmountInSats);
   }
 
@@ -129,7 +144,7 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
   void _startPollingForAddress(String transferId) {
     _pollingTimer?.cancel();
 
-    _pollingTimer = Timer.periodic(const Duration(seconds: 4), (timer) async {
+    _pollingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (!mounted) {
         timer.cancel();
         return;
@@ -146,9 +161,9 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
 
           timer.cancel();
 
-          final btcValue = double.tryParse(exactDepositAmountString) ?? 0.0;
+          final amountDecimal = Decimal.tryParse(exactDepositAmountString.replaceAll(',', '.')) ?? Decimal.zero;
 
-          final newAmountInSats = (btcValue * 100000000).round();
+          final newAmountInSats = (amountDecimal * _satsInBtc).toBigInt().toInt();
 
           if (newAmountInSats <= 0) {
             if (mounted) {

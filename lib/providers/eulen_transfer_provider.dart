@@ -53,17 +53,25 @@ final getWhitelistAmountProvider = FutureProvider.autoDispose<double>((ref) asyn
   }
 });
 
+final getWhitelistStatusProvider = FutureProvider.autoDispose<bool>((ref) async {
+  final whitelistStatus = await EulenService.getWhitelistStatus();
+
+  if (whitelistStatus.isSuccess && whitelistStatus.data != null) {
+    return whitelistStatus.data!;
+  } else {
+    throw whitelistStatus.error!;
+  }
+});
+
 final createEulenTransferRequestProvider =
 FutureProvider.autoDispose.family<EulenTransfer, Map<String, dynamic>>((ref, params) async {
 
-  // MODIFIED: Extract 'taxId' from the map
   final double amount = params['amount'];
   final String? taxId = params['taxId'];
 
   final auth = ref.watch(userProvider).jwt;
   final liquidAddress = ref.read(addressProvider).liquidAddress;
 
-  // MODIFIED: Call the service with the correct named parameter
   final result = await EulenService.createTransaction(
     auth,
     amount,

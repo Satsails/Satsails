@@ -36,18 +36,20 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   String? _transactionId;
   Timer? _pollingTimer;
 
-  // UI state
   bool _isLoading = false;
   bool _isPaid = false;
 
-  // Data from transaction
   double _amountToReceive = 0;
   double feePercentage = 0;
 
+  bool _isWhitelistActive = true;
+
   bool isMerchantModeActive = false;
+
   double _currentAmountPurchasedInUSD = 0.0;
   double? _merchantModeThreshold;
 
+  // This is null until the fee is fetched
   double? _userFeePercentage;
 
   late final AnimationController _successAnimationController;
@@ -64,7 +66,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
     _successScaleAnimation =
         CurvedAnimation(parent: _successAnimationController, curve: Curves.easeOutBack);
 
-    _cpfCnpjController.addListener(() => setState(() {})); // Keep this for potential future use
+    _cpfCnpjController.addListener(() => setState(() {}));
   }
 
   @override
@@ -77,11 +79,40 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   }
 
   Future<void> _fetchInitialData() async {
-    await _fetchMerchantModeThreshold();
-    await Future.wait([
-      _fetchAmountPurchasedByAccount(),
-      _fetchUserFee(),
-    ]);
+    final userFeeFuture = _fetchUserFee();
+
+    bool isWhitelisted;
+    try {
+      isWhitelisted = await ref.read(getWhitelistStatusProvider.future);
+    } catch (e) {
+      print("Could not fetch whitelist status, defaulting to true: $e");
+      isWhitelisted = false;
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _isWhitelistActive = isWhitelisted;
+    });
+
+    try {
+      if (isWhitelisted) {
+        await _fetchMerchantModeThreshold();
+        await _fetchAmountPurchasedByAccount();
+      }
+
+      await userFeeFuture;
+
+    } catch (e) {
+      print("Failed to fetch initial page data (merchant or fee): $e");
+      if (mounted) {
+        showMessageSnackBar(
+            context: context,
+            message: 'Failed to load page data. Please go back and try again.'.i18n,
+            error: true,
+            top: true,
+        );
+      }
+    }
   }
 
   Future<void> _fetchMerchantModeThreshold() async {
@@ -155,6 +186,9 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   }
 
   Future<void> _generateQRCode() async {
+    // We can now be certain _userFeePercentage is not null here,
+    // because the button to call this function was disabled.
+
     final amount = _amountController.text.replaceAll(',', '.');
     final cpfCnpj = _cpfCnpjController.text;
 
@@ -222,7 +256,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
           _pixQRCode = purchase.pixKey;
           _isLoading = false;
           _amountToReceive = purchase.receivedAmount;
-          feePercentage = (_userFeePercentage ?? 0.0) * 100;
+          feePercentage = _userFeePercentage! * 100;
           _transactionId = purchase.transactionId;
         });
         _startPolling(_transactionId!);
@@ -303,6 +337,12 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   }
 
   Widget _buildAmountInputView() {
+    final bool isButtonEnabled = _userFeePercentage != null && !_isLoading;
+
+    final String buttonText = _userFeePercentage == null
+        ? 'Loading fee...'.i18n
+        : 'Generate Payment'.i18n;
+
     return Padding(
       key: const ValueKey('amountInput'), // Key for AnimatedSwitcher
       padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
@@ -322,11 +362,13 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
           ),
           SizedBox(height: 16.h),
           CustomButton( // Generate payment button
-            onPressed: _generateQRCode,
-            primaryColor: Colors.green.withOpacity(0.8),
+            onPressed: _generateQRCode, // Disable if not ready
+            primaryColor: isButtonEnabled
+                ? Colors.green.withOpacity(0.8)
+                : Colors.grey[800]!, // Grey out if disabled
             secondaryColor: Colors.green.withOpacity(0.6),
-            textColor: Colors.black,
-            text: 'Generate Payment'.i18n,
+            textColor: isButtonEnabled ? Colors.black : Colors.grey[400]!,
+            text: buttonText, // Use dynamic text
           ),
         ],
       ),
@@ -478,8 +520,10 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   Widget _buildInfoCard() {
     return Column(
       children: [
-        _buildMerchantModeInfoSection(),
-        SizedBox(height: 24.h),
+        if (_isWhitelistActive) ...[
+          _buildMerchantModeInfoSection(),
+          SizedBox(height: 24.h),
+        ],
         Container( // Container for general info rows
           padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
@@ -487,7 +531,6 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
               borderRadius: BorderRadius.circular(16.r)),
           child: Column(
             children: [
-              // Show this only if Merchant Mode is INACTIVE
               if (!isMerchantModeActive) ...[
                 _buildInfoRow( // Added SizedBox for spacing consistency
                   icon: Icons.info_outline,
@@ -528,6 +571,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
       ],
     );
   }
+
 
   // Card for entering BRL amount and optional CPF/CNPJ
   Widget _buildAmountEntryCard() {

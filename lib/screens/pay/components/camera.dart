@@ -2,6 +2,7 @@ import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/breez_provider.dart';
 import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/screens/pay/components/confirm_non_native_asset_payment.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -103,7 +104,9 @@ class _CameraState extends ConsumerState<Camera> {
         for (var param in params) {
           var keyValue = param.split('=');
           if (keyValue[0] == 'amount' && keyValue.length > 1) {
-            amount = (double.parse(keyValue[1]) * 1e8).toInt();
+            amount = (Decimal.parse(keyValue[1]) * Decimal.fromInt(100000000))
+                .toBigInt()
+                .toInt();
           }
         }
       }

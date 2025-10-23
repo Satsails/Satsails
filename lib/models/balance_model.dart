@@ -1,3 +1,6 @@
+// Import the decimal package
+import 'package:decimal/decimal.dart';
+
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/currency_conversions.dart';
 import 'package:hive_ce/hive.dart';
@@ -57,6 +60,7 @@ class BalanceNotifier extends StateNotifier<WalletBalance> {
   }
 }
 
+// --- WalletBalance Class (Refactored for Decimal) ---
 @HiveType(typeId: 26)
 class WalletBalance {
   @HiveField(0)
@@ -160,54 +164,59 @@ class WalletBalance {
     );
   }
 
-  num totalBtcBalanceInDenomination(String denomination) {
+  Decimal totalBtcBalanceInDenomination(String denomination) {
+    final totalSats = Decimal.fromInt(totalBtcBalance());
     switch (denomination) {
       case 'sats':
-        return totalBtcBalance();
+        return totalSats;
       case 'BTC':
-        return totalBtcBalance() / 100000000;
+        final satsFactor = Decimal.fromInt(100000000);
+        return (totalSats / satsFactor).toDecimal();
       default:
-        return 0;
+        return Decimal.zero;
     }
   }
 
+  /// Returns the Liquid BTC balance formatted as a string.
   String liquidBalanceInDenominationFormatted(String denomination) {
-    double balance;
+    final sats = Decimal.fromInt(liquidBtcBalance);
     switch (denomination) {
       case 'sats':
-        balance = liquidBtcBalance.toDouble();
-        return balance.toInt().toString();
+        return sats.toString();
       case 'BTC':
-        balance = liquidBtcBalance / 100000000;
-        return balance.toStringAsFixed(8);
+        final satsFactor = Decimal.fromInt(100000000);
+        final btc = (sats / satsFactor).toDecimal();
+        return btc.toStringAsFixed(8);
       default:
         return "0";
     }
   }
 
+  /// Returns the On-chain BTC balance formatted as a string.
   String btcBalanceInDenominationFormatted(String denomination) {
-    double balance;
+    final sats = Decimal.fromInt(onChainBtcBalance);
     switch (denomination) {
       case 'sats':
-        balance = onChainBtcBalance.toDouble();
-        return balance.toInt().toString();
+        return sats.toString();
       case 'BTC':
-        balance = onChainBtcBalance / 100000000;
-        return balance.toStringAsFixed(8);
+        final satsFactor = Decimal.fromInt(100000000);
+        final btc = (sats / satsFactor).toDecimal();
+        return btc.toStringAsFixed(8);
       default:
         return "0";
     }
   }
 
+  /// Returns the Spark (Lightning) balance formatted as a string.
   String lightningBalanceInDenominationFormatted(String denomination) {
-    double balance;
+    final sats = Decimal.fromInt(sparkBitcoinbalance ?? 0);
     switch (denomination) {
       case 'sats':
-        balance = (sparkBitcoinbalance ?? 0).toDouble();
-        return balance.toInt().toString();
+        return sats.toString();
       case 'BTC':
-        balance = (sparkBitcoinbalance ?? 0) / 100000000;
-        return balance.toStringAsFixed(8);
+        final satsFactor = Decimal.fromInt(100000000);
+        final btc = (sats / satsFactor).toDecimal();
+        return btc.toStringAsFixed(8);
       default:
         return "0";
     }
@@ -221,13 +230,14 @@ class WalletBalance {
 
   String totalBalanceInDenominationFormatted(
       String denomination, CurrencyConversions conversions) {
-    double balanceInBTC = totalBalanceInCurrency('BTC', conversions);
+    Decimal balanceInBTC = totalBalanceInCurrency('BTC', conversions);
     switch (denomination) {
       case 'BTC':
         return balanceInBTC.toStringAsFixed(8);
       case 'sats':
-        double balanceInSats = balanceInBTC * 100000000;
-        return balanceInSats.toInt().toString();
+        final satsFactor = Decimal.fromInt(100000000);
+        final balanceInSats = balanceInBTC * satsFactor;
+        return balanceInSats.toBigInt().toString();
       default:
         return "0";
     }
@@ -235,42 +245,48 @@ class WalletBalance {
 
   double currentBitcoinPriceInCurrency(
       CurrencyParams params, CurrencyConversions conversions) {
-    double rate;
+    Decimal rate;
     switch (params.currency) {
       case 'BTC':
-        rate = 1;
+        rate = Decimal.one;
         break;
       case 'USD':
-        rate = conversions.btcToUsd;
+        rate = Decimal.parse(conversions.btcToUsd.toString());
         break;
       case 'EUR':
-        rate = conversions.btcToEur;
+        rate = Decimal.parse(conversions.btcToEur.toString());
         break;
       case 'BRL':
-        rate = conversions.btcToBrl;
+        rate = Decimal.parse(conversions.btcToBrl.toString());
         break;
       default:
-        rate = 0;
+        rate = Decimal.zero;
     }
-    return rate * params.amount / 100000000;
+
+    final satsFactor = Decimal.fromInt(100000000);
+    final amountDecimal = Decimal.fromInt(params.amount);
+    final btcAmount = (amountDecimal / satsFactor).toDecimal();
+
+    return (rate * btcAmount).toDouble();
   }
 
-  double totalBalanceInCurrency(
+  Decimal totalBalanceInCurrency(
       String currency, CurrencyConversions conversions) {
-    double total = 0;
-    num totalInBtc = totalBtcBalanceInDenomination('BTC');
+    Decimal total = Decimal.zero;
+    Decimal totalInBtc = totalBtcBalanceInDenomination('BTC');
+
     switch (currency) {
       case 'BTC':
         total += totalInBtc;
         break;
       case 'USD':
-        total += totalInBtc * conversions.btcToUsd;
+        total += totalInBtc * Decimal.parse(conversions.btcToUsd.toString());
         break;
       case 'EUR':
-        total += totalInBtc * conversions.btcToEur;
+        total += totalInBtc * Decimal.parse(conversions.btcToEur.toString());
         break;
       case 'BRL':
-        total += totalInBtc * conversions.btcToBrl;
+        total += totalInBtc * Decimal.parse(conversions.btcToBrl.toString());
         break;
     }
     return total;
