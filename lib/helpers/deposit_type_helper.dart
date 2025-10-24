@@ -1,17 +1,26 @@
+import 'package:Satsails/providers/eulen_transfer_provider.dart';
 import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:icons_plus/icons_plus.dart';
 
+// --- ENUMS ---
+
 enum DepositType { Depix, Bitcoin, LightningBitcoin, USDT, LiquidBitcoin }
 enum DepositMethod { PIX, ApplePay, GooglePay, BankTransfer, CreditCard }
 enum DepositProvider { Eulen, Nox, Chimera, Meld }
 enum CurrencyDeposit { USD, EUR, BRL, CHF, GBP }
 
-final selectedCurrencyProvider = StateProvider<CurrencyDeposit>((ref) => CurrencyDeposit.BRL);
-final selectedPaymentMethodProvider = StateProvider<DepositMethod?>((ref) => DepositMethod.PIX);
-final selectedCryptoTypeProvider = StateProvider<DepositType>((ref) => DepositType.Depix);
+// --- STATE PROVIDERS ---
+
+final selectedCurrencyProvider =
+StateProvider<CurrencyDeposit>((ref) => CurrencyDeposit.BRL);
+final selectedPaymentMethodProvider =
+StateProvider<DepositMethod?>((ref) => DepositMethod.PIX);
+final selectedCryptoTypeProvider =
+StateProvider<DepositType>((ref) => DepositType.Depix);
+
 
 final computedDepositProvider = Provider<DepositProvider?>((ref) {
   final paymentMethod = ref.watch(selectedPaymentMethodProvider);
@@ -21,7 +30,9 @@ final computedDepositProvider = Provider<DepositProvider?>((ref) {
   if (currency == CurrencyDeposit.BRL && paymentMethod == DepositMethod.PIX) {
     if (asset == DepositType.Depix) {
       return DepositProvider.Eulen;
-    } else if (asset == DepositType.USDT || asset == DepositType.Bitcoin || asset == DepositType.LiquidBitcoin) {
+    } else if (asset == DepositType.USDT ||
+        asset == DepositType.Bitcoin ||
+        asset == DepositType.LiquidBitcoin) {
       return DepositProvider.Nox;
     } else {
       return DepositProvider.Nox;
@@ -35,7 +46,9 @@ final availablePaymentMethodsProvider = Provider<List<DepositMethod>>((ref) {
   if (currency == CurrencyDeposit.BRL) {
     return [DepositMethod.PIX];
   } else {
-    return DepositMethod.values.where((method) => method != DepositMethod.PIX).toList();
+    return DepositMethod.values
+        .where((method) => method != DepositMethod.PIX)
+        .toList();
   }
 });
 
@@ -44,9 +57,13 @@ final availableDepositTypesProvider = Provider<List<DepositType>>((ref) {
   if (currency == CurrencyDeposit.BRL) {
     return [DepositType.Bitcoin, DepositType.Depix];
   } else {
-    return DepositType.values.where((type) => type != DepositType.Depix).toList();
+    return DepositType.values
+        .where((type) => type != DepositType.Depix)
+        .toList();
   }
 });
+
+// --- DATA CLASSES ---
 
 class ProviderDetails {
   final List<String> advantages;
@@ -54,6 +71,26 @@ class ProviderDetails {
 
   ProviderDetails({required this.advantages, required this.disadvantages});
 }
+
+class KYCAassessment {
+  final List<String> details;
+  final double rating;
+
+  KYCAassessment({
+    required this.details,
+    required this.rating,
+  });
+}
+
+class FeeDetail {
+  final IconData icon;
+  final String title;
+  final String details;
+
+  FeeDetail({required this.icon, required this.title, required this.details});
+}
+
+// --- STATIC DATA MAPS ---
 
 final Map<DepositProvider, ProviderDetails> providerDetails = {
   DepositProvider.Eulen: ProviderDetails(
@@ -75,7 +112,8 @@ final Map<DepositProvider, ProviderDetails> providerDetails = {
     ],
     disadvantages: [
       "You have to KYC with the provider for big amounts".i18n,
-      "Purchases reported to the Brazilian federal revenue agency under the payer's name".i18n,
+      "Purchases reported to the Brazilian federal revenue agency under the payer's name"
+          .i18n,
     ],
   ),
   DepositProvider.Chimera: ProviderDetails(
@@ -87,16 +125,6 @@ final Map<DepositProvider, ProviderDetails> providerDetails = {
     disadvantages: ["To be defined".i18n],
   ),
 };
-
-class KYCAassessment {
-  final List<String> details;
-  final double rating;
-
-  KYCAassessment({
-    required this.details,
-    required this.rating,
-  });
-}
 
 final Map<DepositProvider, KYCAassessment> kycAssessment = {
   DepositProvider.Eulen: KYCAassessment(
@@ -119,7 +147,8 @@ final Map<DepositProvider, KYCAassessment> kycAssessment = {
   ),
   DepositProvider.Nox: KYCAassessment(
     details: [
-      "Purchases reported to the Brazilian federal revenue agency under the payer's name".i18n,
+      "Purchases reported to the Brazilian federal revenue agency under the payer's name"
+          .i18n,
       "*Always comply with the laws of your jurisdiction.".i18n
     ],
     rating: 4.0,
@@ -134,44 +163,53 @@ final Map<DepositProvider, KYCAassessment> kycAssessment = {
   ),
 };
 
+// --- DYNAMIC DATA PROVIDER ---
 
-class FeeDetail {
-  final IconData icon;
-  final String title;
-  final String details;
+final feesInformationProvider =
+Provider<Map<DepositProvider, List<FeeDetail>>>((ref) {
+  final whitelistAmountAsync = ref.watch(getWhitelistAmountProvider);
 
-  FeeDetail({required this.icon, required this.title, required this.details});
-}
+  final String amountString = whitelistAmountAsync.when(
+    data: (amount) => "${amount.toInt()} USD",
+    loading: () => "loading...",
+    error: (err, stack) => "the defined threshold",
+  );
 
-final Map<DepositProvider, List<FeeDetail>> feesInformation = {
-  DepositProvider.Nox: [
-    FeeDetail(
-      icon: Icons.percent_rounded,
-      title: "Total Fee: 2%",
-      details: "A competitive rate combining our 1% fee with the provider's 1%.",
-    ),
-  ],
-  DepositProvider.Eulen: [
-    FeeDetail(
-      icon: Icons.stairs_rounded,
-      title: "Standard Tier",
-      details: "A 3% fee plus a 1 BRL fixed fee applies until your account's total purchase history exceeds 3,500 USD.",
-    ),
-    FeeDetail(
-      icon: Icons.workspace_premium_rounded,
-      title: "Merchant Tier",
-      details: "Once your lifetime purchase history surpasses 3,500 USD, you are automatically upgraded, and fees drop to just 1%.",
-    ),
-    FeeDetail(
-      icon: Icons.swap_horiz_rounded,
-      title: "Crypto Swaps",
-      details: "Fees are dynamic. We recommend simulating the transaction on the 'Swap' screen to see the exact cost before confirming.",
-    ),
-  ],
-  DepositProvider.Chimera: [], // Empty list signifies "To be defined"
-  DepositProvider.Meld: [],
-};
+  return {
+    DepositProvider.Nox: [
+      FeeDetail(
+        icon: Icons.percent_rounded,
+        title: "Total Fee: 2%",
+        details:
+        "A competitive rate combining our 1% fee with the provider's 1%.",
+      ),
+    ],
+    DepositProvider.Eulen: [
+      FeeDetail(
+        icon: Icons.stairs_rounded,
+        title: "Standard Tier",
+        details:
+        "A 3% fee plus a 1 BRL fixed fee applies until your account's total purchase history exceeds $amountString.",
+      ),
+      FeeDetail(
+        icon: Icons.workspace_premium_rounded,
+        title: "Merchant Tier",
+        details:
+        "Once your lifetime purchase history surpasses $amountString, you are automatically upgraded, and fees drop to just 1%.",
+      ),
+      FeeDetail(
+        icon: Icons.swap_horiz_rounded,
+        title: "Crypto Swaps",
+        details:
+        "Fees are dynamic. We recommend simulating the transaction on the 'Swap' screen to see the exact cost before confirming.",
+      ),
+    ],
+    DepositProvider.Chimera: [], // Empty list signifies "To be defined"
+    DepositProvider.Meld: [],
+  };
+});
 
+// --- UI HELPER MAPS & FUNCTIONS ---
 
 final Map<CurrencyDeposit, Widget> currencyFlags = {
   CurrencyDeposit.EUR: Flag(Flags.european_union),
@@ -201,7 +239,8 @@ Widget getAssetImage(DepositType asset) {
     assetImages[asset] ?? 'lib/assets/default.png',
     width: 28.sp,
     height: 28.sp,
-    errorBuilder: (context, error, stackTrace) => Icon(Icons.image_not_supported, color: Colors.white, size: 28.sp),
+    errorBuilder: (context, error, stackTrace) =>
+        Icon(Icons.image_not_supported, color: Colors.white, size: 28.sp),
   );
 }
 
@@ -209,8 +248,11 @@ String formatEnumName(String name) {
   String result = '';
   for (int i = 0; i < name.length; i++) {
     if (i > 0 &&
-        ((name[i].toUpperCase() == name[i] && name[i - 1].toLowerCase() == name[i - 1]) ||
-            (name[i].toUpperCase() == name[i] && i + 1 < name.length && name[i + 1].toLowerCase() == name[i + 1]))) {
+        ((name[i].toUpperCase() == name[i] &&
+            name[i - 1].toLowerCase() == name[i - 1]) ||
+            (name[i].toUpperCase() == name[i] &&
+                i + 1 < name.length &&
+                name[i + 1].toLowerCase() == name[i + 1]))) {
       result += ' ';
     }
     result += name[i];

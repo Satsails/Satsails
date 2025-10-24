@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-
-
 class DepositTypeScreen extends ConsumerWidget {
   const DepositTypeScreen({super.key});
 
@@ -19,10 +17,13 @@ class DepositTypeScreen extends ConsumerWidget {
     final availableDepositTypes = ref.watch(availableDepositTypesProvider);
 
     // Reset selectedPaymentMethod if it's not in availablePaymentMethods
-    if (selectedPaymentMethod != null && !availablePaymentMethods.contains(selectedPaymentMethod)) {
+    if (selectedPaymentMethod != null &&
+        !availablePaymentMethods.contains(selectedPaymentMethod)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(selectedPaymentMethodProvider.notifier).state =
-        availablePaymentMethods.isNotEmpty ? availablePaymentMethods.first : null;
+        availablePaymentMethods.isNotEmpty
+            ? availablePaymentMethods.first
+            : null;
       });
     }
 
@@ -30,7 +31,9 @@ class DepositTypeScreen extends ConsumerWidget {
     if (!availableDepositTypes.contains(selectedAsset)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(selectedCryptoTypeProvider.notifier).state =
-        availableDepositTypes.isNotEmpty ? availableDepositTypes.first : DepositType.Bitcoin;
+        availableDepositTypes.isNotEmpty
+            ? availableDepositTypes.first
+            : DepositType.Bitcoin;
       });
     }
 
@@ -41,7 +44,10 @@ class DepositTypeScreen extends ConsumerWidget {
           centerTitle: false,
           title: Text(
             "Deposit Type".i18n,
-            style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 22.sp,
+                fontWeight: FontWeight.bold),
           ),
           backgroundColor: Colors.black,
           leading: IconButton(
@@ -58,7 +64,8 @@ class DepositTypeScreen extends ConsumerWidget {
               children: [
                 Card(
                   color: const Color(0x00333333).withOpacity(0.4),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r)),
                   elevation: 4,
                   child: Padding(
                     padding: EdgeInsets.all(16.h),
@@ -75,14 +82,16 @@ class DepositTypeScreen extends ConsumerWidget {
                           getText: (currency) => currency.name,
                           onChanged: (value) {
                             if (value != null) {
-                              ref.read(selectedCurrencyProvider.notifier).state = value;
+                              ref.read(selectedCurrencyProvider.notifier).state =
+                                  value;
                             }
                           },
                         ),
                         SizedBox(height: 14.h),
                         _buildDropdown(
                           label: 'Method of payment'.i18n,
-                          value: availablePaymentMethods.contains(selectedPaymentMethod)
+                          value: availablePaymentMethods
+                              .contains(selectedPaymentMethod)
                               ? selectedPaymentMethod
                               : null,
                           items: availablePaymentMethods,
@@ -93,7 +102,8 @@ class DepositTypeScreen extends ConsumerWidget {
                           ),
                           getText: (method) => formatEnumName(method.name),
                           onChanged: (value) {
-                            ref.read(selectedPaymentMethodProvider.notifier).state = value;
+                            ref.read(selectedPaymentMethodProvider.notifier).state =
+                                value;
                           },
                         ),
                         SizedBox(height: 14.h),
@@ -107,17 +117,22 @@ class DepositTypeScreen extends ConsumerWidget {
                           getText: (asset) => formatEnumName(asset.name),
                           onChanged: (value) {
                             if (value != null) {
-                              ref.read(selectedCryptoTypeProvider.notifier).state = value;
+                              ref.read(selectedCryptoTypeProvider.notifier)
+                                  .state = value;
                             }
                           },
                         ),
                         SizedBox(height: 32.h),
                         Builder(
                           builder: (context) {
-                            final selectedProvider = ref.watch(computedDepositProvider);
-                            final isButtonEnabled = selectedProvider == DepositProvider.Eulen ||
-                                selectedProvider == DepositProvider.Nox;
-                            final buttonText = isButtonEnabled ? 'Buy'.i18n : 'Coming soon'.i18n;
+                            final selectedProvider =
+                            ref.watch(computedDepositProvider);
+                            final isButtonEnabled =
+                                selectedProvider == DepositProvider.Eulen ||
+                                    selectedProvider == DepositProvider.Nox;
+                            final buttonText = isButtonEnabled
+                                ? 'Buy'.i18n
+                                : 'Coming soon'.i18n;
 
                             return CustomButton(
                               text: buttonText,
@@ -197,7 +212,8 @@ class DepositTypeScreen extends ConsumerWidget {
                     SizedBox(width: 8.w),
                     Text(
                       getText(item),
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      style: TextStyle(
+                          color: Colors.white, fontSize: 16.sp),
                     ),
                   ],
                 ),
@@ -222,172 +238,175 @@ class ProviderDetails extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final providerDetail = providerDetails[provider]!;
-    final kyc = kycAssessment[provider]!;
+  final providerDetail = providerDetails[provider]!;
+  final kyc = kycAssessment[provider]!;
 
-    final sectionTitleStyle = TextStyle(
-      color: Colors.white,
-      fontSize: 20.sp,
-      fontWeight: FontWeight.bold,
-    );
+  final sectionTitleStyle = TextStyle(
+    color: Colors.white,
+    fontSize: 20.sp,
+    fontWeight: FontWeight.bold,
+  );
 
-    final listItemStyle = TextStyle(
-      color: Colors.white70,
-      fontSize: 14.sp,
-      height: 1.4,
-    );
+  final listItemStyle = TextStyle(
+    color: Colors.white70,
+    fontSize: 14.sp,
+    height: 1.4,
+  );
 
-    return Card(
-      color: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.r),
-      ),
-      elevation: 8,
-      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16.r),
-        child: ExpansionTile(
-          title: Text(
-            'Provider: ${formatEnumName(provider.name)}'.i18n,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          iconColor: Colors.white,
-          collapsedIconColor: Colors.white,
-          backgroundColor: const Color(0xFF333333).withOpacity(0.4),
-          collapsedBackgroundColor: const Color(0xFF333333).withOpacity(0.4),
-          children: [
-            Padding(
-              padding: EdgeInsets.all(20.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'KYC Assessment'.i18n,
-                    style: sectionTitleStyle,
-                  ),
-                  SizedBox(height: 12.h),
-                  Row(
-                    children: [
-                      for (int i = 1; i <= 5; i++)
-                        Icon(
-                          _getStarIcon(i, kyc.rating),
-                          color: Colors.amber,
-                          size: 20.sp,
-                        ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        '${kyc.rating}/5',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8.h),
-                  ...kyc.details.map(
-                        (detail) => Padding(
-                      padding: EdgeInsets.only(bottom: 8.h),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.fiber_manual_record, color: Colors.white, size: 12.sp),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: Text(
-                              detail.i18n,
-                              style: listItemStyle,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Divider(
-                    color: Colors.grey.shade700,
-                    thickness: 0.5,
-                    indent: 12.w,
-                    endIndent: 12.w,
-                  ),
-                  SizedBox(height: 20.h),
-                  Text(
-                    'Advantages'.i18n,
-                    style: sectionTitleStyle,
-                  ),
-                  SizedBox(height: 12.h),
-                  ...providerDetail.advantages.map(
-                        (advantage) => Padding(
-                      padding: EdgeInsets.only(bottom: 8.h),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.check_circle, color: Colors.greenAccent, size: 16.sp),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: Text(
-                              advantage.i18n,
-                              style: listItemStyle,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Divider(
-                    color: Colors.grey.shade700,
-                    thickness: 0.5,
-                    indent: 12.w,
-                    endIndent: 12.w,
-                  ),
-                  SizedBox(height: 20.h),
-                  Text(
-                    'Disadvantages'.i18n,
-                    style: sectionTitleStyle,
-                  ),
-                  SizedBox(height: 12.h),
-                  ...providerDetail.disadvantages.map(
-                        (disadvantage) => Padding(
-                      padding: EdgeInsets.only(bottom: 8.h),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.remove_circle, color: Colors.orangeAccent, size: 16.sp),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: Text(
-                              disadvantage.i18n,
-                              style: listItemStyle,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  return Card(
+  color: Colors.transparent,
+  shape: RoundedRectangleBorder(
+  borderRadius: BorderRadius.circular(16.r),
+  ),
+  elevation: 8,
+  margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
+  child: ClipRRect(
+  borderRadius: BorderRadius.circular(16.r),
+  child: ExpansionTile(
+  title: Text(
+  'Provider: ${formatEnumName(provider.name)}'.i18n,
+  style: TextStyle(
+  color: Colors.white,
+  fontSize: 18.sp,
+  fontWeight: FontWeight.bold,
+  ),
+  ),
+  iconColor: Colors.white,
+  collapsedIconColor: Colors.white,
+  backgroundColor: const Color(0xFF333333).withOpacity(0.4),
+  collapsedBackgroundColor: const Color(0xFF333333).withOpacity(0.4),
+  children: [
+  Padding(
+  padding: EdgeInsets.all(20.h),
+  child: Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+  Text(
+  'KYC Assessment'.i18n,
+  style: sectionTitleStyle,
+  ),
+  SizedBox(height: 12.h),
+  Row(
+  children: [
+  for (int i = 1; i <= 5; i++)
+  Icon(
+  _getStarIcon(i, kyc.rating),
+  color: Colors.amber,
+  size: 20.sp,
+  ),
+  SizedBox(width: 8.w),
+  Text(
+  '${kyc.rating}/5',
+  style: TextStyle(
+  color: Colors.white,
+  fontSize: 16.sp,
+  fontWeight: FontWeight.bold,
+  ),
+  ),
+  ],
+  ),
+  SizedBox(height: 8.h),
+  ...kyc.details.map(
+  (detail) => Padding(
+  padding: EdgeInsets.only(bottom: 8.h),
+  child: Row(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+  Icon(Icons.fiber_manual_record,
+  color: Colors.white, size: 12.sp),
+  SizedBox(width: 8.w),
+  Expanded(
+  child: Text(
+  detail.i18n,
+  style: listItemStyle,
+  ),
+  ),
+  ],
+  ),
+  ),
+  ),
+  SizedBox(height: 20.h),
+  Divider(
+  color: Colors.grey.shade700,
+  thickness: 0.5,
+  indent: 12.w,
+  endIndent: 12.w,
+  ),
+  SizedBox(height: 20.h),
+  Text(
+  'Advantages'.i18n,
+  style: sectionTitleStyle,
+  ),
+  SizedBox(height: 12.h),
+  ...providerDetail.advantages.map(
+  (advantage) => Padding(
+  padding: EdgeInsets.only(bottom: 8.h),
+  child: Row(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+  Icon(Icons.check_circle,
+  color: Colors.greenAccent, size: 16.sp),
+  SizedBox(width: 8.w),
+  Expanded(
+  child: Text(
+  advantage.i18n,
+  style: listItemStyle,
+  ),
+  ),
+  ],
+  ),
+  ),
+  ),
+  SizedBox(height: 20.h),
+  Divider(
+  color: Colors.grey.shade700,
+  thickness: 0.5,
+  indent: 12.w,
+  endIndent: 12.w,
+  ),
+  SizedBox(height: 20.h),
+  Text(
+  'Disadvantages'.i18n,
+  style: sectionTitleStyle,
+  ),
+  SizedBox(height: 12.h),
+  ...providerDetail.disadvantages.map(
+  (disadvantage) => Padding(
+  padding: EdgeInsets.only(bottom: 8.h),
+  child: Row(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+  Icon(Icons.remove_circle,
+  color: Colors.orangeAccent, size: 16.sp),
+  SizedBox(width: 8.w),
+  Expanded(
+  child: Text(
+  disadvantage.i18n,
+  style: listItemStyle,
+  ),
+  ),
+  ],
+  ),
+  ),
+  ),
+  ],
+  ),
+  ),
+  ],
+  ),
+  ),
+  );
+}
+
+IconData _getStarIcon(int index, double rating) {
+  if (index <= rating.floor()) {
+    return Icons.star;
+  } else if (index - 0.5 <= rating) {
+    return Icons.star_half;
+  } else {
+    return Icons.star_border;
   }
-
-  IconData _getStarIcon(int index, double rating) {
-    if (index <= rating.floor()) {
-      return Icons.star;
-    } else if (index - 0.5 <= rating) {
-      return Icons.star_half;
-    } else {
-      return Icons.star_border;
-    }
-  }
+}
 }
 
 class FeesInformation extends ConsumerWidget {
@@ -397,7 +416,13 @@ class FeesInformation extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final feeInfo = feesInformation[provider];
+    // *** CORRECTED SECTION ***
+    // 1. Watch the new provider to get the dynamically built map
+    final allFees = ref.watch(feesInformationProvider);
+    // 2. Get the specific fee info for the selected provider
+    final feeInfo = allFees[provider];
+    // *** END CORRECTION ***
+
     if (feeInfo == null) {
       return const SizedBox.shrink();
     }
@@ -433,7 +458,8 @@ class FeesInformation extends ConsumerWidget {
                   padding: EdgeInsets.symmetric(vertical: 20.h),
                   child: Text(
                     "Fee information to be defined.".i18n,
-                    style: TextStyle(color: Colors.white70, fontSize: 14.sp),
+                    style:
+                    TextStyle(color: Colors.white70, fontSize: 14.sp),
                   ),
                 ),
               )
@@ -444,7 +470,8 @@ class FeesInformation extends ConsumerWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(detail.icon, color: Colors.white, size: 24.sp),
+                        Icon(detail.icon,
+                            color: Colors.white, size: 24.sp),
                         SizedBox(width: 16.w),
                         Expanded(
                           child: Column(
