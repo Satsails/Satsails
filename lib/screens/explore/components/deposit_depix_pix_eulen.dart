@@ -339,9 +339,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
   Widget _buildAmountInputView() {
     final bool isButtonEnabled = _userFeePercentage != null && !_isLoading;
 
-    final String buttonText = _userFeePercentage == null
-        ? 'Loading fee...'.i18n
-        : 'Generate Payment'.i18n;
+    final String buttonText = 'Generate Payment'.i18n;
 
     return Padding(
       key: const ValueKey('amountInput'), // Key for AnimatedSwitcher
@@ -362,12 +360,10 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
           ),
           SizedBox(height: 16.h),
           CustomButton( // Generate payment button
-            onPressed: _generateQRCode, // Disable if not ready
-            primaryColor: isButtonEnabled
-                ? Colors.green.withOpacity(0.8)
-                : Colors.grey[800]!, // Grey out if disabled
+            onPressed: _generateQRCode,
+            primaryColor: Colors.green.withOpacity(0.8),
             secondaryColor: Colors.green.withOpacity(0.6),
-            textColor: isButtonEnabled ? Colors.black : Colors.grey[400]!,
+            textColor:Colors.black,
             text: buttonText, // Use dynamic text
           ),
         ],
@@ -423,7 +419,7 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
           title: Row( // Header row: Title and Status
             children: [
               Text(
-                'Merchant Mode'.i18n,
+                'Merchant & Reduced fees'.i18n,
                 style: TextStyle(
                     color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
               ),
@@ -452,6 +448,12 @@ class _DepositPixState extends ConsumerState<DepositDepixPixEulen>
                   SizedBox(height: 8.h),
                   Text(
                     'When active, you can receive payments up to R\$6000 per transaction from any CPF/CNPJ, even those with no prior history.'
+                        .i18n,
+                    style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14.sp),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Fees are reduces to only 1% on all transactions'.i18n
                         .i18n,
                     style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14.sp),
                   ),
