@@ -4,7 +4,7 @@ import 'package:Satsails/models/user_model.dart';
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 

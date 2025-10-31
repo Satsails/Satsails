@@ -8,7 +8,7 @@ part of 'sideshift_model.dart';
 
 class SideShiftAdapter extends TypeAdapter<SideShift> {
   @override
-  final int typeId = 30;
+  final typeId = 30;
 
   @override
   SideShift read(BinaryReader reader) {
@@ -27,7 +27,7 @@ class SideShiftAdapter extends TypeAdapter<SideShift> {
       depositAmount: fields[7] as String,
       settleAmount: fields[8] as String,
       status: fields[9] as String,
-      timestamp: fields[10] as int,
+      timestamp: (fields[10] as num).toInt(),
       settleAddress: fields[11] as String,
       depositMin: fields[12] as String,
       depositMax: fields[13] as String,

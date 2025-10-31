@@ -1,5 +1,6 @@
 import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/settings_provider.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/providers/currency_conversions_provider.dart';
 
@@ -20,103 +21,230 @@ final inputAmountProvider = StateProvider<String>((ref) => '0.0');
 final shouldUpdateBoltzLiquidReceive = StateProvider.autoDispose<bool>((ref) => true);
 
 String calculateAmountToDisplay(String amount, String currency, currencyConverter) {
+  if (amount.isEmpty || (double.tryParse(amount) ?? 0.0) == 0.0) {
+    return '0.00000000';
+  }
+
+  final amountDecimal = Decimal.parse(amount);
+  final satsFactor = Decimal.fromInt(100000000);
+  Decimal btcResult;
+
   switch (currency) {
     case 'BTC':
-      return double.parse(amount).toStringAsFixed(8);
+      btcResult = amountDecimal;
+      break;
     case 'USD':
-      return (double.parse(amount) * currencyConverter.usdToBtc).toStringAsFixed(8);
+      btcResult = amountDecimal * Decimal.parse(currencyConverter.usdToBtc.toString());
+      break;
     case 'GBP':
-      return (double.parse(amount) * currencyConverter.gbpToBtc).toStringAsFixed(8);
+      btcResult = amountDecimal * Decimal.parse(currencyConverter.gbpToBtc.toString());
+      break;
     case 'CHF':
-      return (double.parse(amount) * currencyConverter.chfToBtc).toStringAsFixed(8);
+      btcResult = amountDecimal * Decimal.parse(currencyConverter.chfToBtc.toString());
+      break;
     case 'EUR':
-      return (double.parse(amount) * currencyConverter.eurToBtc).toStringAsFixed(8);
+      btcResult = amountDecimal * Decimal.parse(currencyConverter.eurToBtc.toString());
+      break;
     case 'BRL':
-      return (double.parse(amount) * currencyConverter.brlToBtc).toStringAsFixed(8);
+      btcResult = amountDecimal * Decimal.parse(currencyConverter.brlToBtc.toString());
+      break;
     case 'Sats':
-      return (double.parse(amount) / 100000000).toStringAsFixed(8);
+      btcResult = (amountDecimal / satsFactor).toDecimal();
+      break;
     default:
-      return amount;
+      btcResult = amountDecimal; // Assuming default is BTC
+      break;
   }
+  return btcResult.toStringAsFixed(8);
 }
 
 int calculateAmountInSatsToDisplay(String amount, String currency, currencyConverter) {
-  if (amount == '' || amount == '0.0') {
+  if (amount.isEmpty || (double.tryParse(amount) ?? 0.0) == 0.0) {
     return 0;
   }
 
+  final amountDecimal = Decimal.parse(amount);
+  final satsFactor = Decimal.fromInt(100000000);
+  Decimal result;
+
   switch (currency) {
     case 'BTC':
-      return (double.parse(amount) * 100000000).toInt();
+      result = amountDecimal * satsFactor;
+      break;
     case 'USD':
-      return (double.parse(amount) * currencyConverter.usdToBtc * 100000000).toInt();
+      result = amountDecimal * Decimal.parse(currencyConverter.usdToBtc.toString()) * satsFactor;
+      break;
     case 'EUR':
-      return (double.parse(amount) * currencyConverter.eurToBtc * 100000000).toInt();
+      result = amountDecimal * Decimal.parse(currencyConverter.eurToBtc.toString()) * satsFactor;
+      break;
     case 'GBP':
-      return (double.parse(amount) * currencyConverter.gbpToBtc * 100000000).toInt();
+      result = amountDecimal * Decimal.parse(currencyConverter.gbpToBtc.toString()) * satsFactor;
+      break;
     case 'CHF':
-      return (double.parse(amount) * currencyConverter.chfToBtc * 100000000).toInt();
+      result = amountDecimal * Decimal.parse(currencyConverter.chfToBtc.toString()) * satsFactor;
+      break;
     case 'BRL':
-      return (double.parse(amount) * currencyConverter.brlToBtc * 100000000).toInt();
+      result = amountDecimal * Decimal.parse(currencyConverter.brlToBtc.toString()) * satsFactor;
+      break;
     case 'Sats':
-      return (double.parse(amount)).toInt();
+      result = amountDecimal;
+      break;
     default:
-      return (double.parse(amount) * 100000000).toInt();
+      result = amountDecimal * satsFactor; // Assuming default is BTC
+      break;
   }
+  return result.toBigInt().toInt();
 }
 
+/// Calculates the BTC amount from a fiat input, formatted to 8 decimal places.
 String calculateAmountToDisplayFromFiat(String amount, String currency, currencyConverter) {
+  if (amount.isEmpty || (double.tryParse(amount) ?? 0.0) == 0.0) {
+    return '0.00000000';
+  }
+
+  final amountDecimal = Decimal.parse(amount);
+  Decimal btcResult;
+
   switch (currency) {
     case 'USD':
-      return (double.parse(amount) * currencyConverter.usdToBtc).toStringAsFixed(8);
+      btcResult = amountDecimal * Decimal.parse(currencyConverter.usdToBtc.toString());
+      break;
     case 'EUR':
-      return (double.parse(amount) * currencyConverter.eurToBtc).toStringAsFixed(8);
+      btcResult = amountDecimal * Decimal.parse(currencyConverter.eurToBtc.toString());
+      break;
     case 'GBP':
-      return (double.parse(amount) * currencyConverter.gbpToBtc).toStringAsFixed(8);
+      btcResult = amountDecimal * Decimal.parse(currencyConverter.gbpToBtc.toString());
+      break;
     case 'CHF':
-      return (double.parse(amount) * currencyConverter.chfToBtc).toStringAsFixed(8);
+      btcResult = amountDecimal * Decimal.parse(currencyConverter.chfToBtc.toString());
+      break;
     case 'BRL':
-      return (double.parse(amount) * currencyConverter.brlToBtc).toStringAsFixed(8);
+      btcResult = amountDecimal * Decimal.parse(currencyConverter.brlToBtc.toString());
+      break;
     default:
-      return "0";
+      btcResult = Decimal.zero;
+      break;
   }
+  return btcResult.toStringAsFixed(8);
 }
 
+/// Calculates the Sats amount from a fiat input, formatted to 0 decimal places.
 String calculateAmountToDisplayFromFiatInSats(String amount, String currency, currencyConverter) {
+  if (amount.isEmpty || (double.tryParse(amount) ?? 0.0) == 0.0) {
+    return '0';
+  }
+
+  final amountDecimal = Decimal.parse(amount);
+  final satsFactor = Decimal.fromInt(100000000);
+  Decimal satsResult;
+
   switch (currency) {
     case 'USD':
-      return (double.parse(amount) * currencyConverter.usdToBtc * 100000000).toStringAsFixed(0);
+      satsResult = amountDecimal * Decimal.parse(currencyConverter.usdToBtc.toString()) * satsFactor;
+      break;
     case 'EUR':
-      return (double.parse(amount) * currencyConverter.eurToBtc * 100000000).toStringAsFixed(0);
+      satsResult = amountDecimal * Decimal.parse(currencyConverter.eurToBtc.toString()) * satsFactor;
+      break;
     case 'GBP':
-      return (double.parse(amount) * currencyConverter.gbpToBtc * 100000000).toStringAsFixed(0);
+      satsResult = amountDecimal * Decimal.parse(currencyConverter.gbpToBtc.toString()) * satsFactor;
+      break;
     case 'CHF':
-      return (double.parse(amount) * currencyConverter.chfToBtc * 100000000).toStringAsFixed(0);
+      satsResult = amountDecimal * Decimal.parse(currencyConverter.chfToBtc.toString()) * satsFactor;
+      break;
     case 'BRL':
-      return (double.parse(amount) * currencyConverter.brlToBtc * 100000000).toStringAsFixed(0);
+      satsResult = amountDecimal * Decimal.parse(currencyConverter.brlToBtc.toString()) * satsFactor;
+      break;
     default:
-      return "0";
+      satsResult = Decimal.zero;
+      break;
   }
+  // Use toStringAsFixed(0) for correct rounding to a whole number string
+  return satsResult.toStringAsFixed(0);
 }
 
 String calculateAmountInSelectedCurrency(int sats, String currency, currencyConverter) {
+  if (sats == 0) {
+    switch (currency) {
+      case 'BTC':
+        return '0.00000000';
+      case 'Sats':
+        return '0';
+      case 'USD':
+      case 'EUR':
+      case 'GBP':
+      case 'CHF':
+      case 'BRL':
+        return '0.00';
+      default:
+        return '0.00000000';
+    }
+  }
+
+  final satsDecimal = Decimal.fromInt(sats);
+  final satsFactor = Decimal.fromInt(100000000);
+
+  final btcAmount = (satsDecimal / satsFactor).toDecimal();
+
+  Decimal result;
+
+  Decimal _getRate(String rateString) {
+    final rate = Decimal.tryParse(rateString);
+    if (rate == null || rate == Decimal.zero) {
+      return Decimal.zero;
+    }
+    return rate;
+  }
+
+  const int precisionScale = 20;
+
   switch (currency) {
     case 'BTC':
-      return (sats / 100000000).toStringAsFixed(8);
+      return btcAmount.toStringAsFixed(8);
+
     case 'USD':
-      return (sats / 100000000 / currencyConverter.usdToBtc).toString();
+      final rate = _getRate(currencyConverter.usdToBtc.toString());
+      if (rate == Decimal.zero) return '0.00';
+
+      result = (btcAmount / rate).toDecimal(scaleOnInfinitePrecision: precisionScale);
+      return result.toStringAsFixed(2);
+
     case 'EUR':
-      return (sats / 100000000 / currencyConverter.eurToBtc).toString();
+      final rate = _getRate(currencyConverter.eurToBtc.toString());
+      if (rate == Decimal.zero) return '0.00';
+
+      result = (btcAmount / rate).toDecimal(scaleOnInfinitePrecision: precisionScale);
+      return result.toStringAsFixed(2);
+
     case 'GBP':
-      return (sats / 100000000 / currencyConverter.gbpToBtc).toString();
+      final rate = _getRate(currencyConverter.gbpToBtc.toString());
+      if (rate == Decimal.zero) return '0.00';
+
+      // FIX 2 (Applied here):
+      result = (btcAmount / rate).toDecimal(scaleOnInfinitePrecision: precisionScale);
+      return result.toStringAsFixed(2);
+
     case 'CHF':
-      return (sats / 100000000 / currencyConverter.chfToBtc).toString();
+      final rate = _getRate(currencyConverter.chfToBtc.toString());
+      if (rate == Decimal.zero) return '0.00';
+
+      // FIX 2 (Applied here):
+      result = (btcAmount / rate).toDecimal(scaleOnInfinitePrecision: precisionScale);
+      return result.toStringAsFixed(2);
+
     case 'BRL':
-      return (sats / 100000000 / currencyConverter.brlToBtc).toString();
+      final rate = _getRate(currencyConverter.brlToBtc.toString());
+      if (rate == Decimal.zero) return '0.00';
+
+      // FIX 2 (Applied here):
+      result = (btcAmount / rate).toDecimal(scaleOnInfinitePrecision: precisionScale);
+      return result.toStringAsFixed(2);
+
     case 'Sats':
-      return sats.toString();
+      return satsDecimal.toStringAsFixed(0);
+
     default:
-      return (sats / 100000000).toStringAsFixed(8);
+    // This now works because btcAmount is a Decimal
+      return btcAmount.toStringAsFixed(8); // Assume default is BTC
   }
 }
 

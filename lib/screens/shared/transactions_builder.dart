@@ -470,6 +470,7 @@ Widget _buildLightningConversionTransactionItem(
 Widget _buildSideshiftTransactionItem(
     SideShiftTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.details;
+  final btcFormat = ref.watch(settingsProvider).btcFormat; // Get user setting
   final isPending =
   !['settled', 'expired', 'failed', 'refunded'].contains(details.status);
   final title =
@@ -479,6 +480,8 @@ Widget _buildSideshiftTransactionItem(
   DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
   final statusText =
   isPending ? sideshift.getStatusText(details.status) : formattedDate;
+  final depositUnit = getSideshiftDisplayUnit(details.depositCoin, btcFormat);
+  final settleUnit = getSideshiftDisplayUnit(details.settleCoin, btcFormat);
 
   return _buildTransactionItemLayout(
     context: context,
@@ -495,7 +498,7 @@ Widget _buildSideshiftTransactionItem(
       children: [
         if (details.depositAmount != null)
           Text(
-            "- ${details.depositAmount} ${details.depositCoin.toUpperCase()}",
+            "- ${formatSideshiftAmount(details.depositAmount, details.depositCoin, btcFormat)} $depositUnit",
             style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.normal,
@@ -504,7 +507,7 @@ Widget _buildSideshiftTransactionItem(
         SizedBox(height: 2.h),
         if (details.settleAmount != null)
           Text(
-            "${double.parse(details.settleAmount!).toStringAsFixed(2)} ${details.settleCoin.toUpperCase()}",
+            "+ ${formatSideshiftAmount(details.settleAmount, details.settleCoin, btcFormat)} $settleUnit",
             style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.bold,
@@ -522,11 +525,6 @@ Widget _buildSideswapPegTransactionItem(
   final title = details.pegIn == true
       ? 'Bitcoin → Liquid Bitcoin'
       : 'Liquid Bitcoin → Bitcoin';
-  final date = details.list?.firstOrNull?.createdAt != null
-      ? DateTime.fromMillisecondsSinceEpoch(details.list!.first.createdAt!)
-      : transaction.timestamp;
-  final locale = I18n.locale.languageCode;
-  final formattedDate = DateFormat('d MMM, HH:mm', locale).format(date);
 
   return _buildTransactionItemLayout(
     context: context,
@@ -538,7 +536,7 @@ Widget _buildSideswapPegTransactionItem(
     },
     icon: pegTransactionTypeIcon(),
     title: title,
-    subtitle: formattedDate,
+    subtitle: 'Check if it is completed'.i18n,
     amountContent: Text(
       "See status".i18n,
       style: TextStyle(
@@ -601,20 +599,16 @@ Widget _buildEulenTransactionItem(
   );
 }
 
-Widget _buildNoxTransactionItem(
-    NoxTransaction transaction, BuildContext context, WidgetRef ref) {
+Widget _buildNoxTransactionItem(NoxTransaction transaction, BuildContext context, WidgetRef ref) {
   final details = transaction.details;
   final isPending = !details.completed && !details.failed;
-  final type =
-  details.transactionType.toString() == "BUY" ? "Purchase" : "Withdrawal";
-  final title = details.transactionType.toString() == "BUY"
-      ? "${details.to_currency} $type".i18n
-      : "${details.from_currency} $type".i18n;
+  final type = details.transactionType.toString() == "BUY" ? "Purchase" : "Withdrawal";
+  final title = "${details.to_currency} $type".i18n;
   final locale = I18n.locale.languageCode;
-  final formattedDate =
-  DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
+  final formattedDate = DateFormat('d MMM, HH:mm', locale).format(transaction.timestamp);
   final statusText = isPending ? (details.statusText).capitalize() : formattedDate;
   final isBuy = details.transactionType.toString() == "BUY";
+  String receivedAmountText = details.receivedAmount.toString();
 
   return _buildTransactionItemLayout(
     context: context,
@@ -633,7 +627,7 @@ Widget _buildNoxTransactionItem(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          "${isBuy ? '-' : ''}${details.price} USD",
+          "${details.price} USD",
           style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.normal,
@@ -641,7 +635,7 @@ Widget _buildNoxTransactionItem(
         ),
         SizedBox(height: 2.h),
         Text(
-          "${isBuy ? '' : '-'}${details.receivedAmount} ${details.from_currency}",
+          "$receivedAmountText ${details.to_currency}",
           style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,

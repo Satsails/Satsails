@@ -8,7 +8,7 @@ part of 'sideswap_peg_model.dart';
 
 class SideswapPegAdapter extends TypeAdapter<SideswapPeg> {
   @override
-  final int typeId = 8;
+  final typeId = 8;
 
   @override
   SideswapPeg read(BinaryReader reader) {
@@ -17,8 +17,8 @@ class SideswapPegAdapter extends TypeAdapter<SideswapPeg> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return SideswapPeg(
-      createdAt: fields[0] as int?,
-      expiresAt: fields[1] as int?,
+      createdAt: (fields[0] as num?)?.toInt(),
+      expiresAt: (fields[1] as num?)?.toInt(),
       orderId: fields[2] as String?,
       pegAddr: fields[3] as String?,
     );
@@ -51,7 +51,7 @@ class SideswapPegAdapter extends TypeAdapter<SideswapPeg> {
 
 class SideswapPegStatusAdapter extends TypeAdapter<SideswapPegStatus> {
   @override
-  final int typeId = 9;
+  final typeId = 9;
 
   @override
   SideswapPegStatus read(BinaryReader reader) {
@@ -63,8 +63,8 @@ class SideswapPegStatusAdapter extends TypeAdapter<SideswapPegStatus> {
       orderId: fields[0] as String?,
       addr: fields[1] as String?,
       addrRecv: fields[2] as String?,
-      createdAt: fields[3] as int?,
-      expiresAt: fields[4] as int?,
+      createdAt: (fields[3] as num?)?.toInt(),
+      expiresAt: (fields[4] as num?)?.toInt(),
       pegIn: fields[5] as bool?,
       list: (fields[6] as List?)?.cast<SideswapPegStatusTransaction>(),
     );
@@ -104,7 +104,7 @@ class SideswapPegStatusAdapter extends TypeAdapter<SideswapPegStatus> {
 class SideswapPegStatusTransactionAdapter
     extends TypeAdapter<SideswapPegStatusTransaction> {
   @override
-  final int typeId = 10;
+  final typeId = 10;
 
   @override
   SideswapPegStatusTransaction read(BinaryReader reader) {
@@ -113,8 +113,8 @@ class SideswapPegStatusTransactionAdapter
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return SideswapPegStatusTransaction(
-      amount: fields[0] as int?,
-      createdAt: fields[1] as int?,
+      amount: (fields[0] as num?)?.toInt(),
+      createdAt: (fields[1] as num?)?.toInt(),
       detectedConfs: fields[2] as dynamic,
       payout: fields[3] as dynamic,
       payoutTxid: fields[4] as String?,
@@ -122,8 +122,8 @@ class SideswapPegStatusTransactionAdapter
       totalConfs: fields[6] as dynamic,
       txHash: fields[7] as String?,
       txState: fields[8] as String?,
-      txStateCode: fields[9] as int?,
-      vout: fields[10] as int?,
+      txStateCode: (fields[9] as num?)?.toInt(),
+      vout: (fields[10] as num?)?.toInt(),
     );
   }
 

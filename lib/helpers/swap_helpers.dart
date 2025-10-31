@@ -1524,6 +1524,12 @@ Widget buildLiquidPeg(WidgetRef ref, bool pegIn, TextEditingController controlle
               AutoSizeText(formattedValueToReceive, style: TextStyle(fontSize: 32.sp, color: Colors.white), maxLines: 1, minFontSize: 18),
               SizedBox(height: 4.h),
               Text(valueInCurrency, style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
+              SizedBox(height: 6.h),
+              Text(
+                'Takes ~2 minutes to complete'.i18n,
+                textAlign: TextAlign.end,
+                style: TextStyle(fontSize: 12.sp, color: Colors.grey, fontStyle: FontStyle.italic),
+              ),
             ],
           )
       else
@@ -1662,6 +1668,12 @@ Widget buildBitcoinPeg(WidgetRef ref, bool pegIn, TextEditingController controll
               AutoSizeText(formattedValueToReceive, style: TextStyle(fontSize: 32.sp, color: Colors.white), maxLines: 1, minFontSize: 18),
               SizedBox(height: 4.h),
               Text(valueInCurrency, style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
+              SizedBox(height: 6.h),
+              Text(
+                'Takes ~20+ minutes to complete'.i18n,
+                textAlign: TextAlign.end,
+                style: TextStyle(fontSize: 12.sp, color: Colors.grey, fontStyle: FontStyle.italic),
+              ),
             ],
           )
       else
@@ -2331,10 +2343,10 @@ Widget _bitcoinPegSlideToSend(WidgetRef ref, BuildContext context) {
               await ref.watch(sendBitcoinTransactionProvider.future);
               await ref.read(sideswapHiveStorageProvider(peg.orderId!).future);
               showFullscreenExchangeModal(
-                amount: ref.read(sendTxProvider).amount,
-                context: context,
-                swapType: ref.read(swapTypeProvider)!,
-                orderId: peg.orderId ?? 'Unknown'
+                  amount: ref.read(sendTxProvider).amount,
+                  context: context,
+                  swapType: ref.read(swapTypeProvider)!,
+                  orderId: peg.orderId ?? 'Unknown'
               );
               ref.read(sendTxProvider.notifier).updateAddress('');
               ref.read(sendTxProvider.notifier).updateAmount(0);
@@ -2415,10 +2427,10 @@ Widget _instantSwapSlideToSend(WidgetRef ref, BuildContext context) {
           try {
             final swap = await ref.read(sideswapUploadAndSignInputsProvider.future).then((value) => value);
             showFullscreenExchangeModal(
-              amount: ref.read(sendTxProvider).amount,
-              context: context,
-              swapType: ref.read(swapTypeProvider)!,
-              orderId: swap.txid
+                amount: ref.read(sendTxProvider).amount,
+                context: context,
+                swapType: ref.read(swapTypeProvider)!,
+                orderId: swap.txid
             );
             ref.read(sendTxProvider.notifier).updateAddress('');
             ref.read(sendTxProvider.notifier).updateAmount(0);

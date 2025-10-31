@@ -8,7 +8,7 @@ part of 'balance_model.dart';
 
 class WalletBalanceAdapter extends TypeAdapter<WalletBalance> {
   @override
-  final int typeId = 26;
+  final typeId = 26;
 
   @override
   WalletBalance read(BinaryReader reader) {
@@ -17,12 +17,12 @@ class WalletBalanceAdapter extends TypeAdapter<WalletBalance> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return WalletBalance(
-      onChainBtcBalance: fields[0] as int,
-      liquidBtcBalance: fields[1] as int,
-      liquidUsdtBalance: fields[2] as int,
-      liquidEuroxBalance: fields[3] as int,
-      liquidDepixBalance: fields[4] as int,
-      sparkBitcoinbalance: fields[5] as int?,
+      onChainBtcBalance: (fields[0] as num).toInt(),
+      liquidBtcBalance: (fields[1] as num).toInt(),
+      liquidUsdtBalance: (fields[2] as num).toInt(),
+      liquidEuroxBalance: (fields[3] as num).toInt(),
+      liquidDepixBalance: (fields[4] as num).toInt(),
+      sparkBitcoinbalance: (fields[5] as num?)?.toInt(),
     );
   }
 

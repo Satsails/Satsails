@@ -5,7 +5,7 @@ import 'package:Satsails/helpers/string_extension.dart';
 import 'package:Satsails/translations/localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:http/http.dart' as http;
 
 part 'eulen_transfer_model.g.dart';
@@ -295,25 +295,28 @@ class EulenTransfer extends HiveObject {
 }
 
 class EulenService {
-  /// Creates a new Eulen transaction (purchase or sale).
-  static Future<Result<EulenTransfer>> createTransaction(String auth, double amount, String liquidAddress, {String transactionType = 'BUY'}) async {
+  static Future<Result<EulenTransfer>> createTransaction(
+      String auth,
+      double amount,
+      String liquidAddress, {
+        String? taxId,
+      }) async {
     try {
-      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
+      final Map<String, dynamic> transferPayload = {
+        'value_set_to_receive': amount,
+        'liquid_address': liquidAddress,
+      };
+
+      if (taxId != null && taxId.isNotEmpty) {
+        transferPayload['taxId'] = taxId;
+      }
+
       final response = await http.post(
         Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers'),
-        body: jsonEncode({
-          'transfer': {
-            'value_set_to_receive': amount,
-            'liquid_address': liquidAddress,
-            // 'type': transactionType,
-            // 'to_currency': transactionType,
-            // 'from_currency': transactionType,
-          }
-        }),
+        body: jsonEncode({'transfer': transferPayload}),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': auth,
-          // 'X-Firebase-AppCheck': appCheckToken ?? '',
         },
       );
 
@@ -360,7 +363,7 @@ class EulenService {
   static Future<Result<String>> getAmountTransferred(String auth) async {
     try {
       // final appCheckToken = await FirebaseAppCheck.instance.getToken();
-      final uri = Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers/amount_transfered_by_day');
+      final uri = Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers/total_amount_purchased_by_user');
 
       final response = await http.get(
         uri,
@@ -372,9 +375,52 @@ class EulenService {
       );
 
       if (response.statusCode == 200) {
-        return Result(data: jsonDecode(response.body));
+        return Result(data: jsonDecode(response.body)['total_spent_in_dollars']);
       } else {
         return Result(error: 'An error has occurred. Please try again later');
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please try again later');
+    }
+  }
+
+  static Future<Result<double>> getWhitelistAmount(String auth) async {
+    try {
+      // final appCheckToken = await FirebaseAppCheck.instance.getToken();
+
+      final response = await http.get(
+        Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers/whitelist_amount'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return  Result(data: jsonDecode(response.body)['whitelist_amount']);
+      } else {
+        String errorMsg = jsonDecode(response.body)['error'] ?? 'Failed to add affiliate code';
+        return Result(error: errorMsg);
+      }
+    } catch (e) {
+      return Result(error: 'An error has occurred. Please try again later');
+    }
+  }
+
+  static Future<Result<bool>> getWhitelistStatus() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${dotenv.env['BACKEND']!}/eulen_transfers/whitelist_status'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return  Result(data: jsonDecode(response.body)['whitelist_enabled']);
+      } else {
+        String errorMsg = jsonDecode(response.body)['error'] ?? 'Failed to add affiliate code';
+        return Result(error: errorMsg);
       }
     } catch (e) {
       return Result(error: 'An error has occurred. Please try again later');

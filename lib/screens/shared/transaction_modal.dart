@@ -161,9 +161,6 @@ class BrandingFooter extends StatelessWidget {
   }
 }
 
-
-// --- OVERLAYS ---
-
 class ReceiveTransactionOverlay extends ConsumerStatefulWidget {
   const ReceiveTransactionOverlay({
     super.key,
@@ -188,8 +185,6 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
   bool _isChecked = false;
   late final AnimationController _animationController;
   late final Animation<double> _scaleAnimation;
-  final String _timestamp =
-  DateFormat('MMM d, yyyy HH:mm').format(DateTime.now());
 
   @override
   void initState() {
@@ -235,6 +230,22 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
   @override
   Widget build(BuildContext context) {
     final assetName = widget.asset ?? '';
+
+    // This widget will conditionally hold one or two icons based on the asset.
+    Widget assetIcon;
+    if (assetName == 'Liquid Bitcoin') {
+      // If the asset is Liquid Bitcoin, create a Row with both icons.
+      assetIcon = Row(
+        children: [
+          getAssetImage('Liquid Bitcoin', width: 28.sp, height: 28.sp),
+          SizedBox(width: 4.w), // Small spacing between the two icons
+          getAssetImage('Lightning', width: 28.sp, height: 28.sp),
+        ],
+      );
+    } else {
+      // For any other asset, display the single corresponding icon.
+      assetIcon = getAssetImage(assetName, width: 28.sp, height: 28.sp);
+    }
 
     return Scaffold(
       backgroundColor: _solidBackgroundColor,
@@ -303,8 +314,9 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
                         children: [
                           Row(
                             children: [
-                              if (assetName.isNotEmpty) ... [
-                                getAssetImage(assetName, width: 28.sp, height: 28.sp),
+                              // Use the assetIcon widget defined above.
+                              if (assetName.isNotEmpty) ...[
+                                assetIcon,
                                 SizedBox(width: 12.w),
                               ],
                               Text(
@@ -316,13 +328,6 @@ class ReceiveTransactionOverlayState extends ConsumerState<ReceiveTransactionOve
                                 ),
                               ),
                             ],
-                          ),
-                          Text(
-                            _timestamp,
-                            style: TextStyle(
-                              fontSize: 15.sp,
-                              color: Colors.white.withOpacity(0.6),
-                            ),
                           ),
                         ],
                       ),

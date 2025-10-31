@@ -290,22 +290,6 @@ class _DepositPixNoxState extends ConsumerState<DepositPixNox> {
             ),
           ),
           SizedBox(height: 12.h),
-          _buildInfoRow(
-            icon: Icons.security,
-            label: Text(
-                'Limit of R\$ 10,000 per month per CPF/CNPJ without KYC'.i18n,
-                style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
-          ),
-          SizedBox(height: 12.h),
-          _buildInfoRow(
-            icon: Icons.lock_open,
-            iconColor: Colors.white, // Highlight warning
-            label: Text(
-                'Purchases over this limit require KYC. If not completed, the transfer will be returned'.i18n,
-                style: TextStyle(fontSize: 15.sp, color: Colors.white, fontWeight: FontWeight.w500)),
-          ),
-          SizedBox(height: 12.h),
-          // ------------------------------------
           minimumDepositsAsync.when(
             data: (deposits) {
               final String text = _selectedCurrency == InputCurrency.brl

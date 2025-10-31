@@ -1,4 +1,3 @@
-
 import 'package:Satsails/helpers/sell_type_helper.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/translations/localizations.dart';
@@ -128,7 +127,12 @@ class SellTypeScreen extends ConsumerWidget {
                 builder: (context) {
                   final selectedProvider = ref.watch(computedSellProvider);
                   if (selectedProvider != null) {
-                    return SellProviderDetailsWidget(provider: selectedProvider);
+                    return Column(
+                      children: [
+                        SellProviderDetailsWidget(provider: selectedProvider),
+                        SellFeesInformation(provider: selectedProvider),
+                      ],
+                    );
                   }
                   return const SizedBox.shrink();
                 },
@@ -296,5 +300,98 @@ class SellProviderDetailsWidget extends ConsumerWidget {
     } else {
       return Icons.star_border;
     }
+  }
+}
+
+class SellFeesInformation extends ConsumerWidget {
+  final SellProvider provider;
+
+  const SellFeesInformation({super.key, required this.provider});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final feeInfo = sellFeesInformation[provider];
+    if (feeInfo == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      elevation: 8,
+      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.r),
+        child: ExpansionTile(
+          title: Text(
+            'Fees Information'.i18n,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white,
+          backgroundColor: const Color(0xFF333333).withOpacity(0.4),
+          collapsedBackgroundColor: const Color(0xFF333333).withOpacity(0.4),
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+              child: feeInfo.isEmpty
+                  ? Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20.h),
+                  child: Text(
+                    "Fee information to be defined.".i18n,
+                    style: TextStyle(color: Colors.white70, fontSize: 14.sp),
+                  ),
+                ),
+              )
+                  : Column(
+                children: feeInfo.map((detail) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(detail.icon, color: Colors.white, size: 24.sp),
+                        SizedBox(width: 16.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                detail.title.i18n,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(
+                                detail.details.i18n,
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14.sp,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

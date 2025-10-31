@@ -1,7 +1,7 @@
 name: Satsails
 description: "Sail your wealth to the cloud!"
 publish_to: 'none'
-version: 2.2.2+129
+version: 2.3.0+132
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -48,7 +48,7 @@ dependencies:
 
   # Local Storage & Permissions
   flutter_secure_storage: ^9.2.4
-  hive: ^2.2.3
+  hive_ce: ^2.15.0
   local_auth: ^2.3.0
   permission_handler: ^12.0.1
 
@@ -100,7 +100,8 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.4
   android_notification_icons: ^0.0.1
   flutter_native_splash: ^2.4.6
-#  hive_generator: ^2.0.0
+  hive_ce_generator: ^1.10.0
+  build_runner: ^2.9.0
 
   # Linters & Validators
   flutter_lints: ^5.0.0

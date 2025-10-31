@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forex_currency_conversion/forex_currency_conversion.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 enum CurrencyType {
   BRL,

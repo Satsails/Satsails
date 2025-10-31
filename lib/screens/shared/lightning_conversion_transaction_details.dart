@@ -10,9 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:i18n_extension/i18n_extension.dart';
-
 import 'package:intl/intl.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
+import 'package:url_launcher/url_launcher.dart'; // Import url_launcher
 
 final selectedLightningTransactionProvider = StateProvider<LightningConversionTransaction?>((ref) => null);
 
@@ -39,14 +39,17 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
         leading: IconButton(icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24.w), onPressed: () => context.pop()),
       ),
       backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        child: Column(
-          children: [
-            _buildHeader(context, ref, transaction),
-            SizedBox(height: 24.h),
-            _buildDetailsCard(context, ref, transaction),
-          ],
+      body: SafeArea(
+        bottom: true,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          child: Column(
+            children: [
+              _buildHeader(context, ref, transaction),
+              SizedBox(height: 24.h),
+              _buildDetailsCard(context, ref, transaction),
+            ],
+          ),
         ),
       ),
     );
@@ -82,6 +85,8 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
     final formattedDate = DateFormat('d MMMM, HH:mm', locale).format(DateTime.fromMillisecondsSinceEpoch(payment.timestamp * 1000));
     final statusText = getStatusText(payment.status);
     final statusColor = getStatusColor(payment.status);
+
+    final bool canValidate = details.invoice != null && details.preimage != null;
 
     return Container(
       padding: EdgeInsets.all(16.w),
@@ -122,13 +127,26 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
                 showMessageSnackBar(context: context, message: 'Invoice Copied'.i18n, error: false, info: true);
               },
             ),
-          if (details.paymentHash != null)
+          if (details.preimage != null)
             TransactionDetailRow(
-              label: 'Payment Hash'.i18n,
-              value: details.paymentHash!,
+              label: 'Payment Preimage'.i18n,
+              value: details.preimage!,
               onCopy: () {
-                Clipboard.setData(ClipboardData(text: details.paymentHash!));
-                showMessageSnackBar(context: context, message: 'Payment Hash Copied'.i18n, error: false, info: true);
+                Clipboard.setData(ClipboardData(text: details.preimage!));
+                showMessageSnackBar(context: context, message: 'Preimage Copied'.i18n, error: false, info: true);
+              },
+            ),
+          if (canValidate)
+            TransactionDetailRow(
+              label: 'Confirmation Link'.i18n,
+              value: 'Tap to copy'.i18n,
+              onCopy: () {
+                final uri = Uri.https('validate-payment.com', '', {
+                  'invoice': details.invoice,
+                  'preimage': details.preimage,
+                });
+                Clipboard.setData(ClipboardData(text: uri.toString()));
+                showMessageSnackBar(context: context, message: 'Confirmation Link Copied'.i18n, error: false, info: true);
               },
             ),
           SizedBox(height: 16.h),
@@ -144,22 +162,58 @@ class LightningConversionTransactionDetails extends ConsumerWidget {
     final isRefundedOrPending = payment.status == breez.PaymentState.failed || payment.status == breez.PaymentState.refundPending;
     final hasTimedOut = payment.status == breez.PaymentState.timedOut;
 
-    if (isRefundable) {
-      return _buildActionButton(
-        text: 'Refund Transaction'.i18n,
-        icon: Icons.undo_rounded,
-        buttonColor: Colors.red.withOpacity(0.25),
-        textColor: Colors.red.shade300,
-        onPressed: () async {},
+    final List<Widget> actionWidgets = [];
+
+    if (details.invoice != null && details.preimage != null) {
+      actionWidgets.add(
+        _buildActionButton(
+          text: 'Check payment completion'.i18n,
+          icon: Icons.open_in_new,
+          buttonColor: Colors.white.withOpacity(0.15),
+          textColor: Colors.white,
+          onPressed: () async {
+            final uri = Uri.https('validate-payment.com', '', {
+              'invoice': details.invoice,
+              'preimage': details.preimage,
+            });
+
+            // Use url_launcher to open in an external browser
+            try {
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(
+                  uri,
+                  mode: LaunchMode.externalApplication,
+                );
+              } else {
+                showMessageSnackBar(context: context, message: 'Could not open link'.i18n, error: true);
+              }
+            } catch (e) {
+              showMessageSnackBar(context: context, message: 'An error occurred'.i18n, error: true);
+            }
+          },
+        ),
       );
     }
-    if (isRefundedOrPending) {
-      return Center(child: Text('This transaction has been refunded'.i18n, style: TextStyle(color: Colors.green, fontSize: 16.sp)));
+
+    if (isRefundable) {
+      if (actionWidgets.isNotEmpty) actionWidgets.add(SizedBox(height: 12.h));
+      actionWidgets.add(
+        _buildActionButton(
+          text: 'Refund Transaction'.i18n,
+          icon: Icons.undo_rounded,
+          buttonColor: Colors.red.withOpacity(0.25),
+          textColor: Colors.red.shade300,
+          onPressed: () async {},
+        ),
+      );
+    } else if (isRefundedOrPending) {
+      actionWidgets.add(Center(child: Text('This transaction has been refunded'.i18n, style: TextStyle(color: Colors.green, fontSize: 16.sp))));
+    } else if (hasTimedOut) {
+      actionWidgets.add(Center(child: Text('This transaction has timed out'.i18n, style: TextStyle(color: Colors.red, fontSize: 16.sp))));
     }
-    if (hasTimedOut) {
-      return Center(child: Text('This transaction has timed out'.i18n, style: TextStyle(color: Colors.red, fontSize: 16.sp)));
-    }
-    return const SizedBox.shrink();
+
+    if (actionWidgets.isEmpty) return const SizedBox.shrink();
+    return Column(children: actionWidgets);
   }
 
   Widget _buildActionButton({required String text, required IconData icon, required Color buttonColor, required Color textColor, required VoidCallback onPressed}) {

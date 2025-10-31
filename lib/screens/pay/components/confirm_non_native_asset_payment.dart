@@ -156,7 +156,8 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Confirm Transaction'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
+                  Text('Confirm Transaction'.i18n,
+                      style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
                   SizedBox(height: 24.h),
                   Text('$amount USDT', style: TextStyle(color: Colors.white, fontSize: 28.sp, fontWeight: FontWeight.bold)),
                   Padding(
@@ -178,7 +179,8 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                           ),
                           onPressed: () => Navigator.of(context).pop(false),
                           child: Text('Cancel'.i18n,
-                              style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                              style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8), fontSize: 16.sp, fontWeight: FontWeight.bold)),
                         ),
                       ),
                       SizedBox(width: 16.w),
@@ -189,7 +191,8 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                               backgroundColor: Colors.white,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r))),
                           onPressed: () => Navigator.of(context).pop(true),
-                          child: Text('Confirm'.i18n, style: TextStyle(color: Colors.black, fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                          child:
+                          Text('Confirm'.i18n, style: TextStyle(color: Colors.black, fontSize: 16.sp, fontWeight: FontWeight.bold)),
                         ),
                       ),
                     ],
@@ -228,8 +231,8 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Center(
-                      child:
-                      Text('Confirm Transaction'.i18n, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold))),
+                      child: Text('Confirm Transaction'.i18n,
+                          style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold))),
                   SizedBox(height: 24.h),
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                     Text('Amount'.i18n, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16.sp)),
@@ -445,8 +448,6 @@ class _ConfirmNonNativeAssetPaymentState extends ConsumerState<ConfirmNonNativeA
       }
 
       if (!confirmed) {
-        ref.read(deleteSideShiftProvider(shift.id));
-        setState(() => _preparedShift = null);
         controller.reset();
         setState(() {
           isProcessing = false;

@@ -42,10 +42,43 @@ final getAmountPurchasedProvider = FutureProvider.autoDispose<String>((ref) asyn
   }
 });
 
-final createEulenTransferRequestProvider = FutureProvider.autoDispose.family<EulenTransfer, double>((ref, amount) async {
+final getWhitelistAmountProvider = FutureProvider.autoDispose<double>((ref) async {
+  final auth = ref.read(userProvider).jwt;
+  final whitelistAmount = await EulenService.getWhitelistAmount(auth);
+
+  if (whitelistAmount.isSuccess && whitelistAmount.data != null) {
+    return whitelistAmount.data!;
+  } else {
+    throw whitelistAmount.error!;
+  }
+});
+
+final getWhitelistStatusProvider = FutureProvider.autoDispose<bool>((ref) async {
+  final whitelistStatus = await EulenService.getWhitelistStatus();
+
+  if (whitelistStatus.isSuccess && whitelistStatus.data != null) {
+    return whitelistStatus.data!;
+  } else {
+    throw whitelistStatus.error!;
+  }
+});
+
+final createEulenTransferRequestProvider =
+FutureProvider.autoDispose.family<EulenTransfer, Map<String, dynamic>>((ref, params) async {
+
+  final double amount = params['amount'];
+  final String? taxId = params['taxId'];
+
   final auth = ref.watch(userProvider).jwt;
   final liquidAddress = ref.read(addressProvider).liquidAddress;
-  final result = await EulenService.createTransaction(auth, amount, liquidAddress);
+
+  final result = await EulenService.createTransaction(
+    auth,
+    amount,
+    liquidAddress,
+    taxId: taxId,
+  );
+
   if (result.isSuccess && result.data != null) {
     ref.read(eulenTransferProvider.notifier).mergeTransfer(result.data!);
     return result.data!;

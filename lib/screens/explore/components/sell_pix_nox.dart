@@ -7,13 +7,13 @@ import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/balance_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/nox_transfer_provider.dart';
-import 'package:Satsails/providers/send_tx_provider.dart'; // Using your provider context
-import 'package:Satsails/providers/settings_provider.dart';
+import 'package:Satsails/providers/send_tx_provider.dart';
 import 'package:Satsails/providers/user_provider.dart';
 import 'package:Satsails/screens/shared/custom_button.dart';
 import 'package:Satsails/screens/shared/message_display.dart';
 import 'package:Satsails/translations/localizations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:decimal/decimal.dart'; // Import the decimal package
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -42,12 +42,14 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
   Timer? _pollingTimer;
   String? _activeTransferId;
 
+  // Add this constant for calculations
+  final _satsInBtc = Decimal.fromInt(100000000);
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(sendTxProvider.notifier).resetToDefault();
-      _syncControllerWithProvider(ref.read(sendTxProvider).amount);
     });
     _amountController.addListener(_onAmountChanged);
   }
@@ -62,13 +64,25 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
 
   void _syncControllerWithProvider(int amountInSats) {
     _isSyncingController = true;
+
     if (amountInSats == 0) {
-      _amountController.clear();
-    } else {
-      final formattedAmount = btcInDenominationFormatted(amountInSats.toDouble(), 'BTC');
-      if (_amountController.text != formattedAmount) {
-        _amountController.text = formattedAmount;
+      if (_amountController.text.isNotEmpty) {
+        _amountController.clear();
       }
+      _isSyncingController = false;
+      return;
+    }
+
+    final amountRational = Decimal.fromInt(amountInSats) / _satsInBtc;
+
+    final amountDecimal = amountRational.toDecimal(
+      scaleOnInfinitePrecision: 8, // Use 8 decimals for BTC
+    );
+
+    final btcString = amountDecimal.toString();
+
+    if (_amountController.text != btcString) {
+      _amountController.text = btcString;
     }
     _isSyncingController = false;
   }
@@ -77,14 +91,17 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
     if (_isSyncingController) return;
 
     ref.read(sendTxProvider.notifier).updateDrain(false);
-    final text = _amountController.text;
+    final text = _amountController.text.replaceAll(',', '.');
 
     if (text.isEmpty) {
       ref.read(sendTxProvider.notifier).updateAmount(0);
       return;
     }
-    final btcValue = double.tryParse(text) ?? 0.0;
-    final newAmountInSats = (btcValue * 100000000).round();
+
+    final amountDecimal = Decimal.tryParse(text) ?? Decimal.zero;
+
+    final newAmountInSats = (amountDecimal * _satsInBtc).toBigInt().toInt();
+
     ref.read(sendTxProvider.notifier).updateAmount(newAmountInSats);
   }
 
@@ -112,7 +129,7 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
       }
 
       ref.read(sendTxProvider.notifier).updateAmount(amountToSet);
-      ref.read(sendTxProvider.notifier).updateDrain(true);
+      ref.read(sendTxProvider.notifier).updateDrain(false);
     } catch (e) {
       if (mounted) {
         showMessageSnackBar(context: context, message: e.toString().i18n, error: true);
@@ -127,7 +144,7 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
   void _startPollingForAddress(String transferId) {
     _pollingTimer?.cancel();
 
-    _pollingTimer = Timer.periodic(const Duration(seconds: 4), (timer) async {
+    _pollingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (!mounted) {
         timer.cancel();
         return;
@@ -138,17 +155,47 @@ class _SellPixNoxState extends ConsumerState<SellPixNox> {
         final transferDetails = await ref.read(getNoxTransferDetailsProvider(transferId).future);
         final address = transferDetails.depositAddress;
 
-        if (address != null && address.isNotEmpty) {
+        final exactDepositAmountString = transferDetails.exactDepositAmount;
+
+        if (address != null && address.isNotEmpty && exactDepositAmountString != null && exactDepositAmountString.isNotEmpty) {
+
           timer.cancel();
+
+          final amountDecimal = Decimal.tryParse(exactDepositAmountString.replaceAll(',', '.')) ?? Decimal.zero;
+
+          final newAmountInSats = (amountDecimal * _satsInBtc).toBigInt().toInt();
+
+          if (newAmountInSats <= 0) {
+            if (mounted) {
+              showMessageSnackBar(
+                  context: context, message: "Server returned an invalid deposit amount.".i18n, error: true);
+              setState(() { _url = null; _activeTransferId = null; });
+            }
+            return;
+          }
+
+          final availableBalance = ref.read(balanceNotifierProvider).onChainBtcBalance;
+          if (newAmountInSats > availableBalance) {
+            if (mounted) {
+              showMessageSnackBar(
+                  context: context, message: "Insufficient balance for the required deposit amount.".i18n, error: true);
+              setState(() { _url = null; _activeTransferId = null; });
+            }
+            return;
+          }
+
           try {
+            ref.read(sendTxProvider.notifier).updateAmount(newAmountInSats);
             ref.read(sendTxProvider.notifier).updateAddress(address);
+            ref.read(sendTxProvider.notifier).updateDrain(false);
+
             await ref.read(sendBitcoinTransactionProvider.future);
             ref.read(sendTxProvider.notifier).resetToDefault();
           } catch (e) {
             ref.read(sendTxProvider.notifier).resetToDefault();
             if (mounted) {
               showMessageSnackBar(
-                  context: context, message: "Transaction failed: ${e.toString()}".i18n, error: true);
+                  context: context, message: "Transaction failed, not sufficient to cover network fees".i18n, error: true);
               setState(() {
                 _url = null;
                 _activeTransferId = null;

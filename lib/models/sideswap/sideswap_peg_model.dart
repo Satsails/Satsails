@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 part 'sideswap_peg_model.g.dart';
 
 class SideswapPegNotifier extends StateNotifier<List<SideswapPegStatus>> {

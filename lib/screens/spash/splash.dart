@@ -25,9 +25,6 @@ class _SplashState extends ConsumerState<Splash> {
 
   /// Checks for an existing wallet and redirects the user accordingly.
   Future<void> _initializeAppAndRedirect() async {
-    // A slight delay to ensure the splash screen is visible for a moment.
-    await Future.delayed(const Duration(seconds: 2));
-
     final authModel = ref.read(authModelProvider);
     final mnemonic = await authModel.getMnemonic();
 

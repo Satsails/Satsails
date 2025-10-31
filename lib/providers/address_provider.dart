@@ -2,7 +2,7 @@ import 'package:Satsails/models/address_model.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 final initialAddressesProvider = FutureProvider<Address>((ref) async {
   final box = await Hive.openBox('addresses');

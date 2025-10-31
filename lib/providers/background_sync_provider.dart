@@ -15,7 +15,7 @@ import 'package:Satsails/providers/address_provider.dart';
 import 'package:Satsails/providers/bitcoin_provider.dart';
 import 'package:Satsails/providers/liquid_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:lwk/lwk.dart';
 import 'package:flutter_breez_liquid/flutter_breez_liquid.dart' as breez;
 

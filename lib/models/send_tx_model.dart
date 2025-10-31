@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:Satsails/helpers/asset_mapper.dart';
 import 'package:Satsails/models/address_model.dart';
@@ -30,23 +31,28 @@ class SendTxModel extends StateNotifier<SendTx> {
   }
 
   void updateAmountFromInput(String value, String denomination) {
-    if (value.isEmpty) {
+    if (value.isEmpty || (Decimal.tryParse(value) ?? Decimal.zero) == Decimal.zero) {
       state = state.copyWith(amount: 0);
       return;
     }
 
+    final amountDecimal = Decimal.parse(value);
+    final satsFactor = Decimal.fromInt(100000000);
+
     if (state.assetId != AssetMapper.reverseMapTicker(AssetId.LBTC)) {
-      state = state.copyWith(amount: (double.parse(value) * 100000000).toInt());
+      final result = amountDecimal * satsFactor;
+      state = state.copyWith(amount: result.toBigInt().toInt());
       return;
     }
 
     int amount;
     switch (denomination) {
       case 'sats':
-        amount = int.parse(value);
+        amount = amountDecimal.toBigInt().toInt();
         break;
       case 'BTC':
-        amount = (double.parse(value) * 100000000).toInt();
+        final result = amountDecimal * satsFactor;
+        amount = result.toBigInt().toInt();
         break;
       default:
         amount = 0;
@@ -84,25 +90,5 @@ class SendTx {
       assetId: assetId ?? this.assetId,
       drain: drain ?? this.drain,
     );
-  }
-
-
-  double btcBalanceInDenominationFormatted(String denomination) {
-    double balance;
-
-    if (assetId != AssetMapper.reverseMapTicker(AssetId.LBTC)) {
-      return amount / 100000000;
-    }
-
-    switch (denomination) {
-      case 'sats':
-        balance = amount.toDouble();
-        return balance;
-      case 'BTC':
-        balance = (amount / 100000000);
-        return balance;
-      default:
-        return 0;
-    }
   }
 }

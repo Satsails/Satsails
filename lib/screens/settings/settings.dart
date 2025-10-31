@@ -20,6 +20,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final biometricsAvailableProvider = FutureProvider<bool>((ref) async {
   try {
@@ -103,7 +104,7 @@ class Settings extends ConsumerWidget {
                   _buildCurrencyDenominationSection(ref, context),
                   _buildBitcoinUnitSection(ref, context),
                   _buildElectrumNodeSection(context, ref),
-                  _buildBlockExplorerSection(context, ref),
+                  _buildBecomeAffiliateSection(context, ref),
                   DeleteWalletSection(ref: ref),
                 ],
               ),
@@ -388,7 +389,7 @@ class Settings extends ConsumerWidget {
       subtitle: Text(
         hasAffiliateCode
             ? "${'Affiliate code inserted'.i18n}: $affiliateCode"
-            : 'Insert an affiliate code to get up to 6,67% discount on the fees'.i18n,
+            : 'Insert an affiliate code to get discount on the fees'.i18n,
         style: TextStyle(color: Colors.grey, fontSize: 14.sp),
       ),
       onTap: hasAffiliateCode
@@ -398,6 +399,26 @@ class Settings extends ConsumerWidget {
       },
     );
   }
+
+  Widget _buildBecomeAffiliateSection(BuildContext context, WidgetRef ref) {
+    return _buildSection(
+      context: context,
+      ref: ref,
+      title: 'Become an affiliate'.i18n,
+      icon: Icons.card_giftcard,
+      subtitle: Text(
+        'Recommend friends and earn up to 50% of our revenue'.i18n,
+        style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+      ),
+      onTap: () async {
+        final Uri url = Uri.parse('https://form.respondi.app/6iSBZKfA');
+        if (!await launchUrl(url)) {
+          debugPrint('Could not launch $url');
+        }
+      },
+    );
+  }
+
 
   void _showInsertAffiliateModal(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
